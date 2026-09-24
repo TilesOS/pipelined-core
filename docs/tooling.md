@@ -4,10 +4,11 @@ Checked on 2026-09-24. This is an observation log, not a list of prerequisites a
 
 | Host | Observed state |
 |---|---|
-| Mac | macOS 27.0 on arm64; Apple Command Line Tools Git, Python 3, Homebrew 6.0.13, and OrbStack commands are present. Git author configuration is set to `TilesOS`. `gh`, Verilator, Icarus Verilog, Yosys, RISC-V GCC, QEMU RISC-V, and Vivado were not found on the current PATH. |
-| OrbStack | The UI shows stopped Ubuntu `ece-dev` (arm64) and `chipyard-x86` (amd64) machines. `orbctl list` timed out, so software installed inside them has not been inventoried. |
+| Mac | macOS 27.0 on arm64; Apple Git 2.54.0, Python 3, Homebrew 6.0.13, GitHub CLI 2.101.0, ripgrep 15.2.0, and OrbStack commands are present. Git author configuration is set to `TilesOS`. Verilator, Icarus Verilog, Yosys, RISC-V GCC, QEMU RISC-V, and Vivado were not found on the current PATH. |
+| OrbStack `ece-dev` | Ubuntu 26.04 LTS, arm64. Git 2.53.0, Verilator 5.032, Python 3, and CMake 4.2.3 are present. Icarus Verilog, Yosys, Vivado, RISC-V GCC, QEMU RISC-V, and Ninja were not found on the current PATH. The machine was started for inventory. |
+| OrbStack `chipyard-x86` | Ubuntu 26.04 LTS, x86-64. Git 2.53.0 and Python 3.14.4 are present. Verilator, Icarus Verilog, Yosys, Vivado, RISC-V GCC, QEMU RISC-V, CMake, and Ninja were not found on the current PATH. The machine was started for inventory. |
 | Ubuntu PC | The owner reports an x86-64 Ubuntu PC with Vivado installed. It is not connected to this workspace, so its Vivado version, license, and board cable access remain to be verified there. |
-| GitHub | Connected account reports login `TilesOS`. The requested `TilesOS/pipelined-core` repository did not exist at the start of checkpoint 1. |
+| GitHub | Public repository [TilesOS/pipelined-core](https://github.com/TilesOS/pipelined-core) is created on `main`; the first repository check succeeded. GitHub CLI is installed but its saved authorization is expired. The connected GitHub app published the initial files to this repository. |
 
 Run the following on each development host when available and add its results to the checkpoint record:
 
