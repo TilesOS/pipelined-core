@@ -8,7 +8,7 @@ Checked on 2026-09-24. This is an observation log, not a list of prerequisites a
 | OrbStack `ece-dev` | Ubuntu 26.04 LTS, arm64. Git 2.53.0, Verilator 5.032, Python 3, and CMake 4.2.3 are present. Icarus Verilog, Yosys, Vivado, RISC-V GCC, QEMU RISC-V, and Ninja were not found on the current PATH. The machine was started for inventory. |
 | OrbStack `chipyard-x86` | Ubuntu 26.04 LTS, x86-64. Git 2.53.0 and Python 3.14.4 are present. Verilator, Icarus Verilog, Yosys, Vivado, RISC-V GCC, QEMU RISC-V, CMake, and Ninja were not found on the current PATH. The machine was started for inventory. |
 | Ubuntu PC | The owner reports an x86-64 Ubuntu PC with Vivado installed. It is not connected to this workspace, so its Vivado version, license, and board cable access remain to be verified there. |
-| GitHub | Public repository [TilesOS/pipelined-core](https://github.com/TilesOS/pipelined-core) is created on `main`; the first repository check succeeded. GitHub CLI is installed but its saved authorization is expired. The connected GitHub app published the initial files to this repository. |
+| GitHub | Public repository [TilesOS/pipelined-core](https://github.com/TilesOS/pipelined-core) is created on `main`; the first repository check succeeded. GitHub CLI is installed. The connected GitHub app published the initial files to this repository. |
 
 Run the following on each development host when available and add its results to the checkpoint record:
 
