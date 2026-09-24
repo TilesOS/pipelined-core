@@ -1,0 +1,26 @@
+# Build outputs and simulator traces
+build/
+out/
+obj_dir/
+*.fst
+*.vcd
+*.log
+
+# Vivado generated state and bitstreams
+.Xil/
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.jou
+*.str
+*.bit
+*.bin
+*.mcs
+
+# Tool caches
+__pycache__/
+.pytest_cache/
+.DS_Store
