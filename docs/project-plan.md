@@ -17,7 +17,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 
 | # | Deliverable and pass condition | Status |
 |---|---|---|
-| 1 | **Repository and plan:** save this plan as `docs/project-plan.md`; link it from README; add Apache-2.0 license and CI skeleton; initialize Git and push the public GitHub repo. Inventory Mac, OrbStack, and Ubuntu/Vivado tools. | In progress |
+| 1 | **Repository and plan:** save this plan as `docs/project-plan.md`; link it from README; add Apache-2.0 license and CI skeleton; initialize Git and push the public GitHub repo. Inventory Mac, OrbStack, and Ubuntu/Vivado tools. | In progress; [record](checkpoints/01-bootstrap.md) |
 | 2 | Freeze ISA, pipeline, memory map, AXI subset, clocks, flash layout, and resource budget. Prove the bitstream and compressed software images fit flash with at least 1 MiB spare. | Pending |
 | 3 | Build Verilator simulation and a retirement-by-retirement Spike comparator that stops at the first divergent instruction with architectural state and memory effects. | Pending |
 | 4 | Implement the first five-stage RV32I slice, a 256-entry retirement/trap ring, independent button-triggered UART dump, and defined ILA probes. Prove a forced hang remains diagnosable. | Pending |
