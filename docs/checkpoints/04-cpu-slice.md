@@ -1,6 +1,6 @@
 # Checkpoint 4: first pipeline slice and independent debug
 
-Status: local candidate on 2026-09-25. Clean CI evidence and final review are pending.
+Status: complete on 2026-09-25. The implementation is commit `1cc6f14`; [GitHub Actions run #17](https://github.com/TilesOS/pipelined-core/actions/runs/36176598700) passed both documentation and simulation jobs on a clean Ubuntu runner.
 
 ## Delivered
 
@@ -23,6 +23,8 @@ PASS: 256-entry trace ring retained newest 256 of 300 retirements in UART order
 ```
 
 The first smoke run exposed a store-to-load ordering error: the load in MEM observed memory before the older store in WB committed on that clock. The small reproducer is the existing adjacent `sw`/`lw` pair in `smoke.S`. Word forwarding from the committing WB store corrected it, and lockstep now reaches the trap. Verilator emitted no warnings in `build/core/verilator-build.log`.
+
+The clean runner repeated every result above, including the deliberate wrong-load-result detection, raw UART decode, branch flush, and ring wrap. The core module's default reset PC is `0x0000_0000` per the architecture contract; only the checkpoint simulation wrapper overrides it to `0x8000_0000` to start directly in test RAM.
 
 ## Remaining work
 

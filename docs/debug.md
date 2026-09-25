@@ -20,7 +20,7 @@ The board top will mark these nets for Vivado ILA sampling in the 50 MHz core do
 |---|---:|---|
 | `ila_pipeline[7:3]` | 5 | WB, MEM, EX, ID, IF valid; trigger when no retirement follows a nonempty pipeline. |
 | `ila_pipeline[2:0]` | 3 | Decode dependency stall, EX redirect, EX fault; correlate branch kills and illegal traps. |
-| `retire_valid`, `retire_pc`, `retire_cause`, `retire_tval` | 98 | Last architectural boundary and trap details. |
+| `retire_valid`, `retire_pc`, `retire_cause`, `retire_tval` | 97 | Last architectural boundary and trap details. |
 | `trace_count`, `trace_write_ptr`, `dump_busy` | 18 | Ring occupancy, wrap pointer, and active serial dump. |
 | `manual_halt`, `dump_button`, `uart_tx` | 3 | Confirm a physical button press reaches the independent trace path. |
 | Cache refill/miss/writeback | reserved | Add at checkpoint 9; trigger on a miss without refill completion. |

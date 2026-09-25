@@ -35,4 +35,4 @@ This slice has zero-wait instruction and data ports and implements LUI, ADDI, AD
 
 ## Future coverage
 
-The fixed Spike invocation currently models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. Checkpoints 5–6 add randomized RV32I and M/A/CSR programs; checkpoints 10–11 align device and privilege behavior for interrupts and Sv32. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones. The first core integration must test stalls, branch flushes, trap ordering, and store visibility through the same retirement interface.
+The fixed Spike invocation currently models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. Checkpoints 5–6 add randomized RV32I and M/A/CSR programs; checkpoints 10–11 align device and privilege behavior for interrupts and Sv32. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones. The first core slice has exercised dependency stalls, branch flushes, trap ordering, and adjacent store/load visibility through the same retirement interface; complete architectural coverage remains at checkpoint 5.
