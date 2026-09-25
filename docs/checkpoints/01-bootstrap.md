@@ -1,6 +1,6 @@
 # Checkpoint 1: repository and tooling
 
-Status: awaiting verification of the Ubuntu PC's Vivado installation.
+Status: complete on 2026-09-25.
 
 ## Delivered
 
@@ -8,6 +8,7 @@ Status: awaiting verification of the Ubuntu PC's Vivado installation.
 - Preserved the complete project plan in [`docs/project-plan.md`](../project-plan.md), linked it from the README, added Apache-2.0 licensing and a GitHub Actions skeleton.
 - Initialized the local Git repository and aligned it with the published `main` branch. The initial published tree matched the local tree exactly (`76f92be5474c1775163886e21aee23f203b7e390`).
 - Inventoried the Mac and both OrbStack Ubuntu machines in [`docs/tooling.md`](../tooling.md).
+- Recorded the owner's confirmation that the Ubuntu PC is `x86_64` and has Vivado 2026.1.
 
 ## Evidence
 
@@ -16,9 +17,9 @@ Status: awaiting verification of the Ubuntu PC's Vivado installation.
 - [First GitHub Actions repository check](https://github.com/TilesOS/pipelined-core/actions/runs/36062920339) completed successfully.
 - No CPU, cache, interconnect, DMA, or board RTL has been started.
 
-## Open item
+## Before FPGA work
 
-The Ubuntu PC is reported to have Vivado but is not connected to this workspace. Record `uname -m` and `vivado -version` output before marking checkpoint 1 complete or starting FPGA-dependent work.
+The Ubuntu PC is not connected to this workspace. Verify the Vivado executable, license, and Nexys A7 cable access on that machine before checkpoint 8 synthesis and board tests.
 
 ## Publishing method
 
