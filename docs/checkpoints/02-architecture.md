@@ -17,6 +17,7 @@ Status: complete on 2026-09-25 under the revised checkpoint 2 pass condition. Th
 - `python3 scripts/check_flash_layout.py` validates contiguous partitions and reports 2,621,440 bytes (2.5 MiB) unallocated. It reports `BUDGET ONLY` without actual images and refuses to claim artifact fit.
 - `python3 scripts/check_flash_layout.py --asset …` will check all six measured images and reject missing or oversized inputs. The full command and measured byte counts will be added when the images exist.
 - A temporary-file gate check accepted six files at their exact partition caps and rejected a kernel one byte over its 6 MiB cap. The Python source parsed successfully with the local interpreter.
+- [GitHub Actions repository check #10](https://github.com/TilesOS/pipelined-core/actions/runs/36165937350) completed successfully for commit `8707aa8`; it runs the flash layout check on Ubuntu.
 
 ## Deferred measured gates
 
