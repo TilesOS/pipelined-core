@@ -17,7 +17,8 @@ mkdir -p "$build_dir"
     -o "$build_dir/smoke.elf"
 if ! "$verilator_bin" --cc --exe --build --top-module trace_fixture \
     --Mdir "$build_dir/obj_dir" -Wall -Wno-fatal \
-    tests/lockstep/trace_fixture.sv tests/lockstep/trace_fixture_main.cpp \
+    "$repo_root/tests/lockstep/trace_fixture.sv" \
+    "$repo_root/tests/lockstep/trace_fixture_main.cpp" \
     > "$build_dir/verilator-build.log" 2>&1; then
     echo "Verilator fixture build failed; final log lines:" >&2
     tail -80 "$build_dir/verilator-build.log" >&2
