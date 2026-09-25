@@ -19,7 +19,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 |---|---|---|
 | 1 | **Repository and plan:** save this plan as `docs/project-plan.md`; link it from README; add Apache-2.0 license and CI skeleton; initialize Git and push the public GitHub repo. Inventory Mac, OrbStack, and Ubuntu/Vivado tools. | Complete; [record](checkpoints/01-bootstrap.md) |
 | 2 | Freeze ISA, pipeline, memory map, AXI subset, clocks, flash layout, and resource budget. Prove a partitioned 16 MiB flash budget with at least 1 MiB spare and enforce artifact caps in a size checker. | Complete; [architecture contract](architecture-contract.md), [record](checkpoints/02-architecture.md). |
-| 3 | Build Verilator simulation and a retirement-by-retirement Spike comparator that stops at the first divergent instruction with architectural state and memory effects. | Pending |
+| 3 | Build Verilator simulation and a retirement-by-retirement Spike comparator that stops at the first divergent instruction with architectural state and memory effects. | Complete for infrastructure using an explicit trace fixture; [record](checkpoints/03-lockstep.md). CPU RTL integration is checkpoint 4. |
 | 4 | Implement the first five-stage RV32I slice, a 256-entry retirement/trap ring, independent button-triggered UART dump, and defined ILA probes. Prove a forced hang remains diagnosable. | Pending |
 | 5 | Complete RV32I hazards, branches, exceptions, and precise retirement; pass directed, randomized, and architectural tests in lockstep. | Pending |
 | 6 | Add M/A instructions, LR/SC, AMOs, CSRs, and fences; pass contention and lockstep tests. | Pending |

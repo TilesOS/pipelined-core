@@ -19,4 +19,16 @@ jobs:
           python3 scripts/check_flash_layout.py
           git diff --check
 
-# RTL lint and simulation jobs are added with checkpoint 3, after those tools exist.
+  lockstep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install simulation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator gcc-riscv64-unknown-elf \
+            device-tree-compiler libboost-dev libboost-regex-dev
+      - name: Build pinned Spike with commit logging
+        run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
+      - name: Compare retirements and prove first-divergence halt
+        run: bash scripts/run_lockstep_smoke.sh --self-test

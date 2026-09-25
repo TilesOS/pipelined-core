@@ -6,7 +6,7 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 ## Current state
 
-Checkpoints 1 and 2 are complete. The [architecture contract](docs/architecture-contract.md) freezes the target and a checked flash allocation. Checkpoint 3 builds simulation and Spike lockstep; no CPU or accelerator RTL has been implemented yet.
+Checkpoints 1–3 are complete. The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) describes the Verilator and Spike retirement gate. Checkpoint 4 begins CPU RTL, the trace ring, and board debug support. No CPU or accelerator RTL has been implemented yet.
 
 ## Development hosts
 
