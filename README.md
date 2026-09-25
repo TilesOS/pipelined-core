@@ -6,7 +6,7 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 ## Current state
 
-Checkpoint 1 is complete; checkpoint 2 is next. No CPU or accelerator RTL has been implemented yet.
+Checkpoints 1 and 2 are complete. The [architecture contract](docs/architecture-contract.md) freezes the target and a checked flash allocation. Checkpoint 3 builds simulation and Spike lockstep; no CPU or accelerator RTL has been implemented yet.
 
 ## Development hosts
 

@@ -1,0 +1,13 @@
+{
+  "flash_bytes": 16777216,
+  "minimum_spare_bytes": 1048576,
+  "regions": [
+    {"name": "bitstream", "offset": 0, "capacity": 4194304},
+    {"name": "manifest", "offset": 4194304, "capacity": 65536},
+    {"name": "opensbi", "offset": 4259840, "capacity": 262144},
+    {"name": "dtb", "offset": 4521984, "capacity": 65536},
+    {"name": "kernel_lz4", "offset": 4587520, "capacity": 6291456},
+    {"name": "initramfs", "offset": 10878976, "capacity": 3145728},
+    {"name": "model", "offset": 14024704, "capacity": 131072}
+  ]
+}

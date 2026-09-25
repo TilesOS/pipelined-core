@@ -15,6 +15,8 @@ jobs:
           test -s LICENSE
           test -s docs/project-plan.md
           test -s docs/tooling.md
+          test -s docs/architecture-contract.md
+          python3 scripts/check_flash_layout.py
           git diff --check
 
 # RTL lint and simulation jobs are added with checkpoint 3, after those tools exist.

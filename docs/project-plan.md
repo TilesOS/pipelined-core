@@ -18,7 +18,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 | # | Deliverable and pass condition | Status |
 |---|---|---|
 | 1 | **Repository and plan:** save this plan as `docs/project-plan.md`; link it from README; add Apache-2.0 license and CI skeleton; initialize Git and push the public GitHub repo. Inventory Mac, OrbStack, and Ubuntu/Vivado tools. | Complete; [record](checkpoints/01-bootstrap.md) |
-| 2 | Freeze ISA, pipeline, memory map, AXI subset, clocks, flash layout, and resource budget. Prove the bitstream and compressed software images fit flash with at least 1 MiB spare. | Pending |
+| 2 | Freeze ISA, pipeline, memory map, AXI subset, clocks, flash layout, and resource budget. Prove a partitioned 16 MiB flash budget with at least 1 MiB spare and enforce artifact caps in a size checker. | Complete; [architecture contract](architecture-contract.md), [record](checkpoints/02-architecture.md). |
 | 3 | Build Verilator simulation and a retirement-by-retirement Spike comparator that stops at the first divergent instruction with architectural state and memory effects. | Pending |
 | 4 | Implement the first five-stage RV32I slice, a 256-entry retirement/trap ring, independent button-triggered UART dump, and defined ILA probes. Prove a forced hang remains diagnosable. | Pending |
 | 5 | Complete RV32I hazards, branches, exceptions, and precise retirement; pass directed, randomized, and architectural tests in lockstep. | Pending |
@@ -29,7 +29,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 | 10 | Add privilege, PMP, standard UART/CLINT/PLIC, and device tree; pass trap, interrupt, timer-compare, and OpenSBI tests. | Pending |
 | 11 | Add Sv32 TLBs, read-only walker, Svade faults, and `SFENCE.VMA`; pass paging and stale-TLB tests. | Pending |
 | 12 | Add QSPI loader and UART recovery; verify image integrity checks and safe recovery from corrupted flash images. | Pending |
-| 13 | Boot OpenSBI and lean Buildroot Linux; reach kernel entry in RTL and a repeatable serial shell on the board. | Pending |
+| 13 | Build and measure the real bitstream, OpenSBI, DTB, kernel, initramfs, and model; prove all fit flash with at least 1 MiB spare. Boot OpenSBI and lean Buildroot Linux; reach kernel entry in RTL and a repeatable serial shell on the board. | Pending |
 | 14 | Implement a correct single-MAC DMA path and handle-based Linux driver; pass repeated bit-exact matrix jobs and error cases. | Pending |
 | 15 | Measure a roofline for the 784→64→10 model at batch sizes 1 and 8, including DDR bandwidth, arithmetic intensity, copy time, and driver time. | Pending |
 | 16 | Scale through 4×4 and at most 8×8 MAC tiles. Keep the largest tested size that meets timing and reaches at least 70% MAC utilization on batch 8. | Pending |
@@ -39,6 +39,10 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 ## Working rule
 
 A failed checkpoint blocks new features until its cause has a small reproducer. If full Linux RTL simulation becomes too slow, use RTL for bounded boot milestones and the trace ring plus ILA for later board execution. If time runs short, finish the Linux shell and correct 4×4 DMA system before pursuing the 8×8 array or later optimizations. Record every such decision and its evidence here.
+
+## Decision log
+
+- **2026-09-25, checkpoint 2 flash evidence:** Real Vivado and Linux artifacts depend on later implementation, so they cannot be measured before checkpoint 3. Checkpoint 2 now proves a contiguous flash allocation with 2.5 MiB spare and installs a checker that rejects missing or oversized artifacts. Checkpoint 13 requires measured sizes for all six real files before a QSPI boot image is accepted. This keeps the original ≥1 MiB spare requirement as a release gate without making early RTL work depend on artifacts that do not exist yet. See [checkpoint 2 evidence](checkpoints/02-architecture.md).
 
 ## Checkpoint record
 
