@@ -1,6 +1,6 @@
 # Retirement lockstep simulation
 
-Checkpoint 3 establishes the simulation interface before CPU RTL exists. The SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) is deliberately a trace source, **not a CPU**. It represents the six instructions and illegal-instruction trap in [`smoke.S`](../tests/lockstep/smoke.S). Checkpoint 4 replaces this fixture with the first CPU slice.
+Checkpoint 3 established the simulation interface using a SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) that is deliberately a trace source, **not a CPU**. Checkpoint 4 also runs the first actual CPU slice through the same comparator.
 
 ## Ubuntu setup and smoke gate
 
@@ -25,7 +25,13 @@ For each ordinary retirement, the comparison checks PC, instruction word, privil
 
 The fixture exposes `retire_valid`, `retire_pc`, `retire_insn`, `retire_priv`, `retire_rd`, `retire_rd_data`, `retire_mem_addr`, `retire_mem_rmask`, `retire_mem_wmask`, `retire_mem_wdata`, `retire_trap`, `retire_cause`, and `retire_tval`. The first CPU slice must expose the same simulation-only retirement view. The controller accepts optional `csr_writes` JSON entries; checkpoint 6 adds the CPU's CSR trace wiring. The JSON `order` counter increments on each architectural event, including a trap boundary. A trap is an event but does not increment `minstret`.
 
-The `--self-test` gate runs one matching trace and injects three independent errors: `rd@4`, `store@3`, and `cause@6`. Each must stop at that event with exit status 1. The CI job runs the same gate on Ubuntu. This proves the checker and process handshake; it does not prove CPU instruction correctness because no CPU RTL exists yet.
+The `--self-test` gate runs one matching fixture trace and injects three independent errors: `rd@4`, `store@3`, and `cause@6`. Each must stop at that event with exit status 1. The CI job runs the same gate on Ubuntu. This fixture-only gate proves the checker and process handshake; the separate CPU slice gate below checks actual RTL.
+
+## First CPU slice
+
+Run `bash scripts/run_core_slice.sh` on the Ubuntu host after the Spike setup. It builds [`rv32_slice.sv`](../rtl/core/rv32_slice.sv) under Verilator and executes two programs in retirement lockstep: the original word load/store and trap smoke program, and a branch program with taken BEQ/JAL, dependent ALU operations, and wrong-path instructions. The same command runs a forced-hang UART dump and a 300-retirement wrap test of the 256-entry trace ring. See the [debug guide](debug.md) for the packet and probe map.
+
+This slice has zero-wait instruction and data ports and implements LUI, ADDI, ADD/SUB, LW, SW, BEQ, JAL, and selected faults in M-mode. It is not yet a complete RV32I core. Checkpoint 5 adds the remaining instructions, hazards, exception behavior, and randomized architectural coverage.
 
 ## Future coverage
 

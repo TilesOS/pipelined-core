@@ -32,3 +32,5 @@ jobs:
         run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
       - name: Compare retirements and prove first-divergence halt
         run: bash scripts/run_lockstep_smoke.sh --self-test
+      - name: Run five-stage CPU slice and UART hang checks
+        run: bash scripts/run_core_slice.sh
