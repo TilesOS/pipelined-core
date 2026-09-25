@@ -6,7 +6,7 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 ## Current state
 
-Checkpoint 1: repository and tooling setup. No CPU or accelerator RTL has been implemented yet.
+Checkpoint 1 is complete; checkpoint 2 is next. No CPU or accelerator RTL has been implemented yet.
 
 ## Development hosts
 
