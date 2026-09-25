@@ -9,6 +9,7 @@ Status: complete on 2026-09-25 for the simulation infrastructure. The [simulatio
 - A controller that steps the DUT and Spike together, compares architectural and memory effects immediately, and stops before the DUT's next cycle on any divergence.
 - A mutation gate for wrong register data, wrong store data, and wrong trap cause. The failed Spike build without `--enable-commitlog` and the command-file stepping timeout both have small reproducers; the final setup enables commit logging and uses a PTY.
 - The first Ubuntu GitHub Actions run failed at Spike's Boost::Asio configure check because the runner needed `libboost-system-dev`. The CI dependency list now includes it; this is a host packaging issue, not a comparator mismatch.
+- The next clean runner exposed an older Verilator path rule: it resolved the C++ fixture path from the generated object directory. The runner now receives absolute fixture paths, and build failures print the Verilator log. The same command passed again on `ece-dev` after this fix.
 
 ## Observed evidence on OrbStack `ece-dev`
 
@@ -24,6 +25,8 @@ PASS: cause@6 detected at architectural event 6
 ```
 
 `bash scripts/run_lockstep_smoke.sh --self-test` exited 0. Verilator emitted no warnings in `build/lockstep/verilator-build.log`. The injected store mismatch reported the differing bytes at `0x80001000`, the prior three events, 32 Spike GPRs, and known DUT state. Source parsing and `git diff --check` also passed locally.
+
+[GitHub Actions run #15](https://github.com/TilesOS/pipelined-core/actions/runs/36170726046) passed both `docs` and `lockstep` on a clean Ubuntu runner. The lockstep job printed the same seven-event match and all three expected first-divergence detections.
 
 ## Scope of proof
 
