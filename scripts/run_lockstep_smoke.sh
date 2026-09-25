@@ -15,10 +15,14 @@ mkdir -p "$build_dir"
 "$cross_gcc" -march=rv32ima_zicsr_zifencei -mabi=ilp32 -nostdlib \
     -Wl,--no-relax -T tests/lockstep/smoke.ld tests/lockstep/smoke.S \
     -o "$build_dir/smoke.elf"
-"$verilator_bin" --cc --exe --build --top-module trace_fixture \
+if ! "$verilator_bin" --cc --exe --build --top-module trace_fixture \
     --Mdir "$build_dir/obj_dir" -Wall -Wno-fatal \
     tests/lockstep/trace_fixture.sv tests/lockstep/trace_fixture_main.cpp \
-    > "$build_dir/verilator-build.log" 2>&1
+    > "$build_dir/verilator-build.log" 2>&1; then
+    echo "Verilator fixture build failed; final log lines:" >&2
+    tail -80 "$build_dir/verilator-build.log" >&2
+    exit 1
+fi
 python3 scripts/lockstep.py --spike "$spike_bin" \
     --dut "$build_dir/obj_dir/Vtrace_fixture" --elf "$build_dir/smoke.elf" \
     --limit 7 --require-done
