@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y verilator gcc-riscv64-unknown-elf \
-            device-tree-compiler libboost-dev libboost-regex-dev
+            device-tree-compiler libboost-dev libboost-regex-dev libboost-system-dev
       - name: Build pinned Spike with commit logging
         run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
       - name: Compare retirements and prove first-divergence halt

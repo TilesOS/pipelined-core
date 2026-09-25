@@ -15,6 +15,8 @@ bash scripts/run_lockstep_smoke.sh --self-test
 
 `setup_spike.sh` checks out official [Spike v1.1.0](https://github.com/riscv-software-src/riscv-isa-sim/releases/tag/v1.1.0) at `530af85d83781a3dae31a4ace84a573ec255fefa`, builds it with `--enable-commitlog`, and installs it under ignored `build/tools/spike`. The explicit `cstdint` include works around a GCC 15 build error in this release. The setup script verifies the source commit before building. `run_lockstep_smoke.sh` creates the ELF and Verilator executable under ignored `build/lockstep`.
 
+Ubuntu 24.04's Boost packaging also needs `libboost-system-dev` for Spike's Asio link check; the CI job installs it. Ubuntu 26.04's Boost 1.90 package used in OrbStack provides the needed support without a separate package.
+
 ## Protocol
 
 The Python [lockstep controller](../scripts/lockstep.py) sends `step` to the Verilator process and waits for one JSON event. A `cycle` response advances no reference instruction; after a `retire` event, the controller sends exactly one `run 1` to Spike's interactive debugger through a PTY. It compares the events before permitting another DUT cycle. A watchdog stops a DUT that never retires. Spike's five internal boot-ROM instructions are skipped by querying its PC until it equals the ELF entry; they are not counted as DUT retirements.

@@ -8,6 +8,7 @@ Status: complete on 2026-09-25 for the simulation infrastructure. The [simulatio
 - A Verilator-built SystemVerilog fixture and RV32IMA_Zicsr_Zifencei ELF with six ordinary instructions, a word store/load, and an illegal-instruction trap.
 - A controller that steps the DUT and Spike together, compares architectural and memory effects immediately, and stops before the DUT's next cycle on any divergence.
 - A mutation gate for wrong register data, wrong store data, and wrong trap cause. The failed Spike build without `--enable-commitlog` and the command-file stepping timeout both have small reproducers; the final setup enables commit logging and uses a PTY.
+- The first Ubuntu GitHub Actions run failed at Spike's Boost::Asio configure check because the runner needed `libboost-system-dev`. The CI dependency list now includes it; this is a host packaging issue, not a comparator mismatch.
 
 ## Observed evidence on OrbStack `ece-dev`
 
