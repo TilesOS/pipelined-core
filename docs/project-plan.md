@@ -22,7 +22,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 | 3 | Build Verilator simulation and a retirement-by-retirement Spike comparator that stops at the first divergent instruction with architectural state and memory effects. | Complete for infrastructure using an explicit trace fixture; [record](checkpoints/03-lockstep.md). CPU RTL integration is checkpoint 4. |
 | 4 | Implement the first five-stage RV32I slice, a 256-entry retirement/trap ring, independent button-triggered UART dump, and defined ILA probes. Prove a forced hang remains diagnosable. | Complete for the first zero-wait-memory slice; [record](checkpoints/04-cpu-slice.md). Clean Spike and UART CI passed; full RV32I follows at checkpoint 5. |
 | 5 | Complete RV32I hazards, branches, exceptions, and precise retirement; pass directed, randomized, and architectural tests in lockstep. | Complete for the zero-wait M-mode core; [record](checkpoints/05-rv32i.md). |
-| 6 | Add M/A instructions, LR/SC, AMOs, CSRs, and fences; pass contention and lockstep tests. | Pending |
+| 6 | Add M/A instructions, LR/SC, AMOs, CSRs, and fences; pass contention and lockstep tests. | Complete for the zero-wait M-mode core; [record](checkpoints/06-m-a-csr.md). |
 | 7 | Implement AXI fabric, width bridge, and clock crossing; pass randomized clock, reset, backpressure, burst, and concurrent-master tests. | Pending |
 | 8 | Bring up MIG and 128-bit DDR transfers on the board; meet 50 MHz timing and measure sustained bandwidth with and without CPU traffic. | Pending |
 | 9 | Add caches, physical-address cacheability, atomics, and full `FENCE.I`; pass eviction, executable-page, and uncached-window tests. | Pending |

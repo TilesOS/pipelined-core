@@ -1,6 +1,6 @@
 # Retirement lockstep simulation
 
-Checkpoint 3 established the simulation interface using a SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) that is deliberately a trace source, **not a CPU**. Checkpoints 4–5 run the actual CPU through the same comparator.
+Checkpoint 3 established the simulation interface using a SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) that is deliberately a trace source, **not a CPU**. Checkpoints 4–6 run the actual CPU through the same comparator.
 
 ## Ubuntu setup and smoke gate
 
@@ -23,7 +23,7 @@ The Python [lockstep controller](../scripts/lockstep.py) sends `step` to the Ver
 
 For each ordinary retirement, the comparison checks PC, instruction word, privilege mode, GPR write index/value, CSR writes (when provided), load byte addresses, and store byte values/addresses. For a trap it checks faulting PC, instruction, cause, and trap value. The DUT trace uses the instruction's effective memory address, byte-lane read/write masks, and aligned write data; the controller normalizes those into byte-addressed effects before comparison. Spike v1.1.0's commit log does not print load data, so a load's destination-register value and read addresses establish its observed result. The controller reconstructs known DUT GPR, CSR, and memory state; on divergence it queries all 32 Spike GPRs and selected trap/MMU CSRs, then prints the first mismatch and the previous eight events.
 
-The fixture exposes `retire_valid`, `retire_pc`, `retire_insn`, `retire_priv`, `retire_rd`, `retire_rd_data`, `retire_mem_addr`, `retire_mem_rmask`, `retire_mem_wmask`, `retire_mem_wdata`, `retire_trap`, `retire_cause`, and `retire_tval`. The first CPU slice must expose the same simulation-only retirement view. The controller accepts optional `csr_writes` JSON entries; checkpoint 6 adds the CPU's CSR trace wiring. The JSON `order` counter increments on each architectural event, including a trap boundary. A trap is an event but does not increment `minstret`.
+The fixture exposes `retire_valid`, `retire_pc`, `retire_insn`, `retire_priv`, `retire_rd`, `retire_rd_data`, `retire_mem_addr`, `retire_mem_rmask`, `retire_mem_wmask`, `retire_mem_wdata`, `retire_trap`, `retire_cause`, and `retire_tval`. The first CPU slice must expose the same simulation-only retirement view. The controller accepts `csr_writes` JSON entries; checkpoint 6 wires the CPU's machine CSR writes to this trace. The JSON `order` counter increments on each architectural event, including a trap boundary. A trap is an event but does not increment `minstret`.
 
 The `--self-test` gate runs one matching fixture trace and injects three independent errors: `rd@4`, `store@3`, and `cause@6`. Each must stop at that event with exit status 1. The CI job runs the same gate on Ubuntu. This fixture-only gate proves the checker and process handshake; the separate CPU slice gate below checks actual RTL.
 
@@ -41,4 +41,10 @@ This is project-authored instruction and exception coverage, not the separate RI
 
 The comparator derives store width from the instruction, since Spike omits leading zeros when printing store data. A fetch access fault has no Spike instruction trace; its comparison uses faulting PC, cause, and trap value. `--until-trap` stops at the first compared trap and requires the DUT to enter its done state, while `--limit` caps a runaway program.
 
-The fixed Spike invocation models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. This core still halts on a trap rather than entering a handler; checkpoint 10 adds privilege and trap entry. Checkpoint 6 adds M/A, CSR, and fence coverage. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones.
+## M/A, CSR, fence, and contention gate (checkpoint 6)
+
+Run `bash scripts/run_checkpoint6.sh` after `bash scripts/run_core_slice.sh`. It compares directed M/A/CSR programs and self-modifying code with `FENCE.I` against Spike. Four seeded 200-operation M programs stress multiply/divide dependencies, zero divisors, and signed overflow. Ten exception programs cover misaligned and inaccessible atomics plus unsupported encodings and CSR accesses. Counter and reservation contention cases run in the Verilator harness, because clock-cycle counts and an injected competing writer cannot be compared to single-hart Spike instruction by instruction.
+
+The zero-wait memory interface exposes `atomic_lock` while an atomic operation occupies MEM or WB. An external writer must defer while this signal is asserted; after a competing store commits, `external_store_valid` and its address invalidate an overlapping LR reservation. The harness checks same-word and other-word interference, same-hart conflicting stores, and an AMO followed by a deferred competing write.
+
+The fixed Spike invocation models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. This core still halts on a trap rather than entering a handler; checkpoint 10 adds privilege and trap entry. Machine IDs may differ from Spike's implementation-defined values, and cycle counts depend on pipeline stalls, so those values are checked locally. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones.

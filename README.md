@@ -6,7 +6,7 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 ## Current state
 
-Checkpoints 1–5 are complete. The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) describes the Verilator and Spike retirement gate. The RV32I pipeline and [debug trace path](docs/debug.md) are verified in Spike lockstep. The CPU still uses zero-wait memory and halts on traps; caches, privilege, board integration, and accelerator RTL follow in later checkpoints.
+Checkpoints 1–6 are complete. The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) describes the Verilator and Spike retirement gate. The RV32IMA pipeline, machine CSR subset, fences, and [debug trace path](docs/debug.md) are verified in Spike lockstep and contention tests. The CPU still uses zero-wait memory and halts on traps; caches, full privilege support, board integration, and accelerator RTL follow in later checkpoints.
 
 ## Development hosts
 
