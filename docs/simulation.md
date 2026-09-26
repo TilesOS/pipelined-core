@@ -1,6 +1,6 @@
 # Retirement lockstep simulation
 
-Checkpoint 3 established the simulation interface using a SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) that is deliberately a trace source, **not a CPU**. Checkpoint 4 also runs the first actual CPU slice through the same comparator.
+Checkpoint 3 established the simulation interface using a SystemVerilog [`trace_fixture.sv`](../tests/lockstep/trace_fixture.sv) that is deliberately a trace source, **not a CPU**. Checkpoints 4–5 run the actual CPU through the same comparator.
 
 ## Ubuntu setup and smoke gate
 
@@ -33,6 +33,12 @@ Run `bash scripts/run_core_slice.sh` on the Ubuntu host after the Spike setup. I
 
 This slice has zero-wait instruction and data ports and implements LUI, ADDI, ADD/SUB, LW, SW, BEQ, JAL, and selected faults in M-mode. It is not yet a complete RV32I core. Checkpoint 5 adds the remaining instructions, hazards, exception behavior, and randomized architectural coverage.
 
-## Future coverage
+## Complete RV32I gate (checkpoint 5)
 
-The fixed Spike invocation currently models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. Checkpoints 5–6 add randomized RV32I and M/A/CSR programs; checkpoints 10–11 align device and privilege behavior for interrupts and Sv32. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones. The first core slice has exercised dependency stalls, branch flushes, trap ordering, and adjacent store/load visibility through the same retirement interface; complete architectural coverage remains at checkpoint 5.
+Run `bash scripts/run_rv32i.sh` after `bash scripts/run_core_slice.sh`. The latter builds the Verilator CPU executable; the RV32I gate assembles a directed instruction program, four deterministic 400-operation randomized programs, and 15 architectural exception cases. Each program runs to its first trap in retirement lockstep with Spike. The directed program covers the RV32I integer, branch, jump, byte/halfword/word memory, `FENCE`, and x0 behaviors. The exception matrix covers illegal encodings, misalignment, access faults, `ECALL`, and `EBREAK`, with an older store and younger store around the fault to check precise ordering. The CI simulation job runs both gates.
+
+This is project-authored instruction and exception coverage, not the separate RISC-V certification suite.
+
+The comparator derives store width from the instruction, since Spike omits leading zeros when printing store data. A fetch access fault has no Spike instruction trace; its comparison uses faulting PC, cause, and trap value. `--until-trap` stops at the first compared trap and requires the DUT to enter its done state, while `--limit` caps a runaway program.
+
+The fixed Spike invocation models one M-mode hart and a 64 KiB test memory at `0x8000_0000`. This core still halts on a trap rather than entering a handler; checkpoint 10 adds privilege and trap entry. Checkpoint 6 adds M/A, CSR, and fence coverage. MMIO, DMA, caches, and long Linux execution need matching reference-device behavior or bounded milestones.

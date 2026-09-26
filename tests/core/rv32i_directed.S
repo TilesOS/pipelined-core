@@ -44,6 +44,9 @@ _start:
     lw x27, 4(x1)
     sw x27, 8(x1)
     lw x28, 8(x1)
+    sw x3, 12(x1)
+    lw x28, 8(x1)   // a younger read can address a different word
+    lw x25, 12(x1)
     fence
     beq x3, x3, 1f
     addi x29, x0, 99
