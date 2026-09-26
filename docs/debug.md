@@ -24,7 +24,8 @@ The board top will mark these nets for Vivado ILA sampling in the 50 MHz core do
 | `trace_count`, `trace_write_ptr`, `dump_busy` | 18 | Ring occupancy, wrap pointer, and active serial dump. |
 | `manual_halt`, `dump_button`, `uart_tx` | 3 | Confirm a physical button press reaches the independent trace path. |
 | Cache refill/miss/writeback | reserved | Add at checkpoint 9; trigger on a miss without refill completion. |
-| AXI channel valid/ready and FIFO levels | reserved | Add at checkpoint 7; trigger on a request with no response. |
+| AXI read/write owner and active bits | 6 | `axi_subsystem` exports `read_owner_probe`, `write_owner_probe`, and `active_probe`; trigger on a request with no response. |
+| AXI CDC FIFO levels | 15 | `aw_level`, `w_level`, `ar_level`, `b_level`, and `r_level` expose three-bit occupancy in the appropriate local domain. Sample each with its source clock. |
 | MIG `init_calib_complete` and errors | reserved | Add at checkpoint 8; distinguish DDR calibration from CPU hangs. |
 
 The first hardware trigger sequence is `retire_valid` going quiet with a stage valid, followed by a button dump. Capture 256 retired entries over UART and compare the last PC/trap with the ILA control state. No board timing or physical ILA capture is claimed before the x86-64 Vivado host and Nexys A7 are available.
