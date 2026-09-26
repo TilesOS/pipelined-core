@@ -19,8 +19,8 @@ module axi_bus_tb;
     end
     always #(core_half) core_clk = ~core_clk;
     always #(mig_half) mig_clk = ~mig_clk;
-    axi_req_t masters [4];
-    axi_rsp_t replies [4];
+    axi_req4_t masters;
+    axi_rsp4_t replies;
     axi_req_t peripheral_req;
     axi_rsp_t peripheral_rsp;
     axi_req_t mig_req;
@@ -183,7 +183,8 @@ module axi_bus_tb;
                 if (masters[i].arvalid && !replies[i].arready) ar_wait[i]++;
                 else ar_wait[i] = 0;
                 if (aw_wait[i] > 1000 || ar_wait[i] > 1000)
-                    $fatal(1, "unfair arbitration for master %0d", i);
+                    $fatal(1, "unfair arbitration for master %0d (read owner %0d, write owner %0d)",
+                        i, read_owner, write_owner);
             end
         end
     end
@@ -265,7 +266,7 @@ module axi_bus_tb;
         masters[0].awvalid = 0;
         for (int beat = 0; beat < reset_beats; beat++) begin
             masters[0].wvalid = 1;
-            masters[0].wdata = 128'(beat + 1);
+            masters[0].wdata = 128'(beat) + 128'd1;
             masters[0].wstrb = '1;
             masters[0].wlast = 0;
             do @(posedge core_clk); while (!replies[0].wready);

@@ -6,6 +6,7 @@ cd "$repo_root"
 build_dir="$repo_root/build/bus"
 verilator_bin=${VERILATOR_BIN:-verilator}
 command -v "$verilator_bin" >/dev/null || { echo "missing tool: $verilator_bin" >&2; exit 1; }
+"$verilator_bin" --version
 mkdir -p "$build_dir"
 
 "$verilator_bin" --binary --timing -Wno-fatal --top-module axi_bus_tb \

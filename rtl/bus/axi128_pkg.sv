@@ -34,6 +34,8 @@ package axi128_pkg;
         logic        rlast;
         logic [3:0]  rid;
     } axi_rsp_t;
+    typedef axi_req_t [3:0] axi_req4_t;
+    typedef axi_rsp_t [3:0] axi_rsp4_t;
 
     localparam logic [1:0] AXI_OKAY = 2'b00;
     localparam logic [1:0] AXI_SLVERR = 2'b10;

@@ -2,8 +2,8 @@
 module axi_fabric (
     input  logic clk,
     input  logic rst_n,
-    input  axi128_pkg::axi_req_t m_req [4],
-    output axi128_pkg::axi_rsp_t m_rsp [4],
+    input  axi128_pkg::axi_req4_t m_req,
+    output axi128_pkg::axi_rsp4_t m_rsp,
     // Slave 0 is DDR; slave 1 is the ROM/MMIO peripheral adapter.
     output axi128_pkg::axi_req_t s_req [2],
     input  axi128_pkg::axi_rsp_t s_rsp [2],

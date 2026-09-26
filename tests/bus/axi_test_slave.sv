@@ -19,7 +19,7 @@ module axi_test_slave #(
     initial begin
         void'($value$plusargs("seed=%d", noise_seed));
         if (noise_seed == 0) $fatal(1, "LFSR seed must be nonzero");
-        for (int i = 0; i < BYTES; i++) mem[i] = 8'(i ^ 8'h5a);
+        for (int i = 0; i < BYTES; i++) mem[i] = 8'(i ^ 32'h5a);
     end
     always_comb begin
         read_data = '0;

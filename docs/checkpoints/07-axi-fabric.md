@@ -27,3 +27,7 @@ Each bus run drives four concurrent masters through seeded slave backpressure. A
 ## Next integration
 
 Checkpoint 8 connects the MIG IP and measures actual 128-bit DDR transfers, timing, and bandwidth on the Nexys A7. Checkpoint 9 connects the CPU through caches and the width bridge. Checkpoint 10 supplies the address-decoded devices behind the peripheral adapter. The standalone simulation does not measure FPGA resource use, post-route timing, or real DDR calibration.
+
+## CI portability follow-up
+
+The first GitHub Actions run of this checkpoint failed on Ubuntu 24.04 with Verilator 5.020: the four-master test timed out after an accepted W beat did not reach the CDC FIFO. The local gate had passed on Verilator 5.032. The 5.020 failure was reproduced in an Ubuntu 24.04 container and traced to stale propagation through an unpacked array of packed master records. The four-master request and response bundles now use packed arrays. The complete gate passes on both Verilator 5.020 and 5.032, including all five clock and reset scenarios.
