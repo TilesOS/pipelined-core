@@ -151,6 +151,16 @@ def load_size(insn):
     return None
 
 
+def store_size(insn):
+    opcode = insn & 0x7f
+    funct3 = (insn >> 12) & 7
+    if opcode == 0x23:
+        return {0: 1, 1: 2, 2: 4}.get(funct3)
+    if opcode == 0x2f:
+        return {2: 4}.get(funct3)
+    return None
+
+
 def parse_spike_step(lines):
     commits = [COMMIT.fullmatch(line) for line in lines]
     commits = [match for match in commits if match]
@@ -164,12 +174,15 @@ def parse_spike_step(lines):
         if name not in CAUSES:
             raise RuntimeError(f"unmapped Spike trap: {name}")
         traces = [match for line in lines if (match := TRACE.fullmatch(line))]
-        if len(traces) != 1 or int(traces[0].group(1), 16) != int(trap.group(2), 16):
+        if traces and (len(traces) != 1 or
+                       int(traces[0].group(1), 16) != int(trap.group(2), 16)):
             raise RuntimeError(f"missing or inconsistent Spike trap instruction: {lines!r}")
+        if not traces and name != "instruction_access_fault":
+            raise RuntimeError(f"missing Spike trap instruction: {lines!r}")
         tval = next((int(m.group(1), 16) for line in lines
                      if (m := TVAL.fullmatch(line))), 0)
         return {"trap": True, "pc": int(trap.group(2), 16),
-                "insn": int(traces[0].group(2), 16),
+                "insn": int(traces[0].group(2), 16) if traces else None,
                 "cause": CAUSES[name], "tval": tval, "raw": lines}
     match = commits[0]
     tail = match.group(4)
@@ -182,7 +195,9 @@ def parse_spike_step(lines):
         addr = int(mem.group(1), 16)
         value_text = mem.group(2)
         if value_text:
-            size = (len(value_text) - 2) // 2
+            size = store_size(insn)
+            if size is None:
+                raise RuntimeError(f"cannot infer Spike write size: 0x{insn:08x}")
             value = int(value_text, 16)
             for byte in range(size):
                 writes[addr + byte] = (value >> (byte * 8)) & 0xff
@@ -219,7 +234,7 @@ def differences(event, reference):
     if event["trap"] != reference["trap"]:
         fields["trap"] = (event["trap"], reference["trap"])
     insn = int(event["insn"], 16)
-    if insn != reference["insn"]:
+    if reference["insn"] is not None and insn != reference["insn"]:
         fields["insn"] = (f"0x{insn:08x}", f"0x{reference['insn']:08x}")
     if reference["trap"]:
         for key in ("cause", "tval"):
@@ -332,6 +347,10 @@ def run(args):
             history.append({"order": retired, "pc": event["pc"], "insn": event["insn"]})
             traps += int(event["trap"])
             retired += 1
+            if args.until_trap and event["trap"]:
+                break
+        if args.until_trap and traps != 1:
+            raise RuntimeError(f"no trap within {args.limit} architectural events")
         if args.require_done:
             write_command(dut, "step")
             event = json.loads(dut_lines.get("Verilator"))
@@ -361,8 +380,12 @@ def main():
     parser.add_argument("--limit", type=int, default=7)
     parser.add_argument("--watchdog", type=int, default=1000)
     parser.add_argument("--require-done", action="store_true")
+    parser.add_argument("--until-trap", action="store_true",
+                        help="compare through the first trap, with --limit as a safety cap")
     parser.add_argument("--inject", default="", help="test-only rd@N, store@N, or cause@N fault")
     args = parser.parse_args()
+    if args.until_trap:
+        args.require_done = True
     if args.limit <= 0 or args.watchdog <= 0:
         parser.error("limit and watchdog must be positive")
     try:

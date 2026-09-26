@@ -80,13 +80,19 @@ struct Simulator {
                (static_cast<uint32_t>(memory[offset + 3]) << 24);
     }
 
+    bool in_range(uint32_t address) const {
+        return address >= kBase && address - kBase <= kMemoryBytes - 4;
+    }
+
     void step() {
         dut.clk = 0;
         dut.eval();
         dut.imem_rdata = word(dut.imem_addr);
+        dut.imem_fault = !in_range(dut.imem_addr);
         dut.dmem_rdata = word(dut.dmem_addr);
+        dut.dmem_fault = !in_range(dut.dmem_addr);
         dut.eval();
-        const uint32_t write_address = dut.dmem_addr;
+        const uint32_t write_address = dut.dmem_waddr;
         const uint32_t write_data = dut.dmem_wdata;
         const uint8_t write_strobes = dut.dmem_wstrb;
         dut.clk = 1;

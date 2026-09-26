@@ -10,8 +10,11 @@ module checkpoint4_top #(
     input  logic        dump_button,
     output logic [31:0] imem_addr,
     input  logic [31:0] imem_rdata,
+    input  logic        imem_fault,
     output logic [31:0] dmem_addr,
     input  logic [31:0] dmem_rdata,
+    input  logic        dmem_fault,
+    output logic [31:0] dmem_waddr,
     output logic [31:0] dmem_wdata,
     output logic [3:0]  dmem_wstrb,
     output logic        uart_tx,
@@ -39,8 +42,9 @@ module checkpoint4_top #(
     // at zero for the BRAM loader specified in the architecture contract.
     rv32_slice #(.RESET_PC(32'h8000_0000)) core (
         .clk(clk), .rst_n(rst_n), .debug_halt(manual_halt || freeze_core),
-        .imem_addr(imem_addr), .imem_rdata(imem_rdata),
-        .dmem_addr(dmem_addr), .dmem_rdata(dmem_rdata),
+        .imem_addr(imem_addr), .imem_rdata(imem_rdata), .imem_fault(imem_fault),
+        .dmem_addr(dmem_addr), .dmem_rdata(dmem_rdata), .dmem_fault(dmem_fault),
+        .dmem_waddr(dmem_waddr),
         .dmem_wdata(dmem_wdata), .dmem_wstrb(dmem_wstrb),
         .retire_valid(retire_valid), .retire_pc(retire_pc),
         .retire_insn(retire_insn), .retire_priv(retire_priv),

@@ -87,7 +87,7 @@ module trace_ring_uart #(
             button_sync <= button_meta;
             button_stable_prev <= button_stable;
             if (button_sync == button_stable) button_counter <= 0;
-            else if (button_counter == BUTTON_STABLE_CYCLES-1) begin
+            else if (button_counter == $bits(button_counter)'(BUTTON_STABLE_CYCLES-1)) begin
                 button_stable <= button_sync;
                 button_counter <= 0;
             end else button_counter <= button_counter + 1'b1;

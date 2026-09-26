@@ -31,7 +31,7 @@ module uart_tx_byte #(
                 busy <= 1;
                 tx <= 0;
             end
-        end else if (tick == CLOCKS_PER_BIT-1) begin
+        end else if (tick == $bits(tick)'(CLOCKS_PER_BIT-1)) begin
             tick <= 0;
             if (bit_index == 9) begin
                 busy <= 0;

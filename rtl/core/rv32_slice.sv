@@ -1,4 +1,4 @@
-// Checkpoint 4 CPU slice. Single issue, in order, five explicit stage registers.
+// RV32I CPU slice. Single issue, in order, five explicit stage registers.
 // Memory is a zero-wait test interface until the cache/AXI checkpoints.
 module rv32_slice #(
     parameter logic [31:0] RESET_PC = 32'h0000_0000
@@ -8,8 +8,11 @@ module rv32_slice #(
     input  logic        debug_halt,
     output logic [31:0] imem_addr,
     input  logic [31:0] imem_rdata,
+    input  logic        imem_fault,
     output logic [31:0] dmem_addr,
     input  logic [31:0] dmem_rdata,
+    input  logic        dmem_fault,
+    output logic [31:0] dmem_waddr,
     output logic [31:0] dmem_wdata,
     output logic [3:0]  dmem_wstrb,
     output logic        retire_valid,
@@ -32,11 +35,13 @@ module rv32_slice #(
         logic        valid;
         logic [31:0] pc;
         logic [31:0] insn;
+        logic        fault;
     } fetch_stage_t;
     typedef struct packed {
         logic        valid;
         logic [31:0] pc;
         logic [31:0] insn;
+        logic        fault;
         logic [31:0] rs1_value;
         logic [31:0] rs2_value;
     } execute_stage_t;
@@ -50,6 +55,7 @@ module rv32_slice #(
         logic [31:0] store_data;
         logic        load;
         logic        store;
+        logic [3:0]  mem_mask;
         logic        trap;
         logic [31:0] cause;
         logic [31:0] tval;
@@ -57,23 +63,27 @@ module rv32_slice #(
 
     fetch_stage_t if_stage, id_stage;
     execute_stage_t ex_stage;
-    result_stage_t mem_stage, wb_stage, ex_result;
+    result_stage_t mem_stage, wb_stage, ex_result, mem_result;
     logic [31:0] fetch_pc;
     logic [31:0] registers [0:31];
     logic front_halted, trap_halted;
-    logic hazard, redirect, ex_fault;
+    logic hazard, redirect, ex_fault, mem_access_fault;
     logic [31:0] redirect_pc;
     logic [4:0] id_rs1, id_rs2;
     logic id_use_rs1, id_use_rs2;
     logic [31:0] id_operand1, id_operand2;
-    logic [31:0] imm_i, imm_s, imm_b, imm_j;
+    logic [31:0] imm_i, imm_s, imm_b, imm_u, imm_j;
+    logic [31:0] merged_load_word, load_shifted;
+    logic [4:0]  ex_rd;
+    logic        ex_writes_rd;
     integer register_index;
 
     assign imem_addr = fetch_pc;
-    assign dmem_addr = mem_stage.addr;
+    assign dmem_addr = {mem_stage.addr[31:2], 2'b0};
+    assign dmem_waddr = {wb_stage.addr[31:2], 2'b0};
     assign dmem_wdata = wb_stage.store_data;
     // Stores become externally visible on the same edge as retirement.
-    assign dmem_wstrb = (wb_stage.valid && wb_stage.store && !debug_halt) ? 4'hf : 4'h0;
+    assign dmem_wstrb = (wb_stage.valid && wb_stage.store && !debug_halt) ? wb_stage.mem_mask : 4'h0;
     assign done = trap_halted;
 
     assign id_rs1 = id_stage.insn[19:15];
@@ -82,7 +92,7 @@ module rv32_slice #(
         id_use_rs1 = 1'b0;
         id_use_rs2 = 1'b0;
         case (id_stage.insn[6:0])
-            7'h13, 7'h03: id_use_rs1 = 1'b1;
+            7'h13, 7'h03, 7'h67: id_use_rs1 = 1'b1;
             7'h33, 7'h23, 7'h63: begin
                 id_use_rs1 = 1'b1;
                 id_use_rs2 = 1'b1;
@@ -90,17 +100,17 @@ module rv32_slice #(
             default: ;
         endcase
     end
+    assign ex_rd = ex_stage.insn[11:7];
+    assign ex_writes_rd = ex_stage.insn[6:0] inside {7'h03, 7'h13, 7'h17, 7'h33, 7'h37, 7'h67, 7'h6f};
     assign id_operand1 = registers[id_rs1];
     assign id_operand2 = registers[id_rs2];
     assign hazard = id_stage.valid && (
         (id_use_rs1 && id_rs1 != 0 &&
-         ((ex_stage.valid && ex_stage.insn[11:7] == id_rs1 &&
-           (ex_stage.insn[6:0] inside {7'h13, 7'h33, 7'h37, 7'h03, 7'h6f})) ||
+         ((ex_stage.valid && ex_rd == id_rs1 && ex_writes_rd) ||
           (mem_stage.valid && mem_stage.rd == id_rs1 && !mem_stage.trap) ||
           (wb_stage.valid && wb_stage.rd == id_rs1 && !wb_stage.trap))) ||
         (id_use_rs2 && id_rs2 != 0 &&
-         ((ex_stage.valid && ex_stage.insn[11:7] == id_rs2 &&
-           (ex_stage.insn[6:0] inside {7'h13, 7'h33, 7'h37, 7'h03, 7'h6f})) ||
+         ((ex_stage.valid && ex_rd == id_rs2 && ex_writes_rd) ||
           (mem_stage.valid && mem_stage.rd == id_rs2 && !mem_stage.trap) ||
           (wb_stage.valid && wb_stage.rd == id_rs2 && !wb_stage.trap))));
 
@@ -108,6 +118,7 @@ module rv32_slice #(
     assign imm_s = {{20{ex_stage.insn[31]}}, ex_stage.insn[31:25], ex_stage.insn[11:7]};
     assign imm_b = {{19{ex_stage.insn[31]}}, ex_stage.insn[31], ex_stage.insn[7],
                     ex_stage.insn[30:25], ex_stage.insn[11:8], 1'b0};
+    assign imm_u = {ex_stage.insn[31:12], 12'b0};
     assign imm_j = {{11{ex_stage.insn[31]}}, ex_stage.insn[31], ex_stage.insn[19:12],
                     ex_stage.insn[20], ex_stage.insn[30:21], 1'b0};
 
@@ -119,88 +130,166 @@ module rv32_slice #(
         redirect = 1'b0;
         redirect_pc = 32'b0;
         if (ex_stage.valid) begin
-            case (ex_stage.insn[6:0])
-                7'h37: begin // LUI
-                    ex_result.rd = ex_stage.insn[11:7];
-                    ex_result.result = {ex_stage.insn[31:12], 12'b0};
+            if (ex_stage.fault) begin
+                ex_result.trap = 1;
+                ex_result.cause = 1;
+                ex_result.tval = ex_stage.pc;
+            end else case (ex_stage.insn[6:0])
+                7'h37, 7'h17: begin // LUI, AUIPC
+                    ex_result.rd = ex_rd;
+                    ex_result.result = ex_stage.insn[6:0] == 7'h37 ?
+                        imm_u : ex_stage.pc + imm_u;
                 end
-                7'h13: begin // ADDI
-                    if (ex_stage.insn[14:12] == 3'b000) begin
-                        ex_result.rd = ex_stage.insn[11:7];
-                        ex_result.result = ex_stage.rs1_value + imm_i;
-                    end else ex_result.trap = 1'b1;
+                7'h13: begin // OP-IMM
+                    ex_result.rd = ex_rd;
+                    case (ex_stage.insn[14:12])
+                        3'b000: ex_result.result = ex_stage.rs1_value + imm_i;
+                        3'b010: ex_result.result = ($signed(ex_stage.rs1_value) < $signed(imm_i)) ? 1 : 0;
+                        3'b011: ex_result.result = (ex_stage.rs1_value < imm_i) ? 1 : 0;
+                        3'b100: ex_result.result = ex_stage.rs1_value ^ imm_i;
+                        3'b110: ex_result.result = ex_stage.rs1_value | imm_i;
+                        3'b111: ex_result.result = ex_stage.rs1_value & imm_i;
+                        3'b001: begin
+                            if (ex_stage.insn[31:25] != 0) ex_result.trap = 1;
+                            else ex_result.result = ex_stage.rs1_value << ex_stage.insn[24:20];
+                        end
+                        3'b101: begin
+                            if (ex_stage.insn[31:25] == 0)
+                                ex_result.result = ex_stage.rs1_value >> ex_stage.insn[24:20];
+                            else if (ex_stage.insn[31:25] == 7'h20)
+                                ex_result.result = $signed(ex_stage.rs1_value) >>> ex_stage.insn[24:20];
+                            else ex_result.trap = 1;
+                        end
+                        default: ex_result.trap = 1;
+                    endcase
                 end
-                7'h33: begin // ADD/SUB
-                    if (ex_stage.insn[14:12] == 3'b000 &&
-                        (ex_stage.insn[31:25] == 7'h00 || ex_stage.insn[31:25] == 7'h20)) begin
-                        ex_result.rd = ex_stage.insn[11:7];
-                        ex_result.result = ex_stage.insn[30] ?
-                            ex_stage.rs1_value - ex_stage.rs2_value :
-                            ex_stage.rs1_value + ex_stage.rs2_value;
-                    end else ex_result.trap = 1'b1;
+                7'h33: begin // OP
+                    ex_result.rd = ex_rd;
+                    if (ex_stage.insn[31:25] == 0) begin
+                        case (ex_stage.insn[14:12])
+                            3'b000: ex_result.result = ex_stage.rs1_value + ex_stage.rs2_value;
+                            3'b001: ex_result.result = ex_stage.rs1_value << ex_stage.rs2_value[4:0];
+                            3'b010: ex_result.result = ($signed(ex_stage.rs1_value) < $signed(ex_stage.rs2_value)) ? 1 : 0;
+                            3'b011: ex_result.result = (ex_stage.rs1_value < ex_stage.rs2_value) ? 1 : 0;
+                            3'b100: ex_result.result = ex_stage.rs1_value ^ ex_stage.rs2_value;
+                            3'b101: ex_result.result = ex_stage.rs1_value >> ex_stage.rs2_value[4:0];
+                            3'b110: ex_result.result = ex_stage.rs1_value | ex_stage.rs2_value;
+                            3'b111: ex_result.result = ex_stage.rs1_value & ex_stage.rs2_value;
+                            default: ex_result.trap = 1;
+                        endcase
+                    end else if (ex_stage.insn[31:25] == 7'h20 && ex_stage.insn[14:12] == 0)
+                        ex_result.result = ex_stage.rs1_value - ex_stage.rs2_value;
+                    else if (ex_stage.insn[31:25] == 7'h20 && ex_stage.insn[14:12] == 3'b101)
+                        ex_result.result = $signed(ex_stage.rs1_value) >>> ex_stage.rs2_value[4:0];
+                    else ex_result.trap = 1;
                 end
-                7'h03: begin // LW
-                    if (ex_stage.insn[14:12] == 3'b010) begin
-                        ex_result.addr = ex_stage.rs1_value + imm_i;
-                        if (ex_result.addr[1:0] == 0) begin
-                            ex_result.load = 1'b1;
-                            ex_result.rd = ex_stage.insn[11:7];
-                        end else begin
-                            ex_result.trap = 1'b1;
-                            ex_result.cause = 32'd4;
+                7'h03, 7'h23: begin // loads and stores
+                    ex_result.addr = ex_stage.rs1_value +
+                        (ex_stage.insn[6:0] == 7'h03 ? imm_i : imm_s);
+                    case (ex_stage.insn[14:12])
+                        3'b000, 3'b100: ex_result.mem_mask = 4'b0001 << ex_result.addr[1:0];
+                        3'b001, 3'b101: ex_result.mem_mask = 4'b0011 << ex_result.addr[1:0];
+                        3'b010: ex_result.mem_mask = 4'b1111;
+                        default: ex_result.trap = 1;
+                    endcase
+                    if (ex_stage.insn[6:0] == 7'h23 && ex_stage.insn[14:12] inside {3'b100, 3'b101})
+                        ex_result.trap = 1;
+                    if (!ex_result.trap) begin
+                        if ((ex_stage.insn[14:12] inside {3'b001, 3'b101}) && ex_result.addr[0] ||
+                            ex_stage.insn[14:12] == 3'b010 && ex_result.addr[1:0] != 0) begin
+                            ex_result.trap = 1;
+                            ex_result.cause = ex_stage.insn[6:0] == 7'h03 ? 32'd4 : 32'd6;
                             ex_result.tval = ex_result.addr;
-                        end
-                    end else ex_result.trap = 1'b1;
-                end
-                7'h23: begin // SW
-                    if (ex_stage.insn[14:12] == 3'b010) begin
-                        ex_result.addr = ex_stage.rs1_value + imm_s;
-                        if (ex_result.addr[1:0] == 0) begin
-                            ex_result.store = 1'b1;
-                            ex_result.store_data = ex_stage.rs2_value;
+                        end else if (ex_stage.insn[6:0] == 7'h03) begin
+                            ex_result.load = 1;
+                            ex_result.rd = ex_rd;
                         end else begin
-                            ex_result.trap = 1'b1;
-                            ex_result.cause = 32'd6;
-                            ex_result.tval = ex_result.addr;
+                            ex_result.store = 1;
+                            ex_result.store_data = ex_stage.rs2_value << (8 * ex_result.addr[1:0]);
                         end
-                    end else ex_result.trap = 1'b1;
-                end
-                7'h63: begin // BEQ
-                    if (ex_stage.insn[14:12] == 3'b000) begin
-                        if (ex_stage.rs1_value == ex_stage.rs2_value) begin
-                            redirect_pc = ex_stage.pc + imm_b;
-                            if (redirect_pc[1:0] != 0) begin
-                                ex_result.trap = 1'b1;
-                                ex_result.cause = 32'd0;
-                                ex_result.tval = redirect_pc;
-                            end else redirect = 1'b1;
-                        end
-                    end else ex_result.trap = 1'b1;
-                end
-                7'h6f: begin // JAL
-                    redirect_pc = ex_stage.pc + imm_j;
-                    if (redirect_pc[1:0] != 0) begin
-                        ex_result.trap = 1'b1;
-                        ex_result.cause = 32'd0;
-                        ex_result.tval = redirect_pc;
-                    end else begin
-                        ex_result.rd = ex_stage.insn[11:7];
-                        ex_result.result = ex_stage.pc + 32'd4;
-                        redirect = 1'b1;
                     end
                 end
-                default: ex_result.trap = 1'b1;
+                7'h63: begin // conditional branches
+                    case (ex_stage.insn[14:12])
+                        3'b000: redirect = ex_stage.rs1_value == ex_stage.rs2_value;
+                        3'b001: redirect = ex_stage.rs1_value != ex_stage.rs2_value;
+                        3'b100: redirect = $signed(ex_stage.rs1_value) < $signed(ex_stage.rs2_value);
+                        3'b101: redirect = $signed(ex_stage.rs1_value) >= $signed(ex_stage.rs2_value);
+                        3'b110: redirect = ex_stage.rs1_value < ex_stage.rs2_value;
+                        3'b111: redirect = ex_stage.rs1_value >= ex_stage.rs2_value;
+                        default: ex_result.trap = 1;
+                    endcase
+                    if (redirect) redirect_pc = ex_stage.pc + imm_b;
+                end
+                7'h6f, 7'h67: begin // JAL, JALR
+                    if (ex_stage.insn[6:0] == 7'h67 && ex_stage.insn[14:12] != 0)
+                        ex_result.trap = 1;
+                    else begin
+                        redirect_pc = ex_stage.insn[6:0] == 7'h6f ?
+                            ex_stage.pc + imm_j : (ex_stage.rs1_value + imm_i) & 32'hffff_fffe;
+                        ex_result.rd = ex_rd;
+                        ex_result.result = ex_stage.pc + 32'd4;
+                        redirect = 1;
+                    end
+                end
+                7'h0f: begin // FENCE; no outstanding memory in this zero-wait slice
+                    if (ex_stage.insn[14:12] != 0 || ex_rd != 0 || ex_stage.insn[19:15] != 0 ||
+                        ex_stage.insn[31:28] != 0) ex_result.trap = 1;
+                end
+                7'h73: begin
+                    if (ex_stage.insn == 32'h0000_0073) begin
+                        ex_result.trap = 1;
+                        ex_result.cause = 11; // M-mode ECALL
+                    end else if (ex_stage.insn == 32'h0010_0073) begin
+                        ex_result.trap = 1;
+                        ex_result.cause = 3; // EBREAK
+                        ex_result.tval = ex_stage.pc;
+                    end else ex_result.trap = 1;
+                end
+                default: ex_result.trap = 1;
             endcase
+            if (redirect && redirect_pc[1:0] != 0) begin
+                redirect = 0;
+                ex_result.trap = 1;
+                ex_result.cause = 0;
+                ex_result.tval = redirect_pc;
+            end
             if (ex_result.trap && ex_result.cause == 0 && ex_result.tval == 0) begin
-                ex_result.cause = 32'd2;
+                ex_result.cause = 2;
                 ex_result.tval = ex_stage.insn;
             end
             if (ex_result.trap) begin
                 ex_result.rd = 0;
                 ex_result.load = 0;
                 ex_result.store = 0;
+                ex_result.mem_mask = 0;
             end
         end
+    end
+    assign mem_access_fault = mem_stage.valid &&
+        (mem_stage.load || mem_stage.store) && dmem_fault;
+    always_comb begin
+        mem_result = mem_stage;
+        if (mem_access_fault) begin
+            mem_result.trap = 1;
+            mem_result.cause = mem_stage.load ? 32'd5 : 32'd7;
+            mem_result.tval = mem_stage.addr;
+            mem_result.rd = 0;
+            mem_result.load = 0;
+            mem_result.store = 0;
+            mem_result.mem_mask = 0;
+        end
+    end
+
+    always_comb begin
+        merged_load_word = dmem_rdata;
+        if (wb_stage.valid && wb_stage.store &&
+            wb_stage.addr[31:2] == mem_stage.addr[31:2]) begin
+            for (int lane = 0; lane < 4; lane = lane + 1)
+                if (wb_stage.mem_mask[lane])
+                    merged_load_word[8*lane +: 8] = wb_stage.store_data[8*lane +: 8];
+        end
+        load_shifted = merged_load_word >> (8 * mem_stage.addr[1:0]);
     end
     assign ex_fault = ex_result.valid && ex_result.trap;
 
@@ -244,8 +333,8 @@ module rv32_slice #(
                     retire_rd <= wb_stage.rd;
                     retire_rd_data <= wb_stage.result;
                     retire_mem_addr <= wb_stage.addr;
-                    retire_mem_rmask <= wb_stage.load ? 4'hf : 4'h0;
-                    retire_mem_wmask <= wb_stage.store ? 4'hf : 4'h0;
+                    retire_mem_rmask <= wb_stage.load ? wb_stage.mem_mask : 4'h0;
+                    retire_mem_wmask <= wb_stage.store ? wb_stage.mem_mask : 4'h0;
                     retire_mem_wdata <= wb_stage.store_data;
                     retire_trap <= wb_stage.trap;
                     retire_cause <= wb_stage.cause;
@@ -255,26 +344,33 @@ module rv32_slice #(
                     if (wb_stage.trap)
                         trap_halted <= 1;
                 end
-                wb_stage <= mem_stage;
+                wb_stage <= mem_result;
                 // A younger load in MEM sees an older store committing from WB
                 // on this edge, even with a synchronous memory implementation.
-                wb_stage.result <= mem_stage.load ?
-                    ((wb_stage.valid && wb_stage.store &&
-                      wb_stage.addr == mem_stage.addr) ?
-                     wb_stage.store_data : dmem_rdata) : mem_stage.result;
-                mem_stage <= ex_result;
-                if (redirect || ex_fault) begin
+                if (mem_stage.load && !mem_access_fault) begin
+                    case (mem_stage.insn[14:12])
+                        3'b000: wb_stage.result <= {{24{load_shifted[7]}}, load_shifted[7:0]};
+                        3'b001: wb_stage.result <= {{16{load_shifted[15]}}, load_shifted[15:0]};
+                        3'b010: wb_stage.result <= load_shifted;
+                        3'b100: wb_stage.result <= {24'b0, load_shifted[7:0]};
+                        3'b101: wb_stage.result <= {16'b0, load_shifted[15:0]};
+                        default: wb_stage.result <= 0;
+                    endcase
+                end else wb_stage.result <= mem_stage.result;
+                mem_stage <= mem_access_fault ? '0 : ex_result;
+                if (redirect || ex_fault || mem_access_fault) begin
                     ex_stage <= '0;
                     id_stage <= '0;
                     if_stage <= '0;
-                    if (redirect) fetch_pc <= redirect_pc;
-                    if (ex_fault) front_halted <= 1;
+                    if (redirect && !mem_access_fault) fetch_pc <= redirect_pc;
+                    if (ex_fault || mem_access_fault) front_halted <= 1;
                 end else if (hazard) begin
                     ex_stage <= '0;
                 end else begin
                     ex_stage.valid <= id_stage.valid;
                     ex_stage.pc <= id_stage.pc;
                     ex_stage.insn <= id_stage.insn;
+                    ex_stage.fault <= id_stage.fault;
                     ex_stage.rs1_value <= id_operand1;
                     ex_stage.rs2_value <= id_operand2;
                     id_stage <= if_stage;
@@ -284,6 +380,7 @@ module rv32_slice #(
                         if_stage.valid <= 1;
                         if_stage.pc <= fetch_pc;
                         if_stage.insn <= imem_rdata;
+                        if_stage.fault <= imem_fault;
                         fetch_pc <= fetch_pc + 32'd4;
                     end
                 end
