@@ -63,6 +63,8 @@ struct Simulator {
         dut.rst_n = 0;
         dut.manual_halt = 0;
         dut.dump_button = 0;
+        dut.external_store_valid = 0;
+        dut.external_store_addr = 0;
         dut.eval();
         dut.clk = 1;
         dut.eval();
@@ -112,18 +114,24 @@ struct Simulator {
 
     void print_event() {
         if (dut.retire_valid) {
+            char csr_json[80] = "[]";
+            if (dut.retire_csr_write)
+                std::snprintf(csr_json, sizeof(csr_json),
+                              "[{\"addr\":\"%03x\",\"value\":\"%08x\"}]",
+                              dut.retire_csr_addr, dut.retire_csr_data);
             std::printf(
                 "{\"kind\":\"retire\",\"order\":%llu,\"pc\":\"%08x\","
                 "\"insn\":\"%08x\",\"priv\":%u,\"rd\":%u,"
                 "\"rd_data\":\"%08x\",\"mem_addr\":\"%08x\","
                 "\"mem_rmask\":%u,\"mem_wmask\":%u,"
                 "\"mem_wdata\":\"%08x\",\"trap\":%s,"
-                "\"cause\":\"%08x\",\"tval\":\"%08x\"}\n",
+                "\"cause\":\"%08x\",\"tval\":\"%08x\","
+                "\"csr_writes\":%s}\n",
                 static_cast<unsigned long long>(order++), dut.retire_pc,
                 dut.retire_insn, dut.retire_priv, dut.retire_rd, dut.retire_rd_data,
                 dut.retire_mem_addr, dut.retire_mem_rmask, dut.retire_mem_wmask,
                 dut.retire_mem_wdata, dut.retire_trap ? "true" : "false",
-                dut.retire_cause, dut.retire_tval);
+                dut.retire_cause, dut.retire_tval, csr_json);
         } else if (dut.done) {
             std::puts("{\"kind\":\"done\"}");
         } else {
@@ -246,6 +254,156 @@ int ring_wrap_test(Simulator& sim) {
     std::puts("PASS: 256-entry trace ring retained newest 256 of 300 retirements in UART order");
     return 0;
 }
+
+int reservation_case(const char* image, int external_kind, int expected_status,
+                     uint32_t expected_word) {
+    Simulator sim(image);
+    bool inject = false;
+    bool saw_sc = false;
+    bool saw_load = false;
+    for (unsigned cycle = 0; cycle < 500; ++cycle) {
+        if (inject) {
+            const uint32_t interference = kBase + 0x1000u +
+                                          (external_kind == 2 ? 4u : 0u);
+            const unsigned offset = interference - kBase;
+            sim.memory[offset] = 9;
+            sim.memory[offset + 1] = 0;
+            sim.memory[offset + 2] = 0;
+            sim.memory[offset + 3] = 0;
+            sim.dut.external_store_valid = 1;
+            sim.dut.external_store_addr = interference;
+            inject = false;
+        }
+        sim.step();
+        sim.dut.external_store_valid = 0;
+        if (sim.dut.retire_valid) {
+            if (sim.dut.retire_pc == kBase + 12 && external_kind)
+                inject = true; // interfere just after LR retirement
+            if (sim.dut.retire_pc == kBase + 20) {
+                saw_sc = true;
+                if (sim.dut.retire_rd != 5 ||
+                    sim.dut.retire_rd_data != static_cast<uint32_t>(expected_status)) {
+                    std::fprintf(stderr, "wrong SC status under contention\n");
+                    return 1;
+                }
+            }
+            if (sim.dut.retire_pc == kBase + 24) {
+                saw_load = true;
+                if (sim.dut.retire_rd != 6 || sim.dut.retire_rd_data != expected_word) {
+                    std::fprintf(stderr, "wrong load after contention\n");
+                    return 1;
+                }
+            }
+        }
+        if (sim.dut.done) break;
+    }
+    if (!saw_sc || !saw_load || sim.word(kBase + 0x1000u) != expected_word) {
+        std::fprintf(stderr, "reservation case did not finish with expected memory\n");
+        return 1;
+    }
+    return 0;
+}
+
+int counter_test(Simulator& sim) {
+    bool saw_instret = false;
+    bool saw_cycle_first = false;
+    bool saw_cycle_second = false;
+    bool saw_cycle_write = false;
+    bool saw_cycle_high = false;
+    bool saw_instret_high = false;
+    uint32_t cycle_first = 0;
+    uint32_t cycle_second = 0;
+    for (unsigned cycle = 0; cycle < 500; ++cycle) {
+        sim.step();
+        if (sim.dut.retire_valid) {
+            if (sim.dut.retire_pc == kBase + 8) {
+                saw_instret = true;
+                if (sim.dut.retire_rd != 2 || sim.dut.retire_rd_data != 20) {
+                    std::fprintf(stderr, "minstret write/read ordering failed\n");
+                    return 1;
+                }
+            }
+            if (sim.dut.retire_pc == kBase + 16) {
+                saw_cycle_first = true;
+                cycle_first = sim.dut.retire_rd_data;
+            }
+            if (sim.dut.retire_pc == kBase + 20) {
+                saw_cycle_second = true;
+                cycle_second = sim.dut.retire_rd_data;
+            }
+            if (sim.dut.retire_pc == kBase + 32) {
+                saw_cycle_write = true;
+                if (sim.dut.retire_rd_data < 100 || sim.dut.retire_rd_data >= 200)
+                    return 1;
+            }
+            if (sim.dut.retire_pc == kBase + 44) {
+                saw_cycle_high = true;
+                if (sim.dut.retire_rd_data != 1) return 1;
+            }
+            if (sim.dut.retire_pc == kBase + 52) {
+                saw_instret_high = true;
+                if (sim.dut.retire_rd_data != 1) return 1;
+            }
+        }
+        if (sim.dut.done) break;
+    }
+    if (!saw_instret || !saw_cycle_first || !saw_cycle_second ||
+        !saw_cycle_write || !saw_cycle_high || !saw_instret_high ||
+        cycle_second <= cycle_first) {
+        std::fprintf(stderr, "machine counters did not advance as expected\n");
+        return 1;
+    }
+    std::puts("PASS: 64-bit mcycle/minstret halves, write/read order, and monotonic cycles");
+    return 0;
+}
+
+int amo_contention_test(Simulator& sim) {
+    bool saw_lock = false;
+    bool saw_amo = false;
+    bool injected = false;
+    bool saw_load = false;
+    for (unsigned cycle = 0; cycle < 500; ++cycle) {
+        if (saw_lock && saw_amo && !injected && !sim.dut.atomic_lock) {
+            sim.memory[0x1000] = 9;
+            sim.memory[0x1001] = 0;
+            sim.memory[0x1002] = 0;
+            sim.memory[0x1003] = 0;
+            sim.dut.external_store_valid = 1;
+            sim.dut.external_store_addr = kBase + 0x1000u;
+            injected = true;
+        }
+        sim.step();
+        sim.dut.external_store_valid = 0;
+        saw_lock |= sim.dut.atomic_lock;
+        if (sim.dut.retire_valid && sim.dut.retire_pc == kBase + 12) {
+            saw_amo = true;
+            if (sim.dut.retire_rd != 3 || sim.dut.retire_rd_data != 5 ||
+                sim.word(kBase + 0x1000u) != 10) {
+                std::fprintf(stderr, "AMO did not commit before competing store\n");
+                return 1;
+            }
+        }
+        if (saw_lock && !saw_amo && !sim.dut.atomic_lock) {
+            std::fprintf(stderr, "AMO lock released before retirement\n");
+            return 1;
+        }
+        if (sim.dut.retire_valid && sim.dut.retire_pc == kBase + 16) {
+            saw_load = true;
+            if (sim.dut.retire_rd != 4 || sim.dut.retire_rd_data != 9) {
+                std::fprintf(stderr, "post-AMO load missed competing store\n");
+                return 1;
+            }
+        }
+        if (sim.dut.done) break;
+    }
+    if (!saw_lock || !saw_amo || !injected || !saw_load ||
+        sim.word(kBase + 0x1000u) != 9) {
+        std::fprintf(stderr, "AMO contention sequence incomplete\n");
+        return 1;
+    }
+    std::puts("PASS: AMO held memory lock through commit and serialized competing store");
+    return 0;
+}
 } // namespace
 
 int main(int argc, char** argv) {
@@ -260,6 +418,21 @@ int main(int argc, char** argv) {
         return hang_test(sim);
     if (argc == 2 && std::strcmp(argv[1], "--ring-test") == 0)
         return ring_wrap_test(sim);
+    if (argc == 2 && std::strcmp(argv[1], "--contention-test") == 0) {
+        if (reservation_case(image, 1, 1, 9) || reservation_case(image, 2, 0, 6))
+            return 1;
+        std::puts("PASS: competing same-word store invalidated LR; other-word store preserved it");
+        return 0;
+    }
+    if (argc == 2 && std::strcmp(argv[1], "--self-store-test") == 0) {
+        if (reservation_case(image, 0, 1, 5)) return 1;
+        std::puts("PASS: same-hart conflicting store cleared the reservation");
+        return 0;
+    }
+    if (argc == 2 && std::strcmp(argv[1], "--counter-test") == 0)
+        return counter_test(sim);
+    if (argc == 2 && std::strcmp(argv[1], "--amo-contention-test") == 0)
+        return amo_contention_test(sim);
     char command[32];
     while (std::fgets(command, sizeof(command), stdin)) {
         if (std::strcmp(command, "quit\n") == 0) break;

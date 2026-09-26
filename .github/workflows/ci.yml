@@ -36,3 +36,5 @@ jobs:
         run: bash scripts/run_core_slice.sh
       - name: Run complete RV32I lockstep tests
         run: bash scripts/run_rv32i.sh
+      - name: Run M/A, CSR, fence, and contention tests
+        run: bash scripts/run_checkpoint6.sh

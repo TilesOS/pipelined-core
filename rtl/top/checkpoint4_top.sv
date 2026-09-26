@@ -14,6 +14,9 @@ module checkpoint4_top #(
     output logic [31:0] dmem_addr,
     input  logic [31:0] dmem_rdata,
     input  logic        dmem_fault,
+    input  logic        external_store_valid,
+    input  logic [31:0] external_store_addr,
+    output logic        atomic_lock,
     output logic [31:0] dmem_waddr,
     output logic [31:0] dmem_wdata,
     output logic [3:0]  dmem_wstrb,
@@ -35,6 +38,9 @@ module checkpoint4_top #(
     output logic        retire_trap,
     (* mark_debug = "true" *) output logic [31:0] retire_cause,
     (* mark_debug = "true" *) output logic [31:0] retire_tval,
+    output logic        retire_csr_write,
+    output logic [11:0] retire_csr_addr,
+    output logic [31:0] retire_csr_data,
     output logic        done
 );
     logic freeze_core;
@@ -44,6 +50,9 @@ module checkpoint4_top #(
         .clk(clk), .rst_n(rst_n), .debug_halt(manual_halt || freeze_core),
         .imem_addr(imem_addr), .imem_rdata(imem_rdata), .imem_fault(imem_fault),
         .dmem_addr(dmem_addr), .dmem_rdata(dmem_rdata), .dmem_fault(dmem_fault),
+        .external_store_valid(external_store_valid),
+        .external_store_addr(external_store_addr),
+        .atomic_lock(atomic_lock),
         .dmem_waddr(dmem_waddr),
         .dmem_wdata(dmem_wdata), .dmem_wstrb(dmem_wstrb),
         .retire_valid(retire_valid), .retire_pc(retire_pc),
@@ -52,7 +61,9 @@ module checkpoint4_top #(
         .retire_mem_addr(retire_mem_addr), .retire_mem_rmask(retire_mem_rmask),
         .retire_mem_wmask(retire_mem_wmask), .retire_mem_wdata(retire_mem_wdata),
         .retire_trap(retire_trap), .retire_cause(retire_cause),
-        .retire_tval(retire_tval), .done(done), .ila_pipeline(ila_pipeline)
+        .retire_tval(retire_tval), .retire_csr_write(retire_csr_write),
+        .retire_csr_addr(retire_csr_addr), .retire_csr_data(retire_csr_data),
+        .done(done), .ila_pipeline(ila_pipeline)
     );
     trace_ring_uart #(.UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT),
                       .BUTTON_STABLE_CYCLES(BUTTON_STABLE_CYCLES)) trace (
