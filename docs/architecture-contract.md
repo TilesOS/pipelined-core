@@ -62,7 +62,16 @@ The XC7A100T provides 15,850 slices, 135 BRAM36 equivalents (4,860 Kb), and 240 
 | **Allocated ceiling** | **12,000** | **112** | **80** |
 | **Unallocated reserve** | **3,850** | **23** | **160** |
 
-Checkpoint 8 replaces these assumptions with post-route utilization and timing. Any block exceeding its allocation triggers review before adding more accelerator lanes. A 64-MAC tile is an upper option, not a commitment; checkpoint 16 retains only the largest tile meeting timing and measured batch-8 utilization. Model weights (50,816 INT8 bytes for 784×64 and 64×10) stay in the uncached DDR pool across inference calls, rather than occupying BRAM or being recopied by the CPU.
+Checkpoint 8 recorded post-route timing and 1,971 slices (12.44%), no block RAM
+tiles, and no DSPs for the MIG plus synthetic traffic shell. This is a total
+for the current board build, not a per-block allocation or a measurement of
+the future CPU, caches, and accelerator. See the [checkpoint 8 record](checkpoints/08-ddr-bringup.md).
+Any block exceeding its allocation triggers review before adding more
+accelerator lanes. A 64-MAC tile is an upper option, not a commitment;
+checkpoint 16 retains only the largest tile meeting timing and measured batch-8
+utilization. Model weights (50,816 INT8 bytes for 784×64 and 64×10) stay in
+the uncached DDR pool across inference calls, rather than occupying BRAM or
+being recopied by the CPU.
 
 ## Open gates and change control
 
