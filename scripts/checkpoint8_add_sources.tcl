@@ -27,6 +27,13 @@ set xdc_path [file join $repo_root constraints/checkpoint8_board.xdc]
 if {[llength [get_files -quiet $xdc_path]] == 0} {
     add_files -norecurse -fileset constrs_1 $xdc_path
 }
+set cdc_path [file join $repo_root constraints/checkpoint8_cdc.xdc]
+if {[llength [get_files -quiet $cdc_path]] == 0} {
+    add_files -norecurse -fileset constrs_1 $cdc_path
+}
+# The MIG creates clk_pll_i in its generated XDC. Read this file afterwards.
+set_property PROCESSING_ORDER LATE [get_files $cdc_path]
+set_property USED_IN_SYNTHESIS false [get_files $cdc_path]
 set_property top checkpoint8_board_top [get_filesets sources_1]
 update_compile_order -fileset sources_1
 puts "Checkpoint 8 RTL and constraints added from $repo_root"
