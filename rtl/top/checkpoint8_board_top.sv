@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
-// Checkpoint 8 board-only DDR2 measurement shell. The MIG instance matches
-// the generated ddr_probe_mig_7series_0_0 template from Vivado 2026.1.
+// Checkpoint 8 board-only DDR2 measurement shell. Vivado generates the MIG
+// inside ddr_probe.bd; the block design wrapper is instantiated here.
 module checkpoint8_board_top (
     input  wire        sys_clk_i,
     input  wire        CPU_RESETN,
@@ -23,7 +23,7 @@ module checkpoint8_board_top (
 );
     import axi128_pkg::*;
     wire core_clk, ref_clk_200, core_pll_locked;
-    wire ui_clk, ui_clk_sync_rst, mig_mmcm_locked;
+    wire ui_clk, ui_clk_sync_rst;
     wire init_calib_complete;
     wire masters_ready;
     wire benchmark_done;
@@ -104,35 +104,35 @@ module checkpoint8_board_top (
     end
 `endif
 
-    ddr_probe_mig_7series_0_0 mig (
-        .ddr2_addr(ddr2_addr), .ddr2_ba(ddr2_ba), .ddr2_cas_n(ddr2_cas_n),
-        .ddr2_ck_n(ddr2_ck_n), .ddr2_ck_p(ddr2_ck_p), .ddr2_cke(ddr2_cke),
-        .ddr2_ras_n(ddr2_ras_n), .ddr2_we_n(ddr2_we_n), .ddr2_dq(ddr2_dq),
-        .ddr2_dqs_n(ddr2_dqs_n), .ddr2_dqs_p(ddr2_dqs_p),
-        .ddr2_cs_n(ddr2_cs_n), .ddr2_dm(ddr2_dm), .ddr2_odt(ddr2_odt),
+    ddr_probe_wrapper mig (
+        .ddr2_sdram_addr(ddr2_addr), .ddr2_sdram_ba(ddr2_ba),
+        .ddr2_sdram_cas_n(ddr2_cas_n), .ddr2_sdram_ck_n(ddr2_ck_n),
+        .ddr2_sdram_ck_p(ddr2_ck_p), .ddr2_sdram_cke(ddr2_cke),
+        .ddr2_sdram_ras_n(ddr2_ras_n), .ddr2_sdram_we_n(ddr2_we_n),
+        .ddr2_sdram_dq(ddr2_dq), .ddr2_sdram_dqs_n(ddr2_dqs_n),
+        .ddr2_sdram_dqs_p(ddr2_dqs_p), .ddr2_sdram_cs_n(ddr2_cs_n),
+        .ddr2_sdram_dm(ddr2_dm), .ddr2_sdram_odt(ddr2_odt),
         .init_calib_complete(init_calib_complete),
         .ui_clk(ui_clk), .ui_clk_sync_rst(ui_clk_sync_rst),
-        .ui_addn_clk_0(), .ui_addn_clk_1(), .ui_addn_clk_2(),
-        .ui_addn_clk_3(), .ui_addn_clk_4(), .mmcm_locked(mig_mmcm_locked),
-        .aresetn(mig_axi_resetn), .app_sr_active(), .app_ref_ack(), .app_zq_ack(),
-        .s_axi_awid(mig_req.awid), .s_axi_awaddr(mig_req.awaddr[26:0]),
-        .s_axi_awlen({4'b0, mig_req.awlen}), .s_axi_awsize(mig_req.awsize),
-        .s_axi_awburst(2'b01), .s_axi_awlock(1'b0),
-        .s_axi_awcache(4'b0011), .s_axi_awprot(3'b000), .s_axi_awqos(4'b0000),
-        .s_axi_awvalid(mig_req.awvalid), .s_axi_awready(mig_rsp.awready),
-        .s_axi_wdata(mig_req.wdata), .s_axi_wstrb(mig_req.wstrb),
-        .s_axi_wlast(mig_req.wlast), .s_axi_wvalid(mig_req.wvalid),
-        .s_axi_wready(mig_rsp.wready), .s_axi_bid(mig_rsp.bid),
-        .s_axi_bresp(mig_rsp.bresp), .s_axi_bvalid(mig_rsp.bvalid),
-        .s_axi_bready(mig_req.bready), .s_axi_arid(mig_req.arid),
-        .s_axi_araddr(mig_req.araddr[26:0]),
-        .s_axi_arlen({4'b0, mig_req.arlen}), .s_axi_arsize(mig_req.arsize),
-        .s_axi_arburst(2'b01), .s_axi_arlock(1'b0),
-        .s_axi_arcache(4'b0011), .s_axi_arprot(3'b000), .s_axi_arqos(4'b0000),
-        .s_axi_arvalid(mig_req.arvalid), .s_axi_arready(mig_rsp.arready),
-        .s_axi_rid(mig_rsp.rid), .s_axi_rdata(mig_rsp.rdata),
-        .s_axi_rresp(mig_rsp.rresp), .s_axi_rlast(mig_rsp.rlast),
-        .s_axi_rvalid(mig_rsp.rvalid), .s_axi_rready(mig_req.rready),
+        .aresetn(mig_axi_resetn),
+        .S_AXI_awid(mig_req.awid), .S_AXI_awaddr(mig_req.awaddr[26:0]),
+        .S_AXI_awlen({4'b0, mig_req.awlen}), .S_AXI_awsize(mig_req.awsize),
+        .S_AXI_awburst(2'b01), .S_AXI_awlock(1'b0),
+        .S_AXI_awcache(4'b0011), .S_AXI_awprot(3'b000), .S_AXI_awqos(4'b0000),
+        .S_AXI_awvalid(mig_req.awvalid), .S_AXI_awready(mig_rsp.awready),
+        .S_AXI_wdata(mig_req.wdata), .S_AXI_wstrb(mig_req.wstrb),
+        .S_AXI_wlast(mig_req.wlast), .S_AXI_wvalid(mig_req.wvalid),
+        .S_AXI_wready(mig_rsp.wready), .S_AXI_bid(mig_rsp.bid),
+        .S_AXI_bresp(mig_rsp.bresp), .S_AXI_bvalid(mig_rsp.bvalid),
+        .S_AXI_bready(mig_req.bready), .S_AXI_arid(mig_req.arid),
+        .S_AXI_araddr(mig_req.araddr[26:0]),
+        .S_AXI_arlen({4'b0, mig_req.arlen}), .S_AXI_arsize(mig_req.arsize),
+        .S_AXI_arburst(2'b01), .S_AXI_arlock(1'b0),
+        .S_AXI_arcache(4'b0011), .S_AXI_arprot(3'b000), .S_AXI_arqos(4'b0000),
+        .S_AXI_arvalid(mig_req.arvalid), .S_AXI_arready(mig_rsp.arready),
+        .S_AXI_rid(mig_rsp.rid), .S_AXI_rdata(mig_rsp.rdata),
+        .S_AXI_rresp(mig_rsp.rresp), .S_AXI_rlast(mig_rsp.rlast),
+        .S_AXI_rvalid(mig_rsp.rvalid), .S_AXI_rready(mig_req.rready),
         .sys_clk_i(sys_clk_i), .clk_ref_i(ref_clk_200), .sys_rst(CPU_RESETN)
     );
 endmodule

@@ -1,4 +1,4 @@
-# Source this in the open Vivado project that contains ddr_probe_mig_7series_0_0.
+# Source this in the open Vivado project that contains ddr_probe.bd.
 # Example: source /path/to/pipelined-core/scripts/checkpoint8_add_sources.tcl
 set repo_root [file normalize [file join [file dirname [info script]] ..]]
 if {[string tolower [get_property PART [current_project]]] ne "xc7a100tcsg324-1"} {
@@ -31,3 +31,4 @@ set_property top checkpoint8_board_top [get_filesets sources_1]
 update_compile_order -fileset sources_1
 puts "Checkpoint 8 RTL and constraints added from $repo_root"
 puts "Top: [get_property top [get_filesets sources_1]]"
+puts "Next: source [file join $repo_root scripts/checkpoint8_prepare_bd.tcl]"
