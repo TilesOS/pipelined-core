@@ -43,7 +43,8 @@ module checkpoint8_board_top (
         .clk100(sys_clk_i), .rst_n(CPU_RESETN), .clk50(core_clk),
         .clk200(ref_clk_200), .locked(core_pll_locked)
     );
-    assign mig_axi_resetn = CPU_RESETN && !ui_clk_sync_rst;
+    // MIG's UI reset already includes its active-low system reset input.
+    assign mig_axi_resetn = !ui_clk_sync_rst;
     always_ff @(posedge core_clk or negedge CPU_RESETN) begin
         if (!CPU_RESETN) heartbeat <= 0;
         else heartbeat <= heartbeat + 1'b1;
@@ -83,8 +84,12 @@ module checkpoint8_board_top (
     );
     axi_subsystem subsystem (
         .core_clk(core_clk), .mig_clk(ui_clk),
-        .rst_n(CPU_RESETN && core_pll_locked && !ui_clk_sync_rst),
-        .mig_calib_complete(init_calib_complete), .masters_ready(masters_ready),
+        // CPU_RESETN resets the PLL, which deasserts LOCKED. Use LOCKED
+        // directly as the asynchronous reset source; register the UI-domain
+        // status in axi_subsystem before it resets either clock domain.
+        .rst_n(core_pll_locked),
+        .mig_calib_complete(init_calib_complete && !ui_clk_sync_rst),
+        .masters_ready(masters_ready),
         .master_req(master_req), .master_rsp(master_rsp),
         .peripheral_req(peripheral_req), .peripheral_rsp(peripheral_rsp),
         .mig_req(mig_req), .mig_rsp(mig_rsp),

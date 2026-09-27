@@ -24,7 +24,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 | 5 | Complete RV32I hazards, branches, exceptions, and precise retirement; pass directed, randomized, and architectural tests in lockstep. | Complete for the zero-wait M-mode core; [record](checkpoints/05-rv32i.md). |
 | 6 | Add M/A instructions, LR/SC, AMOs, CSRs, and fences; pass contention and lockstep tests. | Complete for the zero-wait M-mode core; [record](checkpoints/06-m-a-csr.md). |
 | 7 | Implement AXI fabric, width bridge, and clock crossing; pass randomized clock, reset, backpressure, burst, and concurrent-master tests. | Complete in RTL simulation; [record](checkpoints/07-axi-fabric.md). |
-| 8 | Bring up MIG and 128-bit DDR transfers on the board; meet 50 MHz timing and measure sustained bandwidth with and without CPU traffic. | Complete for board bring-up; [record](checkpoints/08-ddr-bringup.md). The contention source is CPU-like synthetic traffic until cache integration in checkpoint 9; clock/CDC methodology warnings remain open. |
+| 8 | Bring up MIG and 128-bit DDR transfers on the board; meet 50 MHz timing and measure sustained bandwidth with and without CPU traffic. | Board test passed; warning remediation and retest remain before merge; [record](checkpoints/08-ddr-bringup.md). Contention uses CPU-like synthetic traffic until checkpoint 9. |
 | 9 | Add caches, physical-address cacheability, atomics, and full `FENCE.I`; pass eviction, executable-page, and uncached-window tests. | Pending |
 | 10 | Add privilege, PMP, standard UART/CLINT/PLIC, and device tree; pass trap, interrupt, timer-compare, and OpenSBI tests. | Pending |
 | 11 | Add Sv32 TLBs, read-only walker, Svade faults, and `SFENCE.VMA`; pass paging and stale-TLB tests. | Pending |

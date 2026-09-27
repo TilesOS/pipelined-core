@@ -6,6 +6,8 @@ open_run impl_1
 report_methodology -file [file join $report_dir methodology.rpt]
 report_timing_summary -delay_type max -max_paths 5 -file [file join $report_dir timing_summary.rpt]
 report_clocks -file [file join $report_dir clocks.rpt]
+report_utilization -file [file join $report_dir utilization.rpt]
+report_exceptions -file [file join $report_dir exceptions.rpt]
 report_cdc -details -file [file join $report_dir cdc.rpt]
 report_drc -file [file join $report_dir drc.rpt]
 puts "Checkpoint 8 implementation reports: $report_dir"

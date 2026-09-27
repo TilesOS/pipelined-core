@@ -1,8 +1,9 @@
 # Checkpoint 8: Nexys A7 DDR2 bring-up
 
-Status: complete for checkpoint 8's MIG, 128-bit DDR2 transfer, 50 MHz timing,
-and board bandwidth pass conditions. Clock/CDC methodology warnings remain open
-for the next integration step.
+Status: in progress for merge readiness. The first board build passed MIG
+calibration, 128-bit DDR2 transfer, 50 MHz timing, and bandwidth measurements.
+Clock/reset warning remediation requires another Vivado build and board retest
+before merging or starting checkpoint 9.
 
 ## Prepared traffic and measurement path
 
@@ -79,7 +80,8 @@ review before treating the build as a reusable timing signoff for later
 checkpoints.
 
 The first SRAM bitstream was loaded over JTAG on 2026-09-27; flash programming
-belongs to a later checkpoint. LED 0 showed MIG calibration complete, LED 1
+belongs to a later checkpoint. It used RTL/constraints through commit `6517b6e`.
+LED 0 showed MIG calibration complete, LED 1
 showed benchmark completion, LED 2 stayed off (no reported data errors), and
 LED 3 blinked (50 MHz-domain heartbeat). A 115200-baud UART capture decoded a
 complete repeated `D8BM` packet with these 64 KiB sweep measurements:
@@ -110,10 +112,33 @@ are not a measurement of the future CPU, caches, or accelerator, and do not
 assign the used slices to individual budget blocks.
 
 After implementation, source `scripts/checkpoint8_check_impl.tcl` in the GUI to
-retain timing, clock, CDC, methodology, and DRC reports. The batch-mode
+retain timing, clock, CDC, methodology, DRC, utilization, and exception reports. The batch-mode
 `scripts/checkpoint8_reports.tcl` also records utilization and clock
 interaction.
-The pass evidence is real calibration, successful 128-bit DDR2 write/read
-checks, positive 50 MHz setup slack, and both baseline and contended bandwidth
-measurements. Clock and CDC methodology warnings remain tracked above; they
-must be reviewed when the cache-connected CPU replaces the synthetic master.
+## Warning remediation before merge
+
+The initial board pass was recorded as complete too early for merge readiness.
+The critical clock and reset findings are being addressed in checkpoint 8:
+
+- The board XDC now specifies CFGBVS=VCCO and CONFIG_VOLTAGE=3.3, matching
+  Digilent's [Nexys A7 schematic](https://digilent.com/reference/_media/reference/programmable-logic/nexys-a7/nexys-a7-sch.pdf).
+- The late XDC replaces MIG's downstream primary clock with a combinational,
+  identity generated clock from the board input, keeping the existing clock
+  name and MIG cell/pin constraints. This restores the clock tree's common
+  source without editing generated IP files. Generated core and UI clocks
+  are queried by their primitive pins instead of auto-derived names.
+- `axi_subsystem` registers UI-domain calibration/reset status before it
+  drives the common FIFO reset. The board uses PLL LOCKED as its direct
+  asynchronous reset source; the reset button resets the PLL itself.
+- Each FIFO synchronizes reset release for its pointer/control registers.
+  Its payload RAM write process has no asynchronous reset, so the reset no
+  longer feeds an unsynchronized storage write-enable.
+
+Verilator 5.032 passed the five checkpoint 7 clock ratios, including calibration
+loss and a short external reset pulse, the two checkpoint 8 DDR/UART cases,
+and board-top lint after these changes. Vivado implementation and board retest
+are still pending. REQP-1709 originates in MIG's PLL-to-UI-MMCM clocking path;
+the [AMD MIG clocking architecture](https://docs.amd.com/api/khub/documents/rTaW6qs7YptHTdMLuG0kVA/content)
+includes that cascade. Its remaining warning needs a documented review, rather
+than a change to the generated clock buffers solely to suppress the warning.
+Any remaining CDC findings must be reviewed by endpoint and FIFO protocol.
