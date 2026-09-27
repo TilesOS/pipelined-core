@@ -6,7 +6,7 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 ## Current state
 
-Checkpoints 1–7 are complete in simulation. The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) describes the Verilator, Spike, and AXI gates. The RV32IMA pipeline, machine CSR subset, fences, and [debug trace path](docs/debug.md) are verified in Spike lockstep and contention tests. The [AXI fabric and clock crossing](docs/checkpoints/07-axi-fabric.md) pass concurrent traffic and reset tests. The CPU still uses zero-wait memory and halts on traps; caches, full privilege support, board integration, and accelerator RTL follow in later checkpoints.
+Checkpoints 1–7 are complete in simulation, and [checkpoint 8 DDR2 board bring-up](docs/checkpoints/08-ddr-bringup.md) is in progress. The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) describes the Verilator, Spike, and AXI gates. The RV32IMA pipeline, machine CSR subset, fences, and [debug trace path](docs/debug.md) are verified in Spike lockstep and contention tests. The [AXI fabric and clock crossing](docs/checkpoints/07-axi-fabric.md) pass concurrent traffic and reset tests. The CPU still uses zero-wait memory and halts on traps; caches, full privilege support, and accelerator RTL follow in later checkpoints.
 
 ## Development hosts
 
