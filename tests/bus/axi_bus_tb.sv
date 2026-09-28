@@ -255,7 +255,7 @@ module axi_bus_tb;
         read_burst(2, 32'h1000_0000, 1, 9, AXI_OKAY, 1);
         write_burst(2, 32'h1000_0000, 2, 9, AXI_DECERR);
         narrow_probe();
-        // Abort an accepted burst on asynchronous reset, then prove recovery.
+        // Abort an accepted burst on sampled calibration loss, then recover.
         @(negedge core_clk);
         masters[0].awvalid = 1;
         masters[0].awaddr = 32'h8000_3000;
@@ -274,12 +274,28 @@ module axi_bus_tb;
         end
         #1 calib_complete = 0;
         masters[0] = '0;
+        @(posedge mig_clk);
+        #1;
+        if (masters_ready || mig_req.awvalid || mig_req.wvalid || mig_req.arvalid)
+            $fatal(1, "calibration loss did not abort the AXI link");
         repeat (5) @(negedge core_clk);
         calib_complete = 1;
         wait (masters_ready);
         repeat (10) @(negedge core_clk);
         write_burst(0, 32'h8000_3200, 3, 10, AXI_OKAY);
         read_burst(0, 32'h8000_3200, 3, 10, AXI_OKAY, 1);
+        // A short external reset must assert the link reset without needing
+        // a MIG clock edge, then release safely in both domains.
+        @(negedge mig_clk);
+        #1 rst_n = 0;
+        #1;
+        if (masters_ready || mig_req.awvalid || mig_req.wvalid || mig_req.arvalid)
+            $fatal(1, "external reset did not assert the AXI link reset");
+        rst_n = 1;
+        wait (masters_ready);
+        repeat (10) @(negedge core_clk);
+        write_burst(0, 32'h8000_3300, 3, 11, AXI_OKAY);
+        read_burst(0, 32'h8000_3300, 3, 11, AXI_OKAY, 1);
         $display("PASS: %0d bus operations, clocks %0d/%0d, reset after %0d beats, W FIFO full=%0d",
                  completed, core_half, mig_half, reset_beats, saw_w_fifo_backpressure);
         $finish;

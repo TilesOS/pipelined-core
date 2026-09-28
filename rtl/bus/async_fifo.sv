@@ -47,32 +47,41 @@ module async_fifo #(
     assign rd_level = gray_to_bin(wr_gray_r2) - rd_bin;
 
     always_ff @(posedge wr_clk or negedge rst_n) begin
-        if (!rst_n) begin
-            wr_release <= '0;
+        if (!rst_n) wr_release <= '0;
+        else wr_release <= {wr_release[0], 1'b1};
+    end
+    always_ff @(posedge rd_clk or negedge rst_n) begin
+        if (!rst_n) rd_release <= '0;
+        else rd_release <= {rd_release[0], 1'b1};
+    end
+
+    // Payload RAM has no reset. Keeping its write process separate prevents
+    // the asynchronous reset from becoming an unsynchronized RAM write-enable.
+    always_ff @(posedge wr_clk) begin
+        if (in_valid && in_ready) storage[wr_bin[PTR-1:0]] <= in_data;
+    end
+    always_ff @(posedge wr_clk or negedge wr_release[1]) begin
+        if (!wr_release[1]) begin
             wr_bin <= '0;
             wr_gray <= '0;
             rd_gray_w1 <= '0;
             rd_gray_w2 <= '0;
         end else begin
-            wr_release <= {wr_release[0], 1'b1};
             rd_gray_w1 <= rd_gray;
             rd_gray_w2 <= rd_gray_w1;
             if (in_valid && in_ready) begin
-                storage[wr_bin[PTR-1:0]] <= in_data;
                 wr_bin <= wr_next_bin;
                 wr_gray <= wr_next_gray;
             end
         end
     end
-    always_ff @(posedge rd_clk or negedge rst_n) begin
-        if (!rst_n) begin
-            rd_release <= '0;
+    always_ff @(posedge rd_clk or negedge rd_release[1]) begin
+        if (!rd_release[1]) begin
             rd_bin <= '0;
             rd_gray <= '0;
             wr_gray_r1 <= '0;
             wr_gray_r2 <= '0;
         end else begin
-            rd_release <= {rd_release[0], 1'b1};
             wr_gray_r1 <= wr_gray;
             wr_gray_r2 <= wr_gray_r1;
             if (out_valid && out_ready) begin

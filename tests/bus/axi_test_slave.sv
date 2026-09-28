@@ -24,7 +24,7 @@ module axi_test_slave #(
     always_comb begin
         read_data = '0;
         for (int i = 0; i < 16; i++)
-            read_data[i*8 +: 8] = mem[(int'(r_addr[13:0]) + i) % BYTES];
+            read_data[i*8 +: 8] = mem[(int'(r_addr[$clog2(BYTES)-1:0]) + i) % BYTES];
         rsp = '0;
         rsp.awready = !w_active && !b_pending && noise[0];
         rsp.wready = w_active && noise[1];
@@ -62,7 +62,7 @@ module axi_test_slave #(
             end
             if (req.wvalid && rsp.wready) begin
                 for (int i = 0; i < 16; i++)
-                    if (req.wstrb[i]) mem[(int'(w_addr[13:0]) + i) % BYTES] <= req.wdata[i*8 +: 8];
+                    if (req.wstrb[i]) mem[(int'(w_addr[$clog2(BYTES)-1:0]) + i) % BYTES] <= req.wdata[i*8 +: 8];
                 w_addr <= w_addr + 32'd16;
                 if ((w_left == 0) != req.wlast) $fatal(1, "bad WLAST");
                 if (w_left == 0) begin
