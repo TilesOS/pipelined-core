@@ -96,6 +96,23 @@ whole AXI address span invalidated LR even when WSTRB updated only a neighboring
 word. Snoop masks now include exactly the written word lanes for each accepted
 beat. The regression preserves both the different-word and second-beat cases.
 
+## CI image-loading follow-up
+
+The first [GitHub Actions run](https://github.com/TilesOS/pipelined-core/actions/runs/36446453814)
+failed in the cached smoke comparison on Ubuntu 24.04 / Verilator 5.020.
+The final instruction was loaded as `0x00ffffff` instead of `0xffffffff`:
+the generated hex file had no whitespace after its final byte token, and
+that simulator's `$readmemh` omitted the unterminated token. The earlier
+5.020 portability checks did not compare the final trap instruction against
+Spike, so they missed this difference.
+
+The image writer now appends a newline. The same seven-event smoke test
+reproduces the failure without it and passes with it. A fresh Verilator 5.020
+build passes the unit/directed cached-system gates and all 21 Spike comparisons
+(3,024 architectural events); the full checkpoint 9 gate also passes on 5.032.
+The CPU/cache RTL and binary program images are unchanged. See
+[the fix evidence](evidence/09-ci-image-loading.txt).
+
 ## Scope and next step
 
 This is still a single-hart M-mode CPU that halts on a trap. Standard devices,

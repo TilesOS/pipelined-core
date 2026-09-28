@@ -40,7 +40,8 @@ compile_image() {
     "$cross_objcopy" -O binary "$build_dir/$name.elf" "$build_dir/$name.bin"
     python3 - "$build_dir/$name.bin" "$build_dir/$name.hex" <<'PY'
 import pathlib, sys
-pathlib.Path(sys.argv[2]).write_text(pathlib.Path(sys.argv[1]).read_bytes().hex(' '))
+# Verilator 5.020's $readmemh needs whitespace after the final byte token.
+pathlib.Path(sys.argv[2]).write_text(pathlib.Path(sys.argv[1]).read_bytes().hex(' ') + '\n')
 PY
 }
 compare_image() {
