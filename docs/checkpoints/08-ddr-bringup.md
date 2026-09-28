@@ -1,10 +1,10 @@
 # Checkpoint 8: Nexys A7 DDR2 bring-up
 
-Status: in progress for merge readiness. The first board build passed MIG
-calibration, 128-bit DDR2 transfer, 50 MHz timing, and bandwidth measurements.
-The clock/reset remediation passed routed setup timing and the report review.
-Hold timing and a board retest of the updated bitstream remain before merging
-or starting checkpoint 9.
+Status: complete and ready to merge. The updated board build passed MIG
+calibration, 128-bit DDR2 readback, 50 MHz setup/hold timing, bandwidth
+measurements, and the CPU RESET retest. Remaining MIG/FIFO diagnostics have
+an endpoint-specific review below. Contention uses CPU-like synthetic traffic;
+the actual CPU connects through caches in checkpoint 9 after this branch merges.
 
 ## Prepared traffic and measurement path
 
@@ -77,9 +77,9 @@ defines a primary 100 MHz `sys_clk_i` clock at a scoped hierarchical pin; its
 200 MHz reference-clock definition is commented out for this No Buffer setup.
 That build reported TIMING-4, TIMING-6, and TIMING-27 clock methodology warnings.
 The CDC checker also reported unknown FIFO/reset crossings and six
-combinational-reset-before-synchronizer paths. These warnings need engineering
-review before treating the build as a reusable timing signoff for later
-checkpoints.
+combinational-reset-before-synchronizer paths. The remediation and final
+review below supersede that build's clock/reset findings. Later checkpoints
+must review their own changed netlists and constraints.
 
 The first SRAM bitstream was loaded over JTAG on 2026-09-27; flash programming
 belongs to a later checkpoint. It used RTL/constraints through commit `6517b6e`.
@@ -107,7 +107,7 @@ Decoding the saved capture on the Mac reproduces the board-side results:
 python3 scripts/decode_checkpoint8.py docs/checkpoints/evidence/08-uart-capture.dat
 ```
 
-The routed utilization report for this **MIG plus synthetic traffic shell**
+The first board build's routed utilization report for this **MIG plus synthetic traffic shell**
 shows 1,971 of 15,850 slices (12.44%), 5,531 slice LUTs (8.72%), 5,842 slice
 registers (4.61%), 0 of 135 block RAM tiles, and 0 of 240 DSPs. These totals
 are not a measurement of the future CPU, caches, or accelerator, and do not
@@ -120,7 +120,7 @@ interaction.
 ## Warning remediation before merge
 
 The initial board pass was recorded as complete too early for merge readiness.
-The critical clock and reset findings are being addressed in checkpoint 8:
+The critical clock and reset findings were addressed in checkpoint 8:
 
 - The board XDC now specifies CFGBVS=VCCO and CONFIG_VOLTAGE=3.3, matching
   Digilent's [Nexys A7 schematic](https://digilent.com/reference/_media/reference/programmable-logic/nexys-a7/nexys-a7-sch.pdf).
@@ -140,8 +140,7 @@ Verilator 5.032 passed the five checkpoint 7 clock ratios, including calibration
 loss and a short external reset pulse, the two checkpoint 8 DDR/UART cases,
 and board-top lint after these changes. REQP-1709 originates in MIG's PLL-to-UI-MMCM clocking path;
 the [AMD MIG clocking architecture](https://docs.amd.com/api/khub/documents/rTaW6qs7YptHTdMLuG0kVA/content)
-includes that cascade. Its remaining warning needs a documented review, rather
-than a change to the generated clock buffers solely to suppress the warning.
+includes that cascade. Its remaining warning is reviewed below.
 The routed report review below records the remaining CDC findings by endpoint
 and FIFO protocol.
 
@@ -164,9 +163,9 @@ reviewed against RTL/constraints commit `7ec5a4a`.
   registers or unconstrained internal maximum-delay endpoints. The external
   reset button, LEDs, and UART TX have no synchronous external timing contract.
 
-The transferred timing report used `-delay_type max` and does not establish
-hold closure. Both report scripts now request `min_max`; a report-only rerun
-can check hold timing without changing synthesis or implementation inputs.
+The first transferred timing report used `-delay_type max`. Both report scripts
+now request `min_max`, and the final report-only rerun below confirms hold
+closure without changing synthesis or implementation inputs.
 
 ### Remaining findings accepted for this checkpoint 8 shell
 
@@ -197,9 +196,64 @@ The remaining LUTAR-1 (one), PDRC-190 (12), and REQP-1959 advisories (16)
 are inside generated MIG reset, temperature synchronization, and SERDES logic.
 REQP-1709 identifies the generated PLL `CLKOUT3` to UI MMCM cascade documented
 by AMD. These generated-IP findings are accepted for this MIG configuration
-subject to the final board retest; they are retained in the reports.
+with the final board retest passing; they are retained in the reports.
 
-Merge readiness still requires the updated bitstream to calibrate, finish
-both sweeps with zero errors, and repeat that result after pressing CPU RESET.
-The fresh capture, hold-timing report, and updated utilization must be recorded
-before marking checkpoint 8 complete.
+## Final setup/hold timing and board retest
+
+The 2026-09-28 `timing_signoff.rpt`, generated at 00:34:03 with
+`report_timing_summary -delay_type min_max`, confirms the routed implementation
+of RTL/constraints through `7ec5a4a` meets all specified timing constraints:
+
+| Timing check | Worst slack | Total negative slack | Failing endpoints |
+|---|---:|---:|---:|
+| Setup | +1.316 ns | 0 | 0 |
+| Hold | +0.018 ns | 0 | 0 |
+| Pulse width | +0.206 ns | 0 | 0 |
+
+The 50 MHz core has setup WNS **+9.367 ns** and hold WHS **+0.049 ns**.
+The 81.25 MHz UI has setup WNS **+3.874 ns** and hold WHS **+0.018 ns**.
+The 200 MHz reference domain has setup WNS **+2.424 ns** and hold WHS
+**+0.120 ns**. These results apply to the constrained domains and reviewed
+CDC protocol described above.
+
+The updated JTAG-programmed build produced a complete benchmark UART report,
+then produced another after CPU RESET. Both 198-byte captures contain six
+complete packets, all identical within that capture. These are repeated reports
+of one completed benchmark per capture, rather than six independent tests.
+The completed report implies that calibration released the traffic path and
+the benchmark reached `done`. The two benchmark runs report:
+
+| 64 KiB sweep | Updated build cycles | MB/s | After CPU RESET cycles | MB/s |
+|---|---:|---:|---:|---:|
+| Baseline write | 6,294 | 520.62 | 6,293 | 520.71 |
+| Baseline read | 9,332 | 351.14 | 9,332 | 351.14 |
+| CPU-like contention write | 7,516 | 435.98 | 7,523 | 435.57 |
+| CPU-like contention read | 15,102 | 216.98 | 15,107 | 216.91 |
+
+Both runs have **0 DMA errors, 0 CPU-like errors, and 384 CPU-like round
+trips**. Small cycle-count differences between the runs do not change the
+pass result. The measured region is 64 KiB plus a disjoint contention region;
+this is not an exhaustive test of the full 128 MiB DDR2 memory.
+
+The final routed utilization is **2,104 slices (13.27%)**, **5,585 slice LUTs
+(8.81%)**, **5,165 slice registers (4.07%)**, **0 block RAM tiles**, and
+**0 DSPs**. The shell includes MIG and synthetic traffic; it does not include
+the CPU, caches, or accelerator.
+
+Saved raw evidence:
+
+- [Updated build capture](evidence/08-uart-updated.dat), SHA-256
+  `e09b90fa3a32cf3196849bb443ed09ba8b654ab15d465e4e6559a53f85bb94c4`.
+- [CPU RESET capture](evidence/08-uart-reset.dat), SHA-256
+  `cdd2ea9249e06d31dbbd840f551b25511791d80f344e8cfed5d5759f152b81f6`.
+
+Reproduce the final measurement decoding with:
+
+```sh
+python3 scripts/decode_checkpoint8.py docs/checkpoints/evidence/08-uart-updated.dat
+python3 scripts/decode_checkpoint8.py docs/checkpoints/evidence/08-uart-reset.dat
+```
+
+Checkpoint 8 is complete for this board shell. Merge `checkpoint8-ddr-bringup`
+before starting checkpoint 9's cache/CPU integration. The remaining reviewed
+warnings do not require another checkpoint 8 RTL build.
