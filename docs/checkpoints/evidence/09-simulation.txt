@@ -1,0 +1,147 @@
+Checkpoint 9 simulation evidence, 2026-09-28
+Verilator 5.032; RISC-V GCC 14.2; pinned Spike 1.1.0
+
+$ bash scripts/run_checkpoint9.sh
+PASS: 279 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 279 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 60 architectural events (59 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 22 architectural events (21 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 28 architectural events (27 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 11 architectural events (10 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 19 architectural events (18 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: calibration loss reset an in-flight refill and dirty cache; CPU restarted with seven ordered events
+PASS: button UART dumped the last retired PC during a hung cache refill
+PASS: uncached executable DMA pages bypass both L1s and observe updated code
+PASS: LR/SC same/different word and burst interference, AMO arbitration/drain, cached DMA rejection
+PASS: precise instruction/refill/store/eviction/FENCE.I AXI faults; younger work suppressed
+PASS: checkpoint 9 cached CPU, AXI fabric/CDC and Spike gates
+
+$ bash scripts/run_lockstep_smoke.sh --self-test
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: rd@4 detected at architectural event 4
+PASS: store@3 detected at architectural event 3
+PASS: cause@6 detected at architectural event 6
+
+$ bash scripts/run_core_slice.sh
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: real CPU retirement mismatch stopped at event 4
+PASS: forced pipeline hang; button UART dumped five ordered PC/instruction records
+PASS: captured UART packet decoded to the last retired PC
+PASS: 8 architectural events (7 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 256-entry trace ring retained newest 256 of 300 retirements in UART order
+
+$ bash scripts/run_rv32i.sh
+PASS: 60 architectural events (59 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized seed 1
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized seed 2
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized seed 3
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized seed 4
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise illegal trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise invalid_shift trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise invalid_op trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise invalid_store trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise lh_misaligned trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise lw_misaligned trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise sh_misaligned trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise sw_misaligned trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise branch_misaligned trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise jalr_misaligned trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise instruction_access trap
+PASS: 5 architectural events (4 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise load_access trap
+PASS: 5 architectural events (4 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise store_access trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise ecall trap
+PASS: 4 architectural events (3 retirements, 1 trap) match Spike, including register and memory effects
+PASS: precise ebreak trap
+
+$ bash scripts/run_checkpoint6.sh
+PASS: 22 architectural events (21 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 28 architectural events (27 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 11 architectural events (10 retirements, 1 trap) match Spike, including register and memory effects
+PASS: competing same-word store invalidated LR; other-word store preserved it
+PASS: same-hart conflicting store cleared the reservation
+PASS: AMO held memory lock through commit and serialized competing store
+PASS: 64-bit mcycle/minstret halves, write/read order, and monotonic cycles
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 5
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 6
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 7
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 8
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: lr_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: sc_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: amo_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: lr_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: sc_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: amo_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_lr precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_amo precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_csr precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: readonly_csr precise trap
+
+$ bash scripts/run_checkpoint7.sh
+PASS: 10 bridge operations, byte lanes, errors, response hold
+PASS: seven narrow peripheral accesses, exact byte address and one device request each
+PASS: 77 bus operations, clocks 5/7, reset after 1 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 3/11, reset after 7 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 11/3, reset after 15 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 4/13, reset after 4 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 13/4, reset after 11 beats, W FIFO full=1
+
+$ bash scripts/lint_checkpoint8_board.sh
+PASS: checkpoint8_board_top lint
+
+$ bash scripts/run_checkpoint8_traffic.sh
+PASS: DDR surrogate sweep: base W/R 7499/8799 cycles, contended W/R 9531/10435 cycles, CPU trips 512
+PASS: DDR surrogate sweep: base W/R 15838/21198 cycles, contended W/R 19374/24540 cycles, CPU trips 512
+
+Ubuntu 24.04 container, Verilator 5.020:
+PASS: 279 L1 operations; contention, faults, calibration-loss restart, and hung-refill UART checks
+
+PASS: Python/shell syntax, git diff --check; flash allocation 2,621,440 bytes spare (budget only)

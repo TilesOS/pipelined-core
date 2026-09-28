@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module axi_fabric (
+module axi_fabric #(parameter bit DMA_UNCACHED_ONLY = 0) (
     input  logic clk,
     input  logic rst_n,
     input  axi128_pkg::axi_req4_t m_req,
@@ -70,6 +70,14 @@ module axi_fabric (
                           m_req[r_pick].arsize, 1'b0);
         w_decode = decode(m_req[w_pick].awaddr, m_req[w_pick].awlen,
                           m_req[w_pick].awsize, 1'b1);
+        // The integrated noncoherent DMA master can never create a cached
+        // alias or change a dirty CPU line behind the L1s.
+        if (DMA_UNCACHED_ONLY && r_pick == 3 &&
+            (m_req[r_pick].araddr < 32'h8780_0000 || m_req[r_pick].araddr >= 32'h8800_0000))
+            r_decode = 2;
+        if (DMA_UNCACHED_ONLY && w_pick == 3 &&
+            (m_req[w_pick].awaddr < 32'h8780_0000 || m_req[w_pick].awaddr >= 32'h8800_0000))
+            w_decode = 2;
     end
 
     always_comb begin

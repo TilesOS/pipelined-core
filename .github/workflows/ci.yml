@@ -38,6 +38,8 @@ jobs:
         run: bash scripts/run_rv32i.sh
       - name: Run M/A, CSR, fence, and contention tests
         run: bash scripts/run_checkpoint6.sh
+      - name: Run cached CPU, full FENCE.I, and DMA-window tests
+        run: bash scripts/run_checkpoint9.sh
 
   axi-bus:
     runs-on: ubuntu-latest

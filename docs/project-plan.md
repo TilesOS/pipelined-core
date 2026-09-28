@@ -25,7 +25,7 @@ Implement the system through the 18 checkpoints below, committing and reviewing 
 | 6 | Add M/A instructions, LR/SC, AMOs, CSRs, and fences; pass contention and lockstep tests. | Complete for the zero-wait M-mode core; [record](checkpoints/06-m-a-csr.md). |
 | 7 | Implement AXI fabric, width bridge, and clock crossing; pass randomized clock, reset, backpressure, burst, and concurrent-master tests. | Complete in RTL simulation; [record](checkpoints/07-axi-fabric.md). |
 | 8 | Bring up MIG and 128-bit DDR transfers on the board; meet 50 MHz timing and measure sustained bandwidth with and without CPU traffic. | Complete; calibration, 128-bit readback, 50 MHz setup/hold timing, bandwidth, and CPU RESET retest passed; [record](checkpoints/08-ddr-bringup.md). Contention uses CPU-like synthetic traffic until checkpoint 9. Remaining MIG/FIFO diagnostics are reviewed. |
-| 9 | Add caches, physical-address cacheability, atomics, and full `FENCE.I`; pass eviction, executable-page, and uncached-window tests. | Pending |
+| 9 | Add caches, physical-address cacheability, atomics, and full `FENCE.I`; pass eviction, executable-page, and uncached-window tests. | Complete in RTL simulation; [record](checkpoints/09-caches.md). Cached CPU, fabric/CDC, Spike, contention, fault, and stalled-debug gates pass. FPGA timing/resource measurement remains a later board gate. |
 | 10 | Add privilege, PMP, standard UART/CLINT/PLIC, and device tree; pass trap, interrupt, timer-compare, and OpenSBI tests. | Pending |
 | 11 | Add Sv32 TLBs, read-only walker, Svade faults, and `SFENCE.VMA`; pass paging and stale-TLB tests. | Pending |
 | 12 | Add QSPI loader and UART recovery; verify image integrity checks and safe recovery from corrupted flash images. | Pending |

@@ -278,7 +278,7 @@ def spike_csrs(spike):
 
 def run(args):
     spike_cmd = [args.spike, "--isa=rv32ima_zicsr_zifencei", "--priv=m",
-                 f"--pc=0x{args.entry:08x}", "-m0x80000000:0x10000",
+                 f"--pc=0x{args.entry:08x}", f"-m{args.memory}",
                  "-d", "-l", "--log-commits", args.elf]
     spike = SpikePTY(spike_cmd)
     dut = subprocess.Popen([args.dut], stdin=subprocess.PIPE,
@@ -379,6 +379,8 @@ def main():
     parser.add_argument("--entry", type=lambda s: int(s, 0), default=0x80000000)
     parser.add_argument("--limit", type=int, default=7)
     parser.add_argument("--watchdog", type=int, default=1000)
+    parser.add_argument("--memory", default="0x80000000:0x10000",
+                        help="Spike physical RAM regions (default: legacy 64 KiB fixture)")
     parser.add_argument("--require-done", action="store_true")
     parser.add_argument("--until-trap", action="store_true",
                         help="compare through the first trap, with --limit as a safety cap")

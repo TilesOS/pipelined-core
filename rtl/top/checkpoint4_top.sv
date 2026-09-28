@@ -46,12 +46,20 @@ module checkpoint4_top #(
     logic freeze_core;
     // This test wrapper starts directly in RAM; the board reset vector stays
     // at zero for the BRAM loader specified in the architecture contract.
+    // The legacy fixture deliberately ignores the cache handshake outputs.
+    /* verilator lint_off PINCONNECTEMPTY */
     rv32_slice #(.RESET_PC(32'h8000_0000)) core (
         .clk(clk), .rst_n(rst_n), .debug_halt(manual_halt || freeze_core),
+        .imem_ready(1'b1), .imem_valid(), .imem_accept(),
+        .dmem_ready(1'b1), .dstore_ready(1'b1), .dstore_fault(1'b0),
+        .dmem_read_valid(), .dmem_read_accept(), .dmem_req_addr(), .dmem_size(),
+        .dmem_write_valid(), .dmem_write_addr(), .dmem_write_size(),
+        .fence_i_valid(), .fence_i_ready(1'b1), .fence_i_fault(1'b0),
         .imem_addr(imem_addr), .imem_rdata(imem_rdata), .imem_fault(imem_fault),
         .dmem_addr(dmem_addr), .dmem_rdata(dmem_rdata), .dmem_fault(dmem_fault),
         .external_store_valid(external_store_valid),
         .external_store_addr(external_store_addr),
+        .external_store_word_mask(4'b0001 << external_store_addr[3:2]), .atomic_memory_ready(1'b1),
         .atomic_lock(atomic_lock),
         .dmem_waddr(dmem_waddr),
         .dmem_wdata(dmem_wdata), .dmem_wstrb(dmem_wstrb),
@@ -65,6 +73,7 @@ module checkpoint4_top #(
         .retire_csr_addr(retire_csr_addr), .retire_csr_data(retire_csr_data),
         .done(done), .ila_pipeline(ila_pipeline)
     );
+    /* verilator lint_on PINCONNECTEMPTY */
     trace_ring_uart #(.UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT),
                       .BUTTON_STABLE_CYCLES(BUTTON_STABLE_CYCLES)) trace (
         .clk(clk), .rst_n(rst_n), .dump_button(dump_button),

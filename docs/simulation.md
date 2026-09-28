@@ -54,3 +54,25 @@ The fixed Spike invocation models one M-mode hart and a 64 KiB test memory at `0
 Run `bash scripts/run_checkpoint7.sh` on Ubuntu with Verilator. The gate builds three SystemVerilog testbenches. The fabric test sends eight write/read burst pairs from each of four concurrent masters, with 1–16 beats, byte strobes, and a memory scoreboard that checks preserved bytes. It also tests a legal burst ending at a 4 KiB boundary, DECERR for invalid regions and a crossing burst, single-beat peripheral routing, round-robin grants, and reset after 1, 4, 7, 11, or 15 beats. Five unrelated clock ratios and seeded backpressure patterns exercise the five dual-clock FIFOs. Monitors enforce stable channel payloads while stalled and a bounded arbitration wait.
 
 The width bridge test checks byte, halfword, and word lanes, misalignment errors, and held responses. The peripheral adapter test checks narrow transfers at their exact byte addresses and one device operation per access. `axi_subsystem` gates the fabric and CDC on MIG calibration; loss of calibration aborts in-flight traffic, which the test then reissues after reset release. These are standalone bus tests; the cache and CPU connection follows at checkpoint 9, and actual MIG timing and bandwidth follow at checkpoint 8.
+
+## Checkpoint 9: cached CPU and physical memory attributes
+
+Run `bash scripts/run_checkpoint9.sh` on the same Ubuntu simulation host. The
+script builds the L1 testbench and the CPU connected to both caches, the real
+four-master AXI fabric, and its asynchronous MIG crossing. The modeled memory
+uses seeded backpressure and separate storage for cached DDR and the DMA pool.
+
+The gate checks all 256 dirty lines, two-way LRU eviction, byte/halfword lanes,
+writeback/refill errors, response holding, cached and uncached executable
+pages, full `FENCE.I`, and the physical DMA boundary. Directed and randomized
+RV32I/M/A/CSR programs run in retirement lockstep with Spike. The new
+`lockstep.py --memory` option selects the 128 MiB DDR aperture for these tests;
+its default remains the earlier 64 KiB fixture.
+
+`verify_cached_core.py build/cache` checks cases outside a single-hart Spike
+model: real competing AXI writes, LR/SC burst/strobe interference, AMO write
+admission and older-write draining, rejected cached DMA access, injected AXI
+faults, calibration-loss restart, and an independent UART dump during a hung
+refill. Build logs, ELF/binary/hex images, and gate output live under ignored
+`build/cache`. See the [checkpoint record](checkpoints/09-caches.md) for scope
+and evidence.

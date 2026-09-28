@@ -19,7 +19,7 @@ The board top will mark these nets for Vivado ILA sampling in the 50 MHz core do
 | Probe | Width | Meaning and useful trigger |
 |---|---:|---|
 | `ila_pipeline[7:3]` | 5 | WB, MEM, EX, ID, IF valid; trigger when no retirement follows a nonempty pipeline. |
-| `ila_pipeline[2:0]` | 3 | Decode dependency stall, EX redirect, EX fault; correlate branch kills and illegal traps. |
+| `ila_pipeline[2:0]` | 3 | Dependency, divider, memory, or fence stall; EX redirect; EX/MEM/write-response fault. Correlate blocked cache accesses, branch kills, and traps. |
 | `retire_valid`, `retire_pc`, `retire_cause`, `retire_tval` | 97 | Last architectural boundary and trap details. |
 | `trace_count`, `trace_write_ptr`, `dump_busy` | 18 | Ring occupancy, wrap pointer, and active serial dump. |
 | `manual_halt`, `dump_button`, `uart_tx` | 3 | Confirm a physical button press reaches the independent trace path. |
@@ -29,3 +29,10 @@ The board top will mark these nets for Vivado ILA sampling in the 50 MHz core do
 | MIG `init_calib_complete` and errors | reserved | Add at checkpoint 8; distinguish DDR calibration from CPU hangs. |
 
 The first hardware trigger sequence is `retire_valid` going quiet with a stage valid, followed by a button dump. Capture 256 retired entries over UART and compare the last PC/trap with the ILA control state. No board timing or physical ILA capture is claimed before the x86-64 Vivado host and Nexys A7 are available.
+
+Checkpoint 9 preserves this packet and trace ring in `rv32_cached_core`. Its
+hang test blocks an actual instruction-refill response after one retirement,
+then verifies the UART emits that last PC while the CPU remains stalled. The
+cache state machines and the `FENCE.I` coordinator carry `mark_debug`
+attributes; miss, writeback, and bypass counters are exposed at
+`checkpoint9_top`. The AXI fabric/CDC probes retain their checkpoint 7 meaning.
