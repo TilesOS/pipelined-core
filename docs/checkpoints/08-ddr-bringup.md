@@ -2,8 +2,9 @@
 
 Status: in progress for merge readiness. The first board build passed MIG
 calibration, 128-bit DDR2 transfer, 50 MHz timing, and bandwidth measurements.
-Clock/reset warning remediation requires another Vivado build and board retest
-before merging or starting checkpoint 9.
+The clock/reset remediation passed routed setup timing and the report review.
+Hold timing and a board retest of the updated bitstream remain before merging
+or starting checkpoint 9.
 
 ## Prepared traffic and measurement path
 
@@ -72,9 +73,10 @@ reported WNS **+1.316 ns**, TNS 0, 50 MHz core-domain WNS **+8.676 ns**, and
 81.25 MHz MIG UI-domain WNS **+4.378 ns**. The default DRC reported no errors;
 it reported CFGBVS-1 (configuration-voltage properties absent) and REQP-1709
 (buffering on one MIG-generated PLL output) warnings. MIG's generated XDC
-defines primary 100 MHz `sys_clk_i` and 200 MHz `clk_ref_i` clocks at scoped
-hierarchical pins. TIMING-4, TIMING-6, and TIMING-27 clock methodology warnings
-remain. The CDC checker also reports unknown FIFO/reset crossings and six
+defines a primary 100 MHz `sys_clk_i` clock at a scoped hierarchical pin; its
+200 MHz reference-clock definition is commented out for this No Buffer setup.
+That build reported TIMING-4, TIMING-6, and TIMING-27 clock methodology warnings.
+The CDC checker also reported unknown FIFO/reset crossings and six
 combinational-reset-before-synchronizer paths. These warnings need engineering
 review before treating the build as a reusable timing signoff for later
 checkpoints.
@@ -136,9 +138,68 @@ The critical clock and reset findings are being addressed in checkpoint 8:
 
 Verilator 5.032 passed the five checkpoint 7 clock ratios, including calibration
 loss and a short external reset pulse, the two checkpoint 8 DDR/UART cases,
-and board-top lint after these changes. Vivado implementation and board retest
-are still pending. REQP-1709 originates in MIG's PLL-to-UI-MMCM clocking path;
+and board-top lint after these changes. REQP-1709 originates in MIG's PLL-to-UI-MMCM clocking path;
 the [AMD MIG clocking architecture](https://docs.amd.com/api/khub/documents/rTaW6qs7YptHTdMLuG0kVA/content)
 includes that cascade. Its remaining warning needs a documented review, rather
 than a change to the generated clock buffers solely to suppress the warning.
-Any remaining CDC findings must be reviewed by endpoint and FIFO protocol.
+The routed report review below records the remaining CDC findings by endpoint
+and FIFO protocol.
+
+## Routed review of the clock/reset update
+
+Vivado 2026.1 reports generated on 2026-09-28 at 00:20:09–00:20:13 for
+`checkpoint8_board_top`, `xc7a100tcsg324-1`, and fully routed `impl_1` were
+reviewed against RTL/constraints commit `7ec5a4a`.
+
+- Setup WNS **+1.316 ns**, TNS **0**, and **0 failing endpoints**; pulse-width
+  slack **+0.206 ns**. Core 50 MHz WNS **+9.367 ns**, UI 81.25 MHz WNS
+  **+3.874 ns**, and reference 200 MHz WNS **+2.424 ns**.
+- The MIG system clock is now a divide-by-one generated clock whose master
+  is `board_clk_100`. TIMING-4, TIMING-6, TIMING-27, TIMING-28, CFGBVS-1,
+  and CDC-10 are absent. Methodology has no Critical warnings; DRC has no
+  errors and only REQP-1709.
+- `report_exceptions` retains the vendor DDR multicycle/reset/temperature
+  constraints and the two active 12 ns datapath-only limits. The clock-pair
+  report classifies the core/UI pairs as Safely Timed. There are no unclocked
+  registers or unconstrained internal maximum-delay endpoints. The external
+  reset button, LEDs, and UART TX have no synchronous external timing contract.
+
+The transferred timing report used `-delay_type max` and does not establish
+hold closure. Both report scripts now request `min_max`; a report-only rerun
+can check hold timing without changing synthesis or implementation inputs.
+
+### Remaining findings accepted for this checkpoint 8 shell
+
+These are a manual engineering review of this particular netlist, with the
+original diagnostic severities retained. No blanket waivers are applied.
+
+| Finding | Count | Endpoint review and reason for acceptance |
+|---|---:|---|
+| CDC-1 Critical | 392 | All sources are FIFO payload distributed RAM clock pins: 324 from `w_fifo`, 68 from `r_fifo`. Payload is consumed only on ready/valid handshakes after the write Gray pointer passes two destination registers. Storage is held until the read pointer returns through two source registers. The 12 ns bound is shorter than either clock period. These paths use the FIFO protocol rather than individual bit synchronizers. |
+| CDC-6 Warning | 10 | The two Gray-pointer directions in each of the five FIFOs. Each pointer advances by one entry, is registered, and crosses through two `ASYNC_REG` stages. The 12 ns path bound limits inter-bit skew below the fastest source period. |
+| CDC-11 Critical | 6 | One registered `link_rst_n` source fans out to `core_release` and five local FIFO reset-release chains in the core domain. Every chain asserts asynchronously and releases through two stages. FIFO ready/valid stays low during local reset; masters/fabric stay reset until `masters_ready`. A one-cycle difference in local release cannot create a FIFO handshake while that FIFO is reset. |
+| CDC-15 Warning | 51 | All sources are FIFO payload RAM: 22 each from `ar_fifo` and `aw_fifo`, and 7 from `w_fifo`. The same stable-storage and synchronized-pointer protocol applies. |
+| CDC-8 Warning | 2 | `CPU_RESETN` enters generated MIG reference/UI reset synchronization chains. The reported depth is 15 and 12 respectively; the missing attribute is inside generated IP. |
+
+The CDC-11 acceptance is an inference from our ready/valid reset gating and
+the [AMD reset-synchronizer guidance](https://docs.amd.com/r/2022.1-English/ug906-vivado-design-analysis/Asynchronous-Reset-Synchronizer),
+which describes safely gated AXI FIFO reset fanout. Our custom FIFO uses
+`wr_release`/`rd_release` gating rather than the vendor FIFO's `wr_rst_busy`.
+TIMING-9 summarizes the custom FIFO topology findings above. TIMING-47 (two)
+flags the deliberate clock-wide datapath bounds: all current core/UI
+crossings were reviewed as FIFO payload, Gray pointers, or reset release.
+Future direct crossings must not inherit this acceptance automatically.
+
+XDCC-1 and XDCC-7 each identify the intentional identity-clock replacement;
+the clock report verifies the new master and the exception report verifies
+retained vendor constraints. XDCB-5 (one) concerns a vendor query's runtime.
+The remaining LUTAR-1 (one), PDRC-190 (12), and REQP-1959 advisories (16)
+are inside generated MIG reset, temperature synchronization, and SERDES logic.
+REQP-1709 identifies the generated PLL `CLKOUT3` to UI MMCM cascade documented
+by AMD. These generated-IP findings are accepted for this MIG configuration
+subject to the final board retest; they are retained in the reports.
+
+Merge readiness still requires the updated bitstream to calibrate, finish
+both sweeps with zero errors, and repeat that result after pressing CPU RESET.
+The fresh capture, hold-timing report, and updated utilization must be recorded
+before marking checkpoint 8 complete.
