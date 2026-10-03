@@ -8,6 +8,8 @@ The [project plan](docs/project-plan.md) defines the architecture, 18 checkpoint
 
 Checkpoints 1–7 are complete in simulation, and [checkpoint 8 DDR2 board bring-up](docs/checkpoints/08-ddr-bringup.md) is complete on the Nexys A7-100T. [Checkpoint 9](docs/checkpoints/09-caches.md) connects the RV32IMA CPU to separate 8 KiB, two-way caches and the AXI fabric/clock crossing. Physical addresses select cached DDR or uncached ROM/MMIO/DMA accesses. Dirty eviction, full `FENCE.I`, executable-page changes, uncached atomics, competing DMA writes, and precise bus faults pass RTL tests and Spike lockstep. The button UART dump remains usable during a hung cache refill.
 
+The CPU testbench also has [SystemVerilog functional coverage](docs/cpu-functional-coverage.md) with a reproducible named-bin report and CI gate.
+
 The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) gives the regression commands. The [debug trace path](docs/debug.md) records retirement and traps. The CPU still halts on traps; privilege support and standard peripherals follow in checkpoint 10. Checkpoint 8's measured bitstream uses synthetic traffic. Timing, BRAM inference, and board execution of the cached CPU have not yet been measured.
 
 ## Development hosts

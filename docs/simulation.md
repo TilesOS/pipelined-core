@@ -76,3 +76,13 @@ faults, calibration-loss restart, and an independent UART dump during a hung
 refill. Build logs, ELF/binary/hex images, and gate output live under ignored
 `build/cache`. See the [checkpoint record](checkpoints/09-caches.md) for scope
 and evidence.
+
+## CPU functional coverage
+
+Run `bash scripts/run_cpu_coverage.sh` for the CPU slice, RV32I, M/A/CSR,
+exception, and contention gates instrumented with SystemVerilog covergroups.
+The command builds a pinned covergroup-capable Verilator locally, merges fresh
+per-instance counters, and requires all 147 defined functional bins to be hit.
+It produces text and JSON reports under `build/coverage`; CI uploads those
+reports and raw counters. See the [coverage model and reproduction guide](cpu-functional-coverage.md)
+for the bin definitions, sampling rules, collector self-tests, and scope.

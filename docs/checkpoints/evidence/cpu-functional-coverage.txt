@@ -1,0 +1,73 @@
+CPU functional coverage evidence
+Date: 2026-10-03 (America/New_York)
+Host: OrbStack ece-dev, Ubuntu 26.04 LTS arm64
+Implementation tested: 13a370b (coverage tests and CI gate)
+Coverage infrastructure: 2d41120
+Simulator: Verilator 5.052, official v5.052
+Simulator source commit: ea338be98e1e838d3518809ce8899f85a009963c
+Reference: Spike 1.1.0, existing pinned project build
+
+Command (from repository root on Ubuntu):
+  bash scripts/run_cpu_coverage.sh
+Exit status: 0
+
+CPU functional coverage: 147/147 bins (100.00%)
+Merged 51 simulation files; hit threshold: 1
+  atomic_order: 4/4
+  branch: 12/12
+  csr_address: 16/16
+  csr_effect: 2/2
+  destination: 2/2
+  divide: 10/10
+  fault: 2/2
+  instruction: 64/64
+  memory: 20/20
+  redirect: 2/2
+  sc: 2/2
+  stall: 2/2
+  trap: 9/9
+
+Coverage source SHA-256: 2e5afa33661a52397812c96ddabfe9891da5e13a2dd4c80b30faac85e4e36d8c
+Named-bin counts: cpu-functional-coverage.json (beside this file)
+Raw counters: build/coverage/run-38uXQz/*.dat (ignored local build output)
+Spike-checked program runs: 41
+Spike-checked architectural events: 2998
+Intentional comparator mismatch injection is excluded from the aggregate.
+Collector integrity checks use separate temporary counters and are excluded.
+
+PASS: real CPU retirement mismatch stopped at event 4
+PASS: forced pipeline hang; button UART dumped five ordered PC/instruction records
+PASS: captured UART packet decoded to the last retired PC
+PASS: 256-entry trace ring retained newest 256 of 300 retirements in UART order
+PASS: competing same-word store invalidated LR; other-word store preserved it
+PASS: same-hart conflicting store cleared the reservation
+PASS: AMO held memory lock through commit and serialized competing store
+PASS: 64-bit mcycle/minstret halves, write/read order, and monotonic cycles
+PASS: marchid/mimpid read the core's defined zero IDs without CSR writes
+PASS: competing same-word store invalidated LR; other-word store preserved it
+
+PASS: final trap sampled; faulting loads excluded; divide operands classified; model lifetimes isolated; incomplete coverage rejected
+
+Additional shared-controller regression commands:
+  bash scripts/run_lockstep_smoke.sh --self-test
+Exit status: 0
+Spike aligned at 0x80000000 after 5 startup instructions
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: rd@4 detected at architectural event 4
+PASS: store@3 detected at architectural event 3
+PASS: cause@6 detected at architectural event 6
+
+  bash scripts/run_checkpoint9.sh
+Exit status: 0
+PASS: calibration loss reset an in-flight refill and dirty cache; CPU restarted with seven ordered events
+PASS: button UART dumped the last retired PC during a hung cache refill
+PASS: uncached executable DMA pages bypass both L1s and observe updated code
+PASS: LR/SC same/different word and burst interference, AMO arbitration/drain, cached DMA rejection
+PASS: precise instruction/refill/store/eviction/FENCE.I AXI faults; younger work suppressed
+PASS: checkpoint 9 cached CPU, AXI fabric/CDC and Spike gates
+
+Scope: 100% of the 147 explicitly modeled functional bins for the zero-wait
+M-mode RV32IMA/Zicsr/Zifencei CPU testbench. This is not exhaustive CPU, cache,
+bus, privilege, MMU, operand, hazard, or code/toggle coverage. The cached CPU
+regression passed separately and does not contribute to this percentage.
+CI configuration was updated locally; no remote CI run is claimed here.
