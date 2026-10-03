@@ -381,6 +381,25 @@ int counter_test(Simulator& sim) {
     return 0;
 }
 
+int coverage_ids_test(Simulator& sim) {
+    unsigned events = 0;
+    for (unsigned cycle = 0; cycle < 100; ++cycle) {
+        sim.step();
+        if (sim.dut.retire_valid) {
+            if (events >= 3 || sim.dut.retire_pc != kBase + 4 * events) return 1;
+            if (events < 2) {
+                if (sim.dut.retire_trap || sim.dut.retire_rd != events + 1 ||
+                    sim.dut.retire_rd_data != 0 || sim.dut.retire_csr_write) return 1;
+            } else if (!sim.dut.retire_trap || sim.dut.retire_cause != 3) return 1;
+            ++events;
+        }
+        if (sim.dut.done) break;
+    }
+    if (events != 3 || !sim.dut.done) return 1;
+    std::puts("PASS: marchid/mimpid read the core's defined zero IDs without CSR writes");
+    return 0;
+}
+
 int amo_contention_test(Simulator& sim) {
     bool saw_lock = false;
     bool saw_amo = false;
@@ -455,6 +474,8 @@ int main(int argc, char** argv) {
     }
     if (argc == 2 && std::strcmp(argv[1], "--counter-test") == 0)
         return counter_test(sim);
+    if (argc == 2 && std::strcmp(argv[1], "--coverage-ids-test") == 0)
+        return coverage_ids_test(sim);
     if (argc == 2 && std::strcmp(argv[1], "--amo-contention-test") == 0)
         return amo_contention_test(sim);
     char command[32];

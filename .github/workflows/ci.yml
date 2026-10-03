@@ -27,19 +27,26 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y verilator gcc-riscv64-unknown-elf \
-            device-tree-compiler libboost-dev libboost-regex-dev libboost-system-dev
+            device-tree-compiler libboost-dev libboost-regex-dev libboost-system-dev \
+            autoconf flex bison
       - name: Build pinned Spike with commit logging
         run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
       - name: Compare retirements and prove first-divergence halt
         run: bash scripts/run_lockstep_smoke.sh --self-test
-      - name: Run five-stage CPU slice and UART hang checks
-        run: bash scripts/run_core_slice.sh
-      - name: Run complete RV32I lockstep tests
-        run: bash scripts/run_rv32i.sh
-      - name: Run M/A, CSR, fence, and contention tests
-        run: bash scripts/run_checkpoint6.sh
+      - name: Run CPU lockstep, UART, M/A/CSR tests and functional coverage
+        run: bash scripts/run_cpu_coverage.sh
       - name: Run cached CPU, full FENCE.I, and DMA-window tests
         run: bash scripts/run_checkpoint9.sh
+      - name: Upload CPU functional coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-functional-coverage
+          path: |
+            build/coverage/summary.json
+            build/coverage/summary.txt
+            build/coverage/run-*/*.dat
+          if-no-files-found: warn
 
   axi-bus:
     runs-on: ubuntu-latest

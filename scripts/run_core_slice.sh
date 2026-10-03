@@ -38,7 +38,7 @@ export CORE_IMAGE="$build_dir/smoke.bin"
 python3 scripts/lockstep.py --spike "$spike_bin" \
     --dut "$build_dir/obj_dir/Vcheckpoint4_top" --elf "$build_dir/smoke.elf" \
     --limit 7 --require-done
-if python3 scripts/lockstep.py --spike "$spike_bin" \
+if env -u CPU_COVERAGE_DIR python3 scripts/lockstep.py --spike "$spike_bin" \
     --dut "$build_dir/obj_dir/Vcheckpoint4_top" --elf "$build_dir/smoke.elf" \
     --limit 7 --inject rd@4 > "$build_dir/core-fault.out" 2>&1; then
     echo "CPU lockstep did not detect a wrong load result" >&2
