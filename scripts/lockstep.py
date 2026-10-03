@@ -290,6 +290,7 @@ def run(args):
     dut_regs[0] = 0
     dut_csrs = {}
     memory = {}
+    completed = False
     try:
         skipped = align_spike(spike, args.entry)
         print(f"Spike aligned at 0x{args.entry:08x} after {skipped} startup instructions")
@@ -359,16 +360,26 @@ def run(args):
         print(f"PASS: {retired} architectural events ({retired - traps} retirements, "
               f"{traps} trap{'s' if traps != 1 else ''}) match Spike, "
               "including register and memory effects", flush=True)
+        completed = True
         return 0
     finally:
-        if dut.poll() is None:
-            dut.terminate()
         try:
-            dut.wait(timeout=2)
-        except subprocess.TimeoutExpired:
-            dut.kill()
-            dut.wait()
-        spike.close()
+            # Allow the DUT to flush simulation artifacts before destruction.
+            # A hung or broken DUT still gets a bounded cleanup.
+            if dut.poll() is None:
+                try:
+                    write_command(dut, "quit")
+                except (BrokenPipeError, RuntimeError):
+                    pass
+            try:
+                dut.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                dut.kill()
+                dut.wait()
+            if completed and dut.returncode != 0:
+                raise RuntimeError(f"DUT failed during shutdown: {dut.returncode}")
+        finally:
+            spike.close()
 
 
 def main():

@@ -1,5 +1,9 @@
 #include "Vcheckpoint4_top.h"
 #include "verilated.h"
+#if VM_COVERAGE
+#include "verilated_cov.h"
+#include <unistd.h>
+#endif
 
 #include <array>
 #include <cstdint>
@@ -47,7 +51,8 @@ struct UartReceiver {
 };
 
 struct Simulator {
-    Vcheckpoint4_top dut;
+    VerilatedContext context;
+    Vcheckpoint4_top dut{&context};
     std::array<uint8_t, kMemoryBytes> memory{};
     UartReceiver uart;
     uint64_t order = 0;
@@ -69,8 +74,24 @@ struct Simulator {
         dut.clk = 1;
         dut.eval();
         dut.clk = 0;
+        dut.eval();
         dut.rst_n = 1;
         dut.eval();
+    }
+
+    ~Simulator() {
+        dut.final();
+#if VM_COVERAGE
+        // Counters live in the model: write while it is still alive. Each model
+        // owns a context so multi-instance reservation tests cannot retain stale
+        // counter pointers or merge the same instance more than once.
+        if (const char* directory = std::getenv("CPU_COVERAGE_DIR")) {
+            static unsigned instance = 0;
+            const std::string path = std::string(directory) + "/run-" +
+                std::to_string(getpid()) + "-" + std::to_string(instance++) + ".dat";
+            context.coveragep()->write(path.c_str());
+        }
+#endif
     }
 
     uint32_t word(uint32_t address) const {
@@ -110,6 +131,9 @@ struct Simulator {
                     memory[offset + lane] = static_cast<uint8_t>(write_data >> (8 * lane));
         }
         uart.sample(dut.uart_tx);
+        // Sample functional coverage even when the caller stops at this event.
+        dut.clk = 0;
+        dut.eval();
     }
 
     void print_event() {
@@ -440,6 +464,5 @@ int main(int argc, char** argv) {
         sim.step();
         sim.print_event();
     }
-    sim.dut.final();
     return 0;
 }
