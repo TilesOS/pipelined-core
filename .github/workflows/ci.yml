@@ -33,7 +33,7 @@ jobs:
         run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
       - name: Compare retirements and prove first-divergence halt
         run: bash scripts/run_lockstep_smoke.sh --self-test
-      - name: Run CPU lockstep, UART, M/A/CSR tests and functional coverage
+      - name: Run CPU lockstep, UART, M/A/CSR tests and hazard/trap cross coverage
         run: bash scripts/run_cpu_coverage.sh
       - name: Run cached CPU, full FENCE.I, and DMA-window tests
         run: bash scripts/run_checkpoint9.sh
@@ -43,6 +43,8 @@ jobs:
         with:
           name: cpu-functional-coverage
           path: |
+            build/coverage/baseline.json
+            build/coverage/seed-replay.json
             build/coverage/summary.json
             build/coverage/summary.txt
             build/coverage/run-*/*.dat

@@ -39,13 +39,31 @@ def run(image, directory, option=None):
 def main():
     with tempfile.TemporaryDirectory(prefix='selftest-', dir=ROOT / 'build/coverage') as temp:
         base = Path(temp)
-        for name in ('fault', 'divide', 'contention'):
+        for name in ('fault', 'divide', 'contention', 'priority'):
             (base / name).mkdir()
         fault = run('exception_load_access', base / 'fault')
         assert fault['groups']['trap']['bins']['load_access'] == 1
         assert fault['groups']['instruction']['bins']['lw'] == 0
         assert fault['groups']['instruction']['bins']['sw'] == 1
         assert fault['groups']['memory']['bins']['lw_lane0'] == 0
+        cross = fault['groups']['hazard_trap_stage']['bins']
+        assert all('_x_load_access_x_' in name for name, count in cross.items() if count)
+        assert cross['flowing_x_load_access_x_writeback_stage'] == 1
+        # Exercise older MEM-fault priority over a younger EX fault. Counters
+        # must describe the fault that actually retired, rather than speculation.
+        elf = base / 'priority.elf'
+        binary = ROOT / 'build/core/hazard_priority.bin'
+        subprocess.run([os.getenv('RISCV_GCC', 'riscv64-unknown-elf-gcc'),
+                        '-march=rv32ima_zicsr_zifencei', '-mabi=ilp32', '-nostdlib',
+                        '-Wl,--no-relax', '-T', str(ROOT / 'tests/lockstep/smoke.ld'),
+                        str(ROOT / 'tests/core/hazard_priority.S'), '-o', str(elf)], check=True)
+        subprocess.run([os.getenv('RISCV_OBJCOPY', 'riscv64-unknown-elf-objcopy'),
+                        '-O', 'binary', str(elf), str(binary)], check=True)
+        priority = run('hazard_priority', base / 'priority')
+        assert priority['groups']['trap']['bins']['load_access'] == 1
+        assert priority['groups']['trap']['bins']['illegal_instruction'] == 0
+        assert all('_x_load_access_x_' in name for name, count in
+                   priority['groups']['hazard_trap_stage']['bins'].items() if count)
         divide = run('m_directed', base / 'divide')
         assert all(count == 1 for count in divide['groups']['divide']['bins'].values())
         contention = run('atomic_contention', base / 'contention', '--contention-test')
@@ -63,7 +81,7 @@ def main():
         else:
             raise AssertionError('incomplete counter data was accepted')
     print('PASS: final trap sampled; faulting loads excluded; divide operands classified; '
-          'model lifetimes isolated; incomplete coverage rejected')
+          'model lifetimes isolated; squashed traps excluded; incomplete coverage rejected')
 
 
 if __name__ == '__main__':

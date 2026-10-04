@@ -30,6 +30,11 @@ CORE_IMAGE="$repo_root/build/core/coverage_directed.bin" python3 scripts/lockste
     --elf "$repo_root/build/core/coverage_directed.elf" --limit 30 --until-trap
 CORE_IMAGE="$repo_root/build/core/coverage_ids.bin" \
     "$repo_root/build/core/obj_dir/Vcheckpoint4_top" --coverage-ids-test
+if [[ ${CPU_CROSS_CLOSE:-1} == 1 ]]; then
+    python3 scripts/close_cpu_cross_coverage.py "$raw_dir" \
+        --baseline "$build_dir/baseline.json" --output "$build_dir/seed-replay.json" \
+        --replay tests/core/hazard_seeds.json
+fi
 python3 scripts/check_cpu_coverage.py
 python3 scripts/report_cpu_coverage.py "$raw_dir" \
     --json "$build_dir/summary.json" --min-percent "${CPU_COVERAGE_MIN_PERCENT:-100}" \
