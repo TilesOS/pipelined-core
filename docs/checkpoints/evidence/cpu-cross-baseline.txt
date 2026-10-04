@@ -1,4 +1,4 @@
-2026-10-03: fixed-model baseline before constrained-random hazard/trap seeds
+2026-10-03: fixed-model baseline before targeted random seeds for hazard/trap scenarios
 Command: CPU_COVERAGE_MIN_PERCENT=0 bash scripts/run_cpu_coverage.sh
 Exit status: 0
 CPU functional coverage: 212/243 bins (87.24%)

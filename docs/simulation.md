@@ -83,7 +83,7 @@ Run `bash scripts/run_cpu_coverage.sh` for the CPU slice, RV32I, M/A/CSR,
 exception, and contention gates instrumented with SystemVerilog covergroups.
 The command builds a pinned covergroup-capable Verilator locally, merges fresh
 per-instance counters, and requires all 243 defined functional bins to be hit, including 96 hazard × trap ×
-pipeline-stage cross bins closed with 30 retained constrained-random seeds.
+pipeline-stage cross bins closed with 30 retained targeted random seeds.
 It produces text and JSON reports under `build/coverage`; CI uploads those
 reports and raw counters. See the [coverage model and reproduction guide](cpu-functional-coverage.md)
 for the bin definitions, sampling rules, collector self-tests, and scope.

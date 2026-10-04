@@ -23,8 +23,8 @@ bash scripts/run_cpu_coverage.sh
 ```
 
 The command runs the CPU slice, UART, RV32I, M/A/CSR, contention, and exception
-gates, then two coverage-directed programs, 30 retained constrained-random hazard/trap
-seeds, and collector integrity checks.
+gates, then two coverage-directed programs, hazard/trap programs generated with
+30 retained targeted random seeds, and collector integrity checks.
 The default gate requires **100% of all 243 explicitly defined bins**. Set
 `CPU_COVERAGE_MIN_PERCENT` to change the required percentage for an exploratory
 run; uncovered bins are always listed.
@@ -155,9 +155,11 @@ To measure the same baseline without running the closing seeds:
 CPU_CROSS_CLOSE=0 CPU_COVERAGE_MIN_PERCENT=0 bash scripts/run_cpu_coverage.sh
 ```
 
-`gen_hazard_traps.py` constrains the desired trap, hazard mechanism, and occupied
-stage, while a seed varies registers, operands, RAW producer operations, independent
-instructions, and instruction spacing. The stimulus never writes coverage counters.
+`gen_hazard_traps.py` uses templates targeting the desired trap, hazard mechanism,
+and occupied stage. Seeds vary registers, operands, RAW producer operations,
+independent instructions, and instruction spacing through uniform random choices.
+This is targeted random generation; it uses neither SV constraint blocks nor
+weighted instruction generation. The stimulus never writes coverage counters.
 In particular, placing the trap too far behind the hazard leaves a tuple unhit,
 which is why different schedules genuinely change the observed coverage.
 

@@ -76,7 +76,7 @@ caches, AXI, privilege, interrupts, MMU, code or toggle coverage.
 
 Resume-safe wording:
   ...with 96 hazard/exception/pipeline-stage cross-coverage bins closed to 100%
-  via 30 constrained-random seeds.
+  via 30 targeted random seeds.
 Additional precise story: raised total functional coverage from 87.24% to 100%
 by closing 31 previously unhit hazard/trap/stage scenarios; 0 CPU bugs found.
 Do not describe 87.24% as the cross-only baseline: that baseline was 67.71%.

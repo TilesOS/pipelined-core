@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Constrained-random trap programs targeting measured hazard/stage holes.
+"""Targeted random trap programs for measured hazard/stage holes.
 
-Constraints select the desired trap, blocking mechanism and occupied stage.
+Templates target the desired trap, blocking mechanism and occupied stage.
 Seeds vary physical registers, values, independent scheduling gaps and RAW
-producer operations. A requested tuple is credited only by actual RTL coverage.
+producer operations through uniform random choices, without SV constraint blocks
+or weighted instruction generation. A requested tuple is credited only by actual
+RTL coverage.
 """
 import argparse
 from pathlib import Path
