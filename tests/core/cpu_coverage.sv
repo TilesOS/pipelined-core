@@ -425,3 +425,253 @@ module cpu_coverage (
 endmodule
 
 bind checkpoint4_top cpu_coverage coverage_monitor (.*);
+
+// Per-instruction histories, qualified by a precise, architecturally retired trap.
+// Stage means the stage occupied by the faulting instruction when the hazard held
+// it; it is NOT an unrelated stage-valid flag at the eventual retirement edge.
+module cpu_hazard_coverage #(parameter bit WAIT_MEMORY = 0) (
+    input logic clk, rst_n, debug_halt, trap_halted, front_halted,
+    input logic [4:0] stage_valid, // {WB, MEM, EX, ID, IF}
+    input logic [31:0] wb_pc,
+    input logic wb_trap, wb_wait, mem_wait, fence_wait, div_stall,
+    input logic hazard, raw_hazard, serialize_hazard,
+    input logic redirect, ex_fault, mem_access_fault, ex_result_valid,
+    input logic retire_valid, retire_trap,
+    input logic [31:0] retire_pc, retire_cause
+);
+    initial if (WAIT_MEMORY) $fatal(1, "Hazard cross model requires the zero-wait fixture");
+    // Each token carries 4 hazard kinds x 5 occupied stages. Bits survive stalls,
+    // transfer with that instruction, and are discarded with flushed instructions.
+    logic [19:0] history [0:4];
+    logic [19:0] completed_history;
+    logic [31:0] completed_pc;
+    integer hazard_kind, exception_kind, pipeline_stage;
+
+    // Partitioned native three-way crosses. Verilator 5.052 supports ignore
+    // bins on coverpoints but not explicit cross-bin select expressions. These
+    // disjoint products enumerate the same 96 reachable tuples out of 180:
+    // flow=45, RAW/IF=9, RAW/ID=6, serialization=18, divider=18.
+    // RAW/serialization stall only IF/ID. Divider traps cannot occupy EX because
+    // legal DIV/REM does not fault and this fixture supplies 0xffffffff on fetch
+    // failure; MEM/WB drain. ECALL, EBREAK, and failed-fetch encodings have no
+    // decoded GPR source, excluding RAW/ID for those three exceptions.
+    covergroup flow_trap_stage_cg;
+        hazard_cp: coverpoint hazard_kind {
+            bins flowing = {0};
+            ignore_bins outside_partition = {1, 2, 3};
+        }
+        exception_cp: coverpoint exception_kind {
+            bins instruction_misaligned = {0};
+            bins instruction_access = {1};
+            bins illegal_instruction = {2};
+            bins breakpoint = {3};
+            bins load_misaligned = {4};
+            bins load_access = {5};
+            bins store_misaligned = {6};
+            bins store_access = {7};
+            bins machine_ecall = {11};
+        }
+        stage_cp: coverpoint pipeline_stage {
+            bins fetch_stage = {0};
+            bins decode_stage = {1};
+            bins execute_stage = {2};
+            bins memory_stage = {3};
+            bins writeback_stage = {4};
+        }
+        scenario: cross hazard_cp, exception_cp, stage_cp;
+    endgroup
+    flow_trap_stage_cg flow_trap_stage_coverage = new;
+
+    covergroup raw_fetch_trap_stage_cg;
+        hazard_cp: coverpoint hazard_kind {
+            bins raw_dependency = {1};
+            ignore_bins outside_partition = {0, 2, 3};
+        }
+        exception_cp: coverpoint exception_kind {
+            bins instruction_misaligned = {0};
+            bins instruction_access = {1};
+            bins illegal_instruction = {2};
+            bins breakpoint = {3};
+            bins load_misaligned = {4};
+            bins load_access = {5};
+            bins store_misaligned = {6};
+            bins store_access = {7};
+            bins machine_ecall = {11};
+        }
+        stage_cp: coverpoint pipeline_stage {
+            bins fetch_stage = {0};
+            ignore_bins outside_partition = {1, 2, 3, 4};
+        }
+        scenario: cross hazard_cp, exception_cp, stage_cp;
+    endgroup
+    raw_fetch_trap_stage_cg raw_fetch_trap_stage_coverage = new;
+
+    covergroup raw_decode_trap_stage_cg;
+        hazard_cp: coverpoint hazard_kind {
+            bins raw_dependency = {1};
+            ignore_bins outside_partition = {0, 2, 3};
+        }
+        exception_cp: coverpoint exception_kind {
+            bins instruction_misaligned = {0};
+            bins illegal_instruction = {2};
+            bins load_misaligned = {4};
+            bins load_access = {5};
+            bins store_misaligned = {6};
+            bins store_access = {7};
+            ignore_bins outside_partition = {1, 3, 11};
+        }
+        stage_cp: coverpoint pipeline_stage {
+            bins decode_stage = {1};
+            ignore_bins outside_partition = {0, 2, 3, 4};
+        }
+        scenario: cross hazard_cp, exception_cp, stage_cp;
+    endgroup
+    raw_decode_trap_stage_cg raw_decode_trap_stage_coverage = new;
+
+    covergroup serial_trap_stage_cg;
+        hazard_cp: coverpoint hazard_kind {
+            bins serialization = {2};
+            ignore_bins outside_partition = {0, 1, 3};
+        }
+        exception_cp: coverpoint exception_kind {
+            bins instruction_misaligned = {0};
+            bins instruction_access = {1};
+            bins illegal_instruction = {2};
+            bins breakpoint = {3};
+            bins load_misaligned = {4};
+            bins load_access = {5};
+            bins store_misaligned = {6};
+            bins store_access = {7};
+            bins machine_ecall = {11};
+        }
+        stage_cp: coverpoint pipeline_stage {
+            bins fetch_stage = {0};
+            bins decode_stage = {1};
+            ignore_bins outside_partition = {2, 3, 4};
+        }
+        scenario: cross hazard_cp, exception_cp, stage_cp;
+    endgroup
+    serial_trap_stage_cg serial_trap_stage_coverage = new;
+
+    covergroup divider_trap_stage_cg;
+        hazard_cp: coverpoint hazard_kind {
+            bins divider_busy = {3};
+            ignore_bins outside_partition = {0, 1, 2};
+        }
+        exception_cp: coverpoint exception_kind {
+            bins instruction_misaligned = {0};
+            bins instruction_access = {1};
+            bins illegal_instruction = {2};
+            bins breakpoint = {3};
+            bins load_misaligned = {4};
+            bins load_access = {5};
+            bins store_misaligned = {6};
+            bins store_access = {7};
+            bins machine_ecall = {11};
+        }
+        stage_cp: coverpoint pipeline_stage {
+            bins fetch_stage = {0};
+            bins decode_stage = {1};
+            ignore_bins outside_partition = {2, 3, 4};
+        }
+        scenario: cross hazard_cp, exception_cp, stage_cp;
+    endgroup
+    divider_trap_stage_cg divider_trap_stage_coverage = new;
+
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            for (integer s = 0; s < 5; s++) history[s] = 0;
+            completed_history = 0;
+            completed_pc = 0;
+        end else begin
+            completed_history = 0;
+            if (!debug_halt && !trap_halted && !wb_wait) begin
+                for (integer s = 0; s < 5; s++) begin
+                    if (stage_valid[s]) begin
+                        if (s < 2 && div_stall) history[s][3*5+s] = 1;
+                        else if (s < 2 && hazard) begin
+                            if (raw_hazard) history[s][1*5+s] = 1;
+                            if (serialize_hazard) history[s][2*5+s] = 1;
+                        end else if (s == 2 && div_stall) history[s][3*5+s] = 1;
+                        else history[s][s] = 1;
+                    end
+                end
+                // Capture before stage transfer; the following falling edge
+                // confirms that WB really generated this precise trap event.
+                if (stage_valid[4] && wb_trap) begin
+                    completed_history = history[4];
+                    completed_pc = wb_pc;
+                end
+                if (mem_wait) begin
+                    history[4] = 0;
+                end else begin
+                    history[4] = stage_valid[3] ? history[3] : 20'b0;
+                    history[3] = (!mem_access_fault && ex_result_valid) ? history[2] : 20'b0;
+                    if (redirect || ex_fault || mem_access_fault) begin
+                        history[2] = 0;
+                        history[1] = 0;
+                        history[0] = 0;
+                    end else if (div_stall || fence_wait) begin
+                        // EX and the front end retain their instruction tokens.
+                    end else if (hazard) begin
+                        history[2] = 0;
+                    end else begin
+                        history[2] = stage_valid[1] ? history[1] : 20'b0;
+                        history[1] = stage_valid[0] ? history[0] : 20'b0;
+                        history[0] = 0;
+                    end
+                end
+            end
+        end
+    end
+
+    always @(negedge clk) begin
+        if (rst_n && retire_valid && retire_trap) begin
+            if (retire_pc != completed_pc || completed_history == 0)
+                $fatal(1, "Trap history lost or associated with the wrong instruction");
+            exception_kind = int'(retire_cause);
+            for (integer h = 0; h < 4; h++) begin
+                for (integer s = 0; s < 5; s++) begin
+                    if (completed_history[h*5+s]) begin
+                        // Ignored combinations are also checked at runtime. They
+                        // cannot silently conceal an incorrect history or model.
+                        if ((h != 0 && s >= 2) ||
+                            (h == 1 && s == 1 && exception_kind inside {1, 3, 11}))
+                            $fatal(1, "Observed a structurally excluded hazard/trap/stage combination");
+                        hazard_kind = h;
+                        pipeline_stage = s;
+                        case (h)
+                            0: flow_trap_stage_coverage.sample();
+                            1: if (s == 0) raw_fetch_trap_stage_coverage.sample();
+                               else raw_decode_trap_stage_coverage.sample();
+                            2: serial_trap_stage_coverage.sample();
+                            3: divider_trap_stage_coverage.sample();
+                            default: $fatal(1, "Unknown hazard kind");
+                        endcase
+                    end
+                end
+            end
+        end
+    end
+endmodule
+
+bind rv32_slice cpu_hazard_coverage #(.WAIT_MEMORY(WAIT_MEMORY)) hazard_coverage_monitor (
+    .clk(clk), .rst_n(rst_n), .debug_halt(debug_halt), .trap_halted(trap_halted),
+    .front_halted(front_halted),
+    .stage_valid({wb_stage.valid, mem_stage.valid, ex_stage.valid, id_stage.valid, if_stage.valid}),
+    .wb_pc(wb_stage.pc), .wb_trap(wb_stage.trap),
+    .wb_wait(wb_wait), .mem_wait(mem_wait), .fence_wait(fence_wait), .div_stall(div_stall),
+    .hazard(hazard), .serialize_hazard(serialize_hazard),
+    .raw_hazard(id_stage.valid && (
+        (id_use_rs1 && id_rs1 != 0 &&
+         ((ex_stage.valid && ex_rd == id_rs1 && ex_writes_rd) ||
+          (mem_stage.valid && mem_stage.rd == id_rs1 && !mem_stage.trap) ||
+          (wb_stage.valid && wb_stage.rd == id_rs1 && !wb_stage.trap))) ||
+        (id_use_rs2 && id_rs2 != 0 &&
+         ((ex_stage.valid && ex_rd == id_rs2 && ex_writes_rd) ||
+          (mem_stage.valid && mem_stage.rd == id_rs2 && !mem_stage.trap) ||
+          (wb_stage.valid && wb_stage.rd == id_rs2 && !wb_stage.trap))))),
+    .redirect(redirect), .ex_fault(ex_fault), .mem_access_fault(mem_access_fault),
+    .ex_result_valid(ex_result.valid), .retire_valid(retire_valid), .retire_trap(retire_trap),
+    .retire_pc(retire_pc), .retire_cause(retire_cause)
+);

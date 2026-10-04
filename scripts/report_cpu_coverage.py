@@ -3,6 +3,7 @@
 import argparse
 from collections import defaultdict
 import hashlib
+from functools import lru_cache
 import json
 from pathlib import Path
 import re
@@ -10,13 +11,32 @@ import re
 MODEL = Path(__file__).resolve().parents[1] / 'tests/core/cpu_coverage.sv'
 
 
+@lru_cache(maxsize=4)
+def cross_partitions(model=MODEL):
+    partitions = {}
+    for group, body in re.findall(r'covergroup (\w+)_cg;(.*?)endgroup', model.read_text(), re.S):
+        if 'scenario: cross' not in body:
+            continue
+        dimensions = []
+        for cp, cp_body in re.findall(r'(\w+): coverpoint \w+ \{(.*?)\n        \}', body, re.S):
+            dimensions.append(re.findall(r'\bbins (\w+)\s*=', cp_body))
+        from itertools import product
+        partitions[group] = {'_x_'.join(values) for values in product(*dimensions)}
+    return partitions
+
+
 def expected_bins(model=MODEL):
     groups = {}
     for group, body in re.findall(r'covergroup (\w+)_cg;(.*?)endgroup', model.read_text(), re.S):
+        if 'scenario: cross' in body:
+            continue  # component coverpoints do not inflate the cross denominator
         groups[group] = re.findall(r'\bbins (\w+)\s*=', body)
     if not groups or any(not bins for bins in groups.values()):
         raise ValueError('coverage model has no explicit bins')
-    return {(group, name) for group, bins in groups.items() for name in bins}
+    expected = {(group, name) for group, bins in groups.items() for name in bins}
+    for bins in cross_partitions(model).values():
+        expected.update(('hazard_trap_stage', name) for name in bins)
+    return expected
 
 
 def read_counts(path, expected):
@@ -31,6 +51,12 @@ def read_counts(path, expected):
         if fields.get('t') != 'covergroup' or Path(fields.get('f', '')).name != MODEL.name:
             continue
         group = fields['page'].removeprefix('v_covergroup/').removesuffix('_cg')
+        if group in cross_partitions():
+            if fields.get('cross') != '1':
+                continue
+            if fields['bin'] not in cross_partitions()[group]:
+                raise ValueError(f'{path}: cross bin outside its declared partition')
+            group = 'hazard_trap_stage'
         key = (group, fields['bin'])
         if key not in expected:
             raise ValueError(f'{path}: unexpected bin {key}')
@@ -57,7 +83,10 @@ def summarize(files, model=MODEL):
         groups[group] = {'hit': hit, 'total': len(bins), 'bins': bins,
                          'uncovered': [name for name, count in bins.items() if count == 0]}
     hit = sum(count > 0 for count in counts.values())
-    return {'model_sha256': hashlib.sha256(model.read_bytes()).hexdigest(),
+    cross = groups.get('hazard_trap_stage', {'hit': 0, 'total': 0})
+    return {'cross_hit': cross['hit'], 'cross_total': cross['total'],
+            'cross_percent': 100 * cross['hit'] / cross['total'] if cross['total'] else 0,
+            'model_sha256': hashlib.sha256(model.read_bytes()).hexdigest(),
             'files': len(files), 'hit': hit, 'total': len(expected),
             'percent': 100 * hit / len(expected), 'groups': groups}
 
@@ -65,6 +94,8 @@ def summarize(files, model=MODEL):
 def format_report(report):
     lines = [f"CPU functional coverage: {report['hit']}/{report['total']} bins "
              f"({report['percent']:.2f}%)", f"Merged {report['files']} simulation files; hit threshold: 1"]
+    lines.append(f"Hazard × trap × stage cross: {report['cross_hit']}/{report['cross_total']} "
+                 f"({report['cross_percent']:.2f}%); 84 structurally excluded tuples")
     for group, data in report['groups'].items():
         lines.append(f"  {group}: {data['hit']}/{data['total']}")
         if data['uncovered']:
