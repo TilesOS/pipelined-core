@@ -18,6 +18,7 @@ module clint #(
     input  logic        bus_rsp_ready,
     output logic [31:0] bus_rsp_rdata,
     output logic        bus_rsp_error,
+    output logic [63:0] time_value,
     output logic        msip_irq,
     output logic        mtip_irq
 );
@@ -34,6 +35,7 @@ module clint #(
     logic [31:0] read_data;
     logic address_valid, request_error, tick;
 
+    assign time_value = mtime;
     assign tick = tick_count == DIV_WIDTH'(CYCLES_PER_TICK - 1);
     assign bus_req_ready = !response_pending;
     assign bus_rsp_valid = response_pending;

@@ -17,6 +17,7 @@ module axi_peripheral_adapter (
     input logic bus_rsp_valid,
     output logic bus_rsp_ready,
     input logic [31:0] bus_rsp_rdata,
+    input logic bus_rsp_decode_error,
     input logic bus_rsp_error
 );
     import axi128_pkg::*;
@@ -28,6 +29,8 @@ module axi_peripheral_adapter (
     logic [3:0] id, wstrb;
     logic [3:0] write_remaining;
     logic invalid;
+    logic [15:0] allowed_strobes;
+    assign allowed_strobes = (16'hffff >> (16 - (1 << size))) << addr[3:0];
 
     always_comb begin
         axi_rsp = '0;
@@ -73,7 +76,8 @@ module axi_peripheral_adapter (
                         id <= axi_req.arid;
                         rdata <= '0;
                         response <= AXI_OKAY;
-                        if (axi_req.arlen != 0 || axi_req.arsize > 3'd2) begin
+                        if (axi_req.arlen != 0 || axi_req.arsize > 3'd2 ||
+                            (axi_req.araddr & ((32'd1 << axi_req.arsize)-1)) != 0) begin
                             response <= AXI_SLVERR;
                             state <= R_RESPONSE;
                         end else state <= R_REQUEST;
@@ -82,7 +86,8 @@ module axi_peripheral_adapter (
                         size <= axi_req.awsize[1:0];
                         id <= axi_req.awid;
                         write_remaining <= axi_req.awlen;
-                        invalid <= axi_req.awlen != 0 || axi_req.awsize > 3'd2;
+                        invalid <= axi_req.awlen != 0 || axi_req.awsize > 3'd2 ||
+                            (axi_req.awaddr & ((32'd1 << axi_req.awsize)-1)) != 0;
                         response <= AXI_OKAY;
                         state <= W_CAPTURE;
                     end
@@ -92,21 +97,21 @@ module axi_peripheral_adapter (
                     wstrb <= 4'(axi_req.wstrb >> addr[3:0]);
                     if (write_remaining != 0) begin
                         write_remaining <= write_remaining - 4'd1;
-                    end else if (invalid || !axi_req.wlast) begin
+                    end else if (invalid || !axi_req.wlast || (axi_req.wstrb & ~allowed_strobes) != 0) begin
                         response <= AXI_SLVERR;
                         state <= W_RESPONSE;
                     end else state <= W_REQUEST;
                 end
                 W_REQUEST: if (bus_req_ready) state <= W_WAIT;
                 W_WAIT: if (bus_rsp_valid) begin
-                    response <= bus_rsp_error ? AXI_SLVERR : AXI_OKAY;
+                    response <= bus_rsp_decode_error ? AXI_DECERR : bus_rsp_error ? AXI_SLVERR : AXI_OKAY;
                     state <= W_RESPONSE;
                 end
                 W_RESPONSE: if (axi_req.bready) state <= IDLE;
                 R_REQUEST: if (bus_req_ready) state <= R_WAIT;
                 R_WAIT: if (bus_rsp_valid) begin
                     rdata <= bus_rsp_rdata;
-                    response <= bus_rsp_error ? AXI_SLVERR : AXI_OKAY;
+                    response <= bus_rsp_decode_error ? AXI_DECERR : bus_rsp_error ? AXI_SLVERR : AXI_OKAY;
                     state <= R_RESPONSE;
                 end
                 R_RESPONSE: if (axi_req.rready) state <= IDLE;

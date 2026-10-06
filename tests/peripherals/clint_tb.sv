@@ -18,7 +18,7 @@ module clint_tb;
         .bus_req_wdata(req_wdata), .bus_req_wstrb(req_wstrb),
         .bus_rsp_valid(rsp_valid), .bus_rsp_ready(rsp_ready),
         .bus_rsp_rdata(rsp_rdata), .bus_rsp_error(rsp_error),
-        .msip_irq(msip_irq), .mtip_irq(mtip_irq)
+        .time_value(), .msip_irq(msip_irq), .mtip_irq(mtip_irq)
     );
 
     always @(posedge clk) begin

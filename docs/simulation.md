@@ -87,3 +87,24 @@ pipeline-stage cross bins closed with 30 retained targeted random seeds.
 It produces text and JSON reports under `build/coverage`; CI uploads those
 reports and raw counters. See the [coverage model and reproduction guide](cpu-functional-coverage.md)
 for the bin definitions, sampling rules, collector self-tests, and scope.
+
+## Checkpoint 10: standard devices, privilege, and OpenSBI
+
+```sh
+bash scripts/run_checkpoint10_peripherals.sh
+bash scripts/run_checkpoint10.sh
+bash scripts/run_checkpoint10_opensbi.sh
+```
+
+The first gate runs directed CLINT/PLIC/UART and MMIO adapter tests. The second
+runs three cached-system privilege/PMP/MMIO-fault programs with three clock
+ratios and a fatal fence-writeback test. The firmware gate builds pinned generic
+OpenSBI v1.7 and verifies an S-mode payload, SBI BASE/TIME, timer interrupts,
+and firmware PMP isolation through the real UART. It needs DTC and a
+PIE-capable compiler/linker (`gcc-riscv64-linux-gnu` on Debian/Ubuntu). Override
+`OPENSBI_CC`, `OPENSBI_CROSS_COMPILE`, and `OPENSBI_LD` for other toolchains.
+Build logs and images are under ignored `build/privilege` and `build/peripherals`.
+The firmware simulation is bounded at 100 million core cycles; `BOOT_DIAGNOSTICS=1`
+prints optional probe traps and progress. Earlier first-trap Spike fixtures keep
+privilege disabled. See the [checkpoint 10 record](checkpoints/10-privilege-peripherals.md)
+for tested scope and the board/paging gates that remain.

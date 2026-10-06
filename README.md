@@ -10,7 +10,7 @@ Checkpoints 1–7 are complete in simulation, and [checkpoint 8 DDR2 board bring
 
 The CPU testbench also has [SystemVerilog functional coverage](docs/cpu-functional-coverage.md) with a reproducible named-bin report and CI gate.
 
-The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) gives the regression commands. The [debug trace path](docs/debug.md) records retirement and traps. The CPU still halts on traps; privilege support and standard peripherals follow in checkpoint 10. Checkpoint 8's measured bitstream uses synthetic traffic. Timing, BRAM inference, and board execution of the cached CPU have not yet been measured.
+The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) gives the regression commands. The [debug trace path](docs/debug.md) records retirement and traps. [Checkpoint 10](docs/checkpoints/10-privilege-peripherals.md) adds M/S/U traps and interrupts, eight PMP entries, CLINT/PLIC/ns16550a devices, MMIO, and a device tree. Pinned generic OpenSBI v1.7 reaches an S-mode payload and passes timer and firmware-isolation tests in RTL. Sv32 follows in checkpoint 11. Checkpoint 8's measured bitstream uses synthetic traffic. Timing, BRAM inference, and board execution of the cached CPU have not yet been measured.
 
 ## Development hosts
 

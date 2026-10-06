@@ -1,12 +1,16 @@
-// RV32IMA CPU. Single issue, in order, five explicit stage registers.
+// RV32IMA CPU with optional checkpoint 10 M/S/U privilege. Single issue, in order, five explicit stage registers.
 // WAIT_MEMORY enables blocking cache handshakes; the fixture keeps zero wait.
 module rv32_slice #(
     parameter logic [31:0] RESET_PC = 32'h0000_0000,
-    parameter bit WAIT_MEMORY = 0
+    parameter bit WAIT_MEMORY = 0,
+    parameter bit ENABLE_PRIVILEGE = 0
 ) (
     input  logic        clk,
     input  logic        rst_n,
     input  logic        debug_halt,
+    input logic msip_irq, mtip_irq, meip_irq, seip_irq,
+    input logic [63:0] time_value,
+    output logic imem_protection_fault,
     output logic [31:0] imem_addr,
     input  logic [31:0] imem_rdata,
     input  logic        imem_fault,
@@ -76,6 +80,7 @@ module rv32_slice #(
         logic [31:0] insn;
         logic [4:0]  rd;
         logic [31:0] result;
+        logic [31:0] next_pc;
         logic [31:0] addr;
         logic [31:0] store_data;
         logic        load;
@@ -88,6 +93,7 @@ module rv32_slice #(
         logic [11:0] csr_addr;
         logic [31:0] csr_data;
         logic        trap;
+        logic        fatal;
         logic [31:0] cause;
         logic [31:0] tval;
     } result_stage_t;
@@ -130,7 +136,88 @@ module rv32_slice #(
     logic [31:0] csr_mstatus, csr_mie, csr_mtvec, csr_mscratch;
     logic [31:0] csr_mepc, csr_mcause, csr_mtval;
     logic [63:0] csr_mcycle, csr_minstret;
+    logic [1:0] privilege;
+    logic [31:0] csr_medeleg, csr_mideleg, csr_mip_sw;
+    logic [31:0] csr_stvec, csr_sscratch, csr_sepc, csr_scause, csr_stval;
+    logic [31:0] csr_mcounteren, csr_scounteren, csr_mcountinhibit;
+    logic [31:0] pending_irqs, eligible_irqs, irq_cause, arch_pc;
+    logic irq_pending, take_irq, trap_to_s;
+    logic [31:0] trap_pc, trap_cause, trap_value, trap_vector;
+    logic [7:0] pmpcfg [8];
+    logic [31:0] pmpaddr [8];
+    logic [1:0] data_privilege;
+    logic data_protection_fault;
     integer register_index;
+
+    // PMP is checked before cache lookup and before any device request.
+    // The first entry overlapping any byte wins, including partial matches.
+    function automatic logic pmp_allow(input logic [31:0] addr,
+        input logic [1:0] size, input logic [1:0] mode,
+        input logic read_access, write_access, execute_access);
+        logic matched, allowed, full_match;
+        logic [34:0] low_addr, high_addr, first_byte, last_byte, mask;
+        int trailing;
+        matched = 0; allowed = mode == 3;
+        first_byte = {3'b0, addr}; last_byte = first_byte + (35'd1 << size) - 1;
+        for (int i = 0; i < 8; i++) begin
+            low_addr = 0; high_addr = 0; mask = 0; trailing = 0;
+            case (pmpcfg[i][4:3])
+                1: begin
+                    low_addr = i == 0 ? 35'b0 : {1'b0, pmpaddr[i-1], 2'b0};
+                    high_addr = {1'b0, pmpaddr[i], 2'b0};
+                end
+                2: begin low_addr = {1'b0, pmpaddr[i], 2'b0}; high_addr = low_addr + 4; end
+                3: begin
+                    for (int b = 0; b < 32; b++)
+                        if (trailing == b && pmpaddr[i][b]) trailing++;
+                    mask = (35'd1 << (trailing + 3)) - 1;
+                    low_addr = {1'b0, pmpaddr[i], 2'b0} & ~mask;
+                    high_addr = low_addr + mask + 1;
+                    if (trailing >= 31) begin low_addr = 0; high_addr = 35'd1 << 34; end
+                end
+                default: ;
+            endcase
+            if (!matched && pmpcfg[i][4:3] != 0 && first_byte < high_addr && last_byte >= low_addr) begin
+                matched = 1;
+                full_match = first_byte >= low_addr && last_byte < high_addr;
+                allowed = full_match && ((mode == 3 && !pmpcfg[i][7]) ||
+                    ((!read_access || pmpcfg[i][0]) && (!write_access || pmpcfg[i][1]) &&
+                     (!execute_access || pmpcfg[i][2])));
+            end
+        end
+        return !ENABLE_PRIVILEGE || allowed;
+    endfunction
+    assign data_privilege = privilege == 3 && csr_mstatus[17] ? csr_mstatus[12:11] : privilege;
+    assign imem_protection_fault = !pmp_allow(fetch_pc, 2'd2, privilege, 0, 0, 1);
+
+    assign pending_irqs = csr_mip_sw | (msip_irq ? 32'h8 : 0) |
+        (mtip_irq ? 32'h80 : 0) | (meip_irq ? 32'h800 : 0) | (seip_irq ? 32'h200 : 0);
+    always_comb begin
+        eligible_irqs = 0;
+        for (int i = 0; i < 12; i++)
+            if (csr_mie[i] && pending_irqs[i]) begin
+                if (csr_mideleg[i])
+                    eligible_irqs[i] = privilege == 0 || (privilege == 1 && csr_mstatus[1]);
+                else eligible_irqs[i] = privilege != 3 || csr_mstatus[3];
+            end
+        irq_cause = 0;
+        if (eligible_irqs[11]) irq_cause = 11;
+        else if (eligible_irqs[3]) irq_cause = 3;
+        else if (eligible_irqs[7]) irq_cause = 7;
+        else if (eligible_irqs[9]) irq_cause = 9;
+        else if (eligible_irqs[1]) irq_cause = 1;
+        else if (eligible_irqs[5]) irq_cause = 5;
+    end
+    assign irq_pending = ENABLE_PRIVILEGE && |eligible_irqs;
+    assign take_irq = irq_pending && !if_stage.valid && !id_stage.valid &&
+        !ex_stage.valid && !mem_stage.valid && !wb_stage.valid;
+    assign trap_pc = take_irq ? arch_pc : wb_commit.pc;
+    assign trap_cause = take_irq ? (32'h8000_0000 | irq_cause) : wb_commit.cause;
+    assign trap_value = take_irq ? 0 : wb_commit.tval;
+    assign trap_to_s = ENABLE_PRIVILEGE && privilege != 3 &&
+        (take_irq ? csr_mideleg[irq_cause[4:0]] : csr_medeleg[wb_commit.cause[4:0]]);
+    assign trap_vector = ((trap_to_s ? csr_stvec : csr_mtvec) & 32'hffff_fffc) +
+        ((take_irq && (trap_to_s ? csr_stvec[0] : csr_mtvec[0])) ? irq_cause * 4 : 0);
 
     logic [3:0] unused_external_store_offset;
     assign unused_external_store_offset = external_store_addr[3:0];
@@ -146,7 +233,7 @@ module rv32_slice #(
         ((mem_stage.load && !dmem_ready) || (mem_stage.atomic_kind != 0 && !atomic_memory_ready));
     assign fence_i_valid = WAIT_MEMORY && ex_stage.valid && ex_stage.insn == 32'h0000_100f;
     assign fence_wait = fence_i_valid && !fence_i_ready;
-    assign imem_valid = !front_halted && !trap_halted && !debug_halt;
+    assign imem_valid = !front_halted && !trap_halted && !debug_halt && !irq_pending;
     assign imem_accept = imem_valid && (!WAIT_MEMORY || imem_ready) &&
         !wb_wait && !mem_wait && !fence_wait && !div_stall && !hazard &&
         !redirect && !ex_fault && !mem_access_fault;
@@ -239,21 +326,51 @@ module rv32_slice #(
         csr_old = 0;
         case (ex_stage.insn[31:20])
             12'h300: csr_old = csr_mstatus;
-            12'h301: csr_old = 32'h4000_1101; // RV32IMA, M-only at this checkpoint
+            12'h301: csr_old = ENABLE_PRIVILEGE ? 32'h4014_1101 : 32'h4000_1101;
             12'h304: csr_old = csr_mie;
             12'h305: csr_old = csr_mtvec;
             12'h340: csr_old = csr_mscratch;
             12'h341: csr_old = csr_mepc;
             12'h342: csr_old = csr_mcause;
             12'h343: csr_old = csr_mtval;
-            12'h344: csr_old = 0; // no pending interrupt source yet
+            12'h344: csr_old = ENABLE_PRIVILEGE ? pending_irqs : 0;
+            12'h100: begin csr_old = csr_mstatus & 32'h000c_0122; csr_exists = ENABLE_PRIVILEGE; end
+            12'h104: begin csr_old = csr_mie & csr_mideleg; csr_exists = ENABLE_PRIVILEGE; end
+            12'h105: begin csr_old = csr_stvec; csr_exists = ENABLE_PRIVILEGE; end
+            12'h106: begin csr_old = csr_scounteren; csr_exists = ENABLE_PRIVILEGE; end
+            12'h140: begin csr_old = csr_sscratch; csr_exists = ENABLE_PRIVILEGE; end
+            12'h141: begin csr_old = csr_sepc; csr_exists = ENABLE_PRIVILEGE; end
+            12'h142: begin csr_old = csr_scause; csr_exists = ENABLE_PRIVILEGE; end
+            12'h143: begin csr_old = csr_stval; csr_exists = ENABLE_PRIVILEGE; end
+            12'h144: begin csr_old = pending_irqs & csr_mideleg; csr_exists = ENABLE_PRIVILEGE; end
+            12'h180: begin csr_old = 0; csr_exists = ENABLE_PRIVILEGE && !(privilege == 1 && csr_mstatus[20]); end
+            12'h302: begin csr_old = csr_medeleg; csr_exists = ENABLE_PRIVILEGE; end
+            12'h303: begin csr_old = csr_mideleg; csr_exists = ENABLE_PRIVILEGE; end
+            12'h306: begin csr_old = csr_mcounteren; csr_exists = ENABLE_PRIVILEGE; end
+            12'h310: begin csr_old = 0; csr_exists = ENABLE_PRIVILEGE; end
+            12'h320: begin csr_old = csr_mcountinhibit; csr_exists = ENABLE_PRIVILEGE; end
+            12'h3a0, 12'h3a1: begin
+                for (int i = 0; i < 4; i++) csr_old[i*8 +: 8] = pmpcfg[(ex_stage.insn[20] ? 4 : 0) + i];
+                csr_exists = ENABLE_PRIVILEGE;
+            end
+            12'h3b0, 12'h3b1, 12'h3b2, 12'h3b3, 12'h3b4, 12'h3b5, 12'h3b6, 12'h3b7: begin
+                csr_old = pmpaddr[ex_stage.insn[22:20]]; csr_exists = ENABLE_PRIVILEGE;
+            end
+            12'hc01, 12'hc81: begin
+                csr_old = ex_stage.insn[27] ? time_value[63:32] : time_value[31:0];
+                csr_exists = ENABLE_PRIVILEGE;
+            end
             12'hb00, 12'hc00: csr_old = csr_mcycle[31:0];
             12'hb80, 12'hc80: csr_old = csr_mcycle[63:32];
             12'hb02, 12'hc02: csr_old = csr_minstret[31:0];
             12'hb82, 12'hc82: csr_old = csr_minstret[63:32];
             12'hf11, 12'hf12, 12'hf13, 12'hf14: csr_old = 0;
+            12'hf15, 12'h30a, 12'h31a, 12'h10a: begin csr_old = 0; csr_exists = ENABLE_PRIVILEGE; end
             default: csr_exists = 0;
         endcase
+        if (ENABLE_PRIVILEGE && ex_stage.insn[31:28] == 4'hc && privilege != 3 &&
+            (!csr_mcounteren[{3'b0, ex_stage.insn[21:20]}] ||
+             (privilege == 0 && !csr_scounteren[{3'b0, ex_stage.insn[21:20]}]))) csr_exists = 0;
         csr_operand = ex_stage.insn[14] ? {27'b0, ex_stage.insn[19:15]} :
             ex_stage.rs1_value;
         csr_write_attempt = ex_stage.insn[14:12] inside {3'b001, 3'b101} ||
@@ -261,13 +378,46 @@ module rv32_slice #(
              ex_stage.insn[19:15] != 0);
         case (ex_stage.insn[13:12])
             2'b01: csr_new = csr_operand;
-            2'b10: csr_new = csr_old | csr_operand;
-            2'b11: csr_new = csr_old & ~csr_operand;
+            2'b10: csr_new = ((ENABLE_PRIVILEGE && ex_stage.insn[31:20] inside {12'h344, 12'h144}) ?
+                (ex_stage.insn[31:20] == 12'h144 ? csr_mip_sw & csr_mideleg : csr_mip_sw) : csr_old) | csr_operand;
+            2'b11: csr_new = ((ENABLE_PRIVILEGE && ex_stage.insn[31:20] inside {12'h344, 12'h144}) ?
+                (ex_stage.insn[31:20] == 12'h144 ? csr_mip_sw & csr_mideleg : csr_mip_sw) : csr_old) & ~csr_operand;
             default: csr_new = 0;
         endcase
         case (ex_stage.insn[31:20])
-            12'h300: csr_new = (csr_new & 32'h0000_1888) | 32'h0000_1800;
-            12'h304: csr_new = csr_new & 32'h0000_0888;
+            12'h300: begin
+                csr_new = ENABLE_PRIVILEGE ? csr_new & 32'h007e_19aa : (csr_new & 32'h0000_1888) | 32'h0000_1800;
+                if (ENABLE_PRIVILEGE && csr_new[12:11] == 2) csr_new[12:11] = 0;
+            end
+            12'h100: csr_new = (csr_mstatus & ~32'h000c_0122) | (csr_new & 32'h000c_0122);
+            12'h104: csr_new = (csr_mie & ~csr_mideleg) | (csr_new & csr_mideleg);
+            12'h144: csr_new = (csr_mip_sw & ~32'h2) | (csr_new & csr_mideleg & 32'h2);
+            12'h344: csr_new = csr_new & 32'h222;
+            12'h302: csr_new = csr_new & 32'h0000_b3ff; // defined synchronous exceptions, never M ECALL
+            12'h303: csr_new = csr_new & 32'h222;
+            12'h306, 12'h106: csr_new = csr_new & 7;
+            12'h320: csr_new = csr_new & 5;
+            12'h301: if (ENABLE_PRIVILEGE) csr_new = csr_old; // fixed RV32IMA/S/U ISA
+            12'h30a, 12'h31a, 12'h10a: csr_new = 0; // no optional environment extensions
+            12'h180, 12'h310: csr_new = 0; // Bare and little endian until Sv32 checkpoint
+            12'h105: csr_new = {csr_new[31:2], 1'b0, csr_new[1:0] == 1};
+            12'h141: csr_new = {csr_new[31:2], 2'b0};
+            12'h3a0, 12'h3a1: begin
+                for (int i = 0; i < 4; i++) begin
+                    if (pmpcfg[(ex_stage.insn[20] ? 4 : 0) + i][7])
+                        csr_new[i*8 +: 8] = pmpcfg[(ex_stage.insn[20] ? 4 : 0) + i];
+                    else begin
+                        csr_new[i*8 +: 8] = csr_new[i*8 +: 8] & 8'h9f;
+                        if (csr_new[i*8 +: 2] == 2) csr_new[i*8+1] = 0;
+                    end
+                end
+            end
+            12'h3b0, 12'h3b1, 12'h3b2, 12'h3b3, 12'h3b4, 12'h3b5, 12'h3b6, 12'h3b7: begin
+                if (pmpcfg[ex_stage.insn[22:20]][7] ||
+                    (ex_stage.insn[22:20] != 7 && pmpcfg[ex_stage.insn[22:20]+1][7] &&
+                     pmpcfg[ex_stage.insn[22:20]+1][4:3] == 1)) csr_new = csr_old;
+            end
+            12'h304: csr_new = csr_new & (ENABLE_PRIVILEGE ? 32'h0000_0aaa : 32'h0000_0888);
             12'h305: csr_new = {csr_new[31:2], 1'b0, (csr_new[1:0] == 2'b01)};
             12'h341: csr_new = {csr_new[31:2], 2'b0};
             default: ;
@@ -275,14 +425,16 @@ module rv32_slice #(
     end
 
     always_comb begin
+        data_protection_fault = 0;
         ex_result = '0;
         ex_result.valid = ex_stage.valid;
         ex_result.pc = ex_stage.pc;
         ex_result.insn = ex_stage.insn;
+        ex_result.next_pc = ex_stage.pc + 4;
         redirect = 1'b0;
         redirect_pc = 32'b0;
         if (ex_stage.valid) begin
-            if (ex_stage.fault) begin
+            if (ex_stage.fault || !pmp_allow(ex_stage.pc, 2'd2, privilege, 0, 0, 1)) begin
                 ex_result.trap = 1;
                 ex_result.cause = 1;
                 ex_result.tval = ex_stage.pc;
@@ -427,6 +579,7 @@ module rv32_slice #(
                         redirect = !fence_wait;
                         redirect_pc = ex_stage.pc + 32'd4;
                         if (WAIT_MEMORY && fence_i_ready && fence_i_fault) begin
+                            ex_result.fatal = 1;
                             redirect = 0;
                             ex_result.trap = 1;
                             ex_result.cause = 7;
@@ -437,17 +590,28 @@ module rv32_slice #(
                 7'h73: begin
                     if (ex_stage.insn == 32'h0000_0073) begin
                         ex_result.trap = 1;
-                        ex_result.cause = 11; // M-mode ECALL
+                        ex_result.cause = 32'(privilege) + 8;
                     end else if (ex_stage.insn == 32'h0010_0073) begin
                         ex_result.trap = 1;
                         ex_result.cause = 3; // EBREAK
                         ex_result.tval = ex_stage.pc;
+                    end else if (ENABLE_PRIVILEGE && ex_stage.insn == 32'h3020_0073 && privilege == 3) begin
+                        ex_result.next_pc = csr_mepc;
+                    end else if (ENABLE_PRIVILEGE && ex_stage.insn == 32'h1020_0073 &&
+                                 privilege != 0 && !(privilege == 1 && csr_mstatus[22])) begin
+                        ex_result.next_pc = csr_sepc;
+                    end else if (ENABLE_PRIVILEGE && ex_stage.insn == 32'h1050_0073 &&
+                                 privilege != 0 && !(privilege == 1 && csr_mstatus[21])) begin
+                        // WFI is a permitted no-op; pending interrupts still enter precisely.
+                    end else if (ENABLE_PRIVILEGE && (ex_stage.insn & 32'hfe00_7fff) == 32'h1200_0073 &&
+                                 privilege != 0 && !(privilege == 1 && csr_mstatus[20])) begin
+                        // Bare mode has no translations to invalidate yet.
                     end else if ((ex_stage.insn[14:12] inside {3'b001, 3'b010, 3'b011,
                                                                 3'b101, 3'b110, 3'b111}) &&
-                                 csr_exists &&
+                                 csr_exists && privilege >= ex_stage.insn[29:28] &&
                                  !(csr_write_attempt &&
                                    (ex_stage.insn[31:30] == 2'b11 ||
-                                    ex_stage.insn[31:20] inside {12'h301, 12'h344}))) begin
+                                    (!ENABLE_PRIVILEGE && ex_stage.insn[31:20] inside {12'h301, 12'h344})))) begin
                         ex_result.rd = ex_rd;
                         ex_result.result = csr_old;
                         if (csr_write_attempt) begin
@@ -459,11 +623,22 @@ module rv32_slice #(
                 end
                 default: ex_result.trap = 1;
             endcase
+            if (redirect) ex_result.next_pc = redirect_pc;
             if (redirect && redirect_pc[1:0] != 0) begin
                 redirect = 0;
                 ex_result.trap = 1;
                 ex_result.cause = 0;
                 ex_result.tval = redirect_pc;
+            end
+            if (!ex_result.trap && (ex_result.load || ex_result.store || ex_result.atomic_kind != 0)) begin
+                data_protection_fault = !pmp_allow(ex_result.addr,
+                    ex_result.atomic_kind != 0 ? 2'd2 : ex_stage.insn[13:12], data_privilege,
+                    ex_result.load, ex_result.store || ex_result.atomic_kind inside {2,3}, 0);
+                if (data_protection_fault) begin
+                    ex_result.trap = 1;
+                    ex_result.cause = ex_result.store || ex_result.atomic_kind inside {2,3} ? 7 : 5;
+                    ex_result.tval = ex_result.addr;
+                end
             end
             if (ex_result.trap && ex_result.cause == 0 && ex_result.tval == 0) begin
                 ex_result.cause = 2;
@@ -555,6 +730,11 @@ module rv32_slice #(
             reservation_valid <= 0;
             reservation_addr <= 0;
             csr_mstatus <= 0;
+            privilege <= 3; arch_pc <= RESET_PC;
+            csr_medeleg <= 0; csr_mideleg <= 0; csr_mip_sw <= 0;
+            csr_stvec <= 0; csr_sscratch <= 0; csr_sepc <= 0; csr_scause <= 0; csr_stval <= 0;
+            csr_mcounteren <= 0; csr_scounteren <= 0; csr_mcountinhibit <= 0;
+            for (int i = 0; i < 8; i++) begin pmpcfg[i] <= 0; pmpaddr[i] <= 0; end
             csr_mie <= 0;
             csr_mtvec <= 0;
             csr_mscratch <= 0;
@@ -595,7 +775,7 @@ module rv32_slice #(
         end else begin
             retire_valid <= 0;
             retire_csr_write <= 0;
-            csr_mcycle <= csr_mcycle + 64'd1;
+            if (!csr_mcountinhibit[0]) csr_mcycle <= csr_mcycle + 64'd1;
             if (external_store_valid && reservation_valid &&
                 external_store_addr[31:4] == reservation_addr[31:4] &&
                 external_store_word_mask[reservation_addr[3:2]])
@@ -639,7 +819,7 @@ module rv32_slice #(
                     retire_valid <= 1;
                     retire_pc <= wb_commit.pc;
                     retire_insn <= wb_commit.insn;
-                    retire_priv <= 2'd3;
+                    retire_priv <= privilege;
                     retire_rd <= wb_commit.rd;
                     retire_rd_data <= wb_commit.result;
                     retire_mem_addr <= wb_commit.addr;
@@ -654,11 +834,40 @@ module rv32_slice #(
                     retire_csr_data <= wb_commit.csr_data;
                     if (wb_commit.rd != 0 && !wb_commit.trap)
                         registers[wb_commit.rd] <= wb_commit.result;
-                    if (!wb_commit.trap)
+                    if (!wb_commit.trap) arch_pc <= wb_commit.next_pc;
+                    if (!wb_commit.trap && !csr_mcountinhibit[2])
                         csr_minstret <= csr_minstret + 64'd1;
                     if (wb_commit.csr_write && !wb_commit.trap) begin
                         case (wb_commit.csr_addr)
-                            12'h300: csr_mstatus <= wb_commit.csr_data;
+                            12'h300, 12'h100: csr_mstatus <= wb_commit.csr_data;
+                            12'h104: csr_mie <= wb_commit.csr_data;
+                            12'h105: csr_stvec <= wb_commit.csr_data;
+                            12'h106: csr_scounteren <= wb_commit.csr_data;
+                            12'h140: csr_sscratch <= wb_commit.csr_data;
+                            12'h141: csr_sepc <= wb_commit.csr_data;
+                            12'h142: csr_scause <= wb_commit.csr_data;
+                            12'h143: csr_stval <= wb_commit.csr_data;
+                            12'h144, 12'h344: csr_mip_sw <= wb_commit.csr_data;
+                            12'h302: csr_medeleg <= wb_commit.csr_data;
+                            12'h303: csr_mideleg <= wb_commit.csr_data;
+                            12'h306: csr_mcounteren <= wb_commit.csr_data;
+                            12'h320: csr_mcountinhibit <= wb_commit.csr_data;
+                            12'h3a0, 12'h3a1: begin
+                                for (int i = 0; i < 4; i++) begin
+                                    if (!pmpcfg[(wb_commit.csr_addr[0] ? 4 : 0)+i][7]) begin
+                                        pmpcfg[(wb_commit.csr_addr[0] ? 4 : 0)+i] <= wb_commit.csr_data[i*8 +: 8] & 8'h9f;
+                                        // Reserved R=0/W=1 is legalized to neither permission.
+                                        if (wb_commit.csr_data[i*8 +: 2] == 2)
+                                            pmpcfg[(wb_commit.csr_addr[0] ? 4 : 0)+i][1] <= 0;
+                                    end
+                                end
+                            end
+                            12'h3b0, 12'h3b1, 12'h3b2, 12'h3b3, 12'h3b4, 12'h3b5, 12'h3b6, 12'h3b7: begin
+                                if (!pmpcfg[wb_commit.csr_addr[2:0]][7] &&
+                                    !(wb_commit.csr_addr[2:0] != 7 && pmpcfg[wb_commit.csr_addr[2:0]+1][7] &&
+                                      pmpcfg[wb_commit.csr_addr[2:0]+1][4:3] == 1))
+                                    pmpaddr[wb_commit.csr_addr[2:0]] <= wb_commit.csr_data;
+                            end
                             12'h304: csr_mie <= wb_commit.csr_data;
                             12'h305: csr_mtvec <= wb_commit.csr_data;
                             12'h340: csr_mscratch <= wb_commit.csr_data;
@@ -672,8 +881,8 @@ module rv32_slice #(
                             default: ;
                         endcase
                     end
-                    if (wb_commit.trap) begin
-                        trap_halted <= 1;
+                    if (wb_commit.trap && (!ENABLE_PRIVILEGE || wb_commit.fatal)) begin
+                        trap_halted <= !ENABLE_PRIVILEGE || wb_commit.fatal;
                         csr_mepc <= wb_commit.pc;
                         csr_mcause <= wb_commit.cause;
                         csr_mtval <= wb_commit.tval;
@@ -725,17 +934,54 @@ module rv32_slice #(
                         ex_stage.rs1_value <= id_operand1;
                         ex_stage.rs2_value <= id_operand2;
                         id_stage <= if_stage;
-                        if (front_halted || (WAIT_MEMORY && !imem_ready)) begin
+                        if (front_halted || irq_pending || (WAIT_MEMORY && !imem_ready)) begin
                             if_stage <= '0;
                         end else begin
                             if_stage.valid <= 1;
                             if_stage.pc <= fetch_pc;
                             if_stage.insn <= imem_rdata;
-                            if_stage.fault <= imem_fault;
+                            if_stage.fault <= imem_fault || imem_protection_fault;
                             fetch_pc <= fetch_pc + 32'd4;
                         end
                     end
                 end // MEM wait: hold MEM and younger stages, drain WB once.
+                if (ENABLE_PRIVILEGE && wb_commit.valid && !wb_commit.trap &&
+                    wb_commit.insn inside {32'h3020_0073, 32'h1020_0073}) begin
+                    if (wb_commit.insn == 32'h3020_0073) begin
+                        privilege <= csr_mstatus[12:11];
+                        csr_mstatus[3] <= csr_mstatus[7]; csr_mstatus[7] <= 1;
+                        csr_mstatus[12:11] <= 0;
+                        if (csr_mstatus[12:11] != 3) csr_mstatus[17] <= 0;
+                    end else begin
+                        privilege <= csr_mstatus[8] ? 2'd1 : 2'd0;
+                        csr_mstatus[1] <= csr_mstatus[5]; csr_mstatus[5] <= 1;
+                        csr_mstatus[8] <= 0; csr_mstatus[17] <= 0;
+                    end
+                    reservation_valid <= 0;
+                    fetch_pc <= wb_commit.next_pc; arch_pc <= wb_commit.next_pc;
+                    if_stage <= '0; id_stage <= '0; ex_stage <= '0; mem_stage <= '0; wb_stage <= '0;
+                    front_halted <= 0; div_active <= 0;
+                end
+                if (ENABLE_PRIVILEGE && ((wb_commit.valid && wb_commit.trap && !wb_commit.fatal) || take_irq)) begin
+                    if (take_irq) begin
+                        retire_valid <= 1; retire_pc <= trap_pc; retire_insn <= 0; retire_priv <= privilege;
+                        retire_rd <= 0; retire_rd_data <= 0; retire_mem_rmask <= 0; retire_mem_wmask <= 0;
+                        retire_trap <= 1; retire_cause <= trap_cause; retire_tval <= 0; retire_csr_write <= 0;
+                    end
+                    if (trap_to_s) begin
+                        csr_sepc <= trap_pc; csr_scause <= trap_cause; csr_stval <= trap_value;
+                        csr_mstatus[5] <= csr_mstatus[1]; csr_mstatus[1] <= 0;
+                        csr_mstatus[8] <= privilege == 1;
+                        privilege <= 1;
+                    end else begin
+                        csr_mepc <= trap_pc; csr_mcause <= trap_cause; csr_mtval <= trap_value;
+                        csr_mstatus[7] <= csr_mstatus[3]; csr_mstatus[3] <= 0;
+                        csr_mstatus[12:11] <= privilege; privilege <= 3;
+                    end
+                    fetch_pc <= trap_vector; arch_pc <= trap_vector;
+                    if_stage <= '0; id_stage <= '0; ex_stage <= '0; mem_stage <= '0; wb_stage <= '0;
+                    front_halted <= 0; reservation_valid <= 0; div_active <= 0;
+                end
             end
         end
     end

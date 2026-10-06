@@ -3,17 +3,21 @@
 // DMA is noncoherent: external masters may access cached DDR only while the
 // CPU is held reset. During execution, DMA uses the uncached pool exclusively.
 module checkpoint9_top #(
+    parameter bit ENABLE_PRIVILEGE = 0,
     parameter logic [31:0] RESET_PC = 32'h0000_0000,
     parameter integer UART_CLOCKS_PER_BIT = 434
 ) (
     input logic core_clk, mig_clk, rst_n, mig_calib_complete,
     input logic cpu_run, manual_halt, dump_button,
+    input logic msip_irq, mtip_irq, meip_irq, seip_irq,
+    input logic [63:0] time_value,
     output logic masters_ready, uart_tx, atomic_lock,
     input axi128_pkg::axi_req_t loader_req, dma_req,
     output axi128_pkg::axi_rsp_t loader_rsp, dma_rsp,
     output axi128_pkg::axi_req_t peripheral_req, mig_req,
     input axi128_pkg::axi_rsp_t peripheral_rsp, mig_rsp,
     output logic retire_valid,
+    output logic [1:0] retire_priv,
     output logic [31:0] retire_pc, retire_insn,
     output logic [4:0] retire_rd,
     output logic [31:0] retire_rd_data, retire_mem_addr, retire_mem_wdata,
@@ -65,14 +69,15 @@ module checkpoint9_top #(
             if (req[3].wvalid && rsp[3].wready) external_write_addr[1] <= external_write_addr[1] + 16;
         end
     end
-    rv32_cached_core #(.RESET_PC(RESET_PC), .UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT)) cpu (
+    rv32_cached_core #(.ENABLE_PRIVILEGE(ENABLE_PRIVILEGE), .RESET_PC(RESET_PC), .UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT)) cpu (
         .clk(core_clk), .rst_n(masters_ready && cpu_run), .manual_halt(manual_halt), .dump_button(dump_button),
+        .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq), .time_value(time_value),
         .external_store_valid(external_store), .external_store_addr(external_addr),
         .external_store_word_mask(external_word_mask),
         .allow_atomic_read(!active[1]), .atomic_lock(atomic_lock),
         .instruction_req(req[0]), .instruction_rsp(rsp[0]), .data_req(req[1]), .data_rsp(rsp[1]),
         .uart_tx(uart_tx), .dump_busy(), .trace_count(), .trace_write_ptr(), .ila_pipeline(),
-        .retire_valid(retire_valid), .retire_pc(retire_pc), .retire_insn(retire_insn), .retire_priv(),
+        .retire_valid(retire_valid), .retire_pc(retire_pc), .retire_insn(retire_insn), .retire_priv(retire_priv),
         .retire_rd(retire_rd), .retire_rd_data(retire_rd_data), .retire_mem_addr(retire_mem_addr),
         .retire_mem_rmask(retire_mem_rmask), .retire_mem_wmask(retire_mem_wmask),
         .retire_mem_wdata(retire_mem_wdata), .retire_trap(retire_trap),

@@ -1,7 +1,8 @@
 `timescale 1ns/1ps
 module cache_test_memory #(
     parameter int BYTES = 262144,
-    parameter bit LOAD_IMAGE = 0
+    parameter bit LOAD_IMAGE = 0,
+    parameter bit LINEAR_DDR = 0
 ) (
     input logic clk,
     input logic rst_n,
@@ -20,6 +21,7 @@ module cache_test_memory #(
     logic [31:0] fail_read_addr = 32'hffff_ffff, fail_write_addr = 32'hffff_ffff;
     logic [31:0] w_base, r_base;
     function automatic int offset(input logic [31:0] address);
+        if (LINEAR_DDR) return int'(address - 32'h80000000) % BYTES;
         if (BYTES == 65536) return int'(address[15:0]);
         if (address >= 32'h8780_0000) return 131072 + int'(address[15:0]);
         if (address < 32'h8000_0000) return 196608 + int'(address[15:0]);
