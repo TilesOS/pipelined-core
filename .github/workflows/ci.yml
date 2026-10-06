@@ -58,3 +58,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y verilator
       - name: Run checkpoint 7 dual-clock AXI tests
         run: bash scripts/run_checkpoint7.sh
+
+  peripherals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator
+      - name: Run checkpoint 10 CLINT and PLIC simulations
+        run: bash scripts/run_checkpoint10_peripherals.sh
