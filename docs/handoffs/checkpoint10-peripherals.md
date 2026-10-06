@@ -24,7 +24,9 @@ Managed worktree:
   claim/complete ownership, level re-pending, invalid accesses, and held
   responses. Run bash scripts/run_checkpoint10_peripherals.sh from the
   worktree with Verilator. Verilator 5.032 passes without warnings.
-- The repository CI has a separate peripheral simulation job.
+- The repository CI has a separate peripheral simulation job. The existing
+  coverage job also installs libfl-dev, which supplies FlexLexer.h for its
+  pinned Verilator source build.
 
 The module ports use the exact-address 32-bit device request/response
 interface exposed by rtl/bus/axi_peripheral_adapter.sv. The CPU/cache
