@@ -28,7 +28,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y verilator gcc-riscv64-unknown-elf \
             device-tree-compiler libboost-dev libboost-regex-dev libboost-system-dev \
-            autoconf flex bison
+            autoconf flex bison libfl-dev
       - name: Build pinned Spike with commit logging
         run: bash scripts/setup_spike.sh > spike-setup.log 2>&1 || { tail -80 spike-setup.log; exit 1; }
       - name: Compare retirements and prove first-divergence halt
@@ -58,3 +58,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y verilator
       - name: Run checkpoint 7 dual-clock AXI tests
         run: bash scripts/run_checkpoint7.sh
+
+  board-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install board simulation tools
+        run: sudo apt-get update && sudo apt-get install -y verilator gcc-riscv64-unknown-elf
+      - name: Verify board ROM, cached DDR, UART report and calibration restart
+        run: bash scripts/run_checkpoint9_board.sh

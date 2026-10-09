@@ -4,6 +4,9 @@ Status: complete in RTL simulation on 2026-09-28. The implementation and this
 record are committed together. No cached-CPU bitstream, resource report, or
 board timing result is claimed here.
 
+The [board bring-up harness and procedure](09-board-bringup.md) were added on
+2026-10-08; physical synthesis, timing and UART results are still pending.
+
 ## Delivered
 
 - Separate physically indexed/tagged 8 KiB L1s, two ways, 128 sets, and 32-byte
