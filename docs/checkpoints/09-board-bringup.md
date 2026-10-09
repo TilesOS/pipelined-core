@@ -54,6 +54,25 @@ zero DMA errors and the success marker. An injected DMA B error produces phase
 7 failure, which the host decoder rejects. Board top lint is warning-free.
 These counts and cycles are simulation evidence, not physical measurements.
 
+The first board synthesis on 2026-10-08 reported 21,415 total LUTs, no block
+RAM, and 12 DSPs. Cache lookup and maintenance had separate data read ports,
+so the line stores mapped to LUT RAM. They now share one reset-free,
+synchronous read port per way, with a separate write port and block RAM
+inference requested. The CPU now shares one unsigned multiply product;
+signed high halves use operand corrections. New physical resource counts
+must be measured after resynthesis.
+After these RTL changes on 2026-10-09, both cache unit-test seeds, the full
+checkpoint 9 cached-CPU/Spike regression (including directed and four seeded
+M-extension programs), and the complete board simulation/lint gate passed.
+
+The generated MIG XDC also tries to apply E3/LVCMOS25 to its scoped
+`sys_clk_i`. A synthesis-inserted shared input buffer prevents that scoped
+pin from resolving to the board port, producing two Netlist 29-160 warnings.
+The top-level board XDC owns the actual E3/LVCMOS33 assignment. The synthesis
+check verifies that assignment; the routed I/O and clock reports still need
+review before accepting those generated-IP diagnostics. Generated MIG files
+are not edited or their messages suppressed.
+
 ## Vivado and board procedure
 
 1. Save the working checkpoint 8 project under a new name. The operator's

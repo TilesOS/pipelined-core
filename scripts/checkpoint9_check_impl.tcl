@@ -2,6 +2,11 @@ set repo_root [file normalize [file join [file dirname [info script]] ..]]
 set report_dir [file join $repo_root build checkpoint9-board vivado-reports]
 file mkdir $report_dir
 open_run impl_1
+report_io -file [file join $report_dir io.rpt]
+if {[get_property PACKAGE_PIN [get_ports sys_clk_i]] ne "E3" ||
+    [get_property IOSTANDARD [get_ports sys_clk_i]] ne "LVCMOS33"} {
+    error "routed board clock must use E3/LVCMOS33"
+}
 report_methodology -file [file join $report_dir methodology.rpt]
 report_timing_summary -delay_type min_max -max_paths 20 -file [file join $report_dir timing_summary.rpt]
 report_clocks -file [file join $report_dir clocks.rpt]

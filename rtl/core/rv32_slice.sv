@@ -221,8 +221,13 @@ module rv32_slice #(
     assign imm_u = {ex_stage.insn[31:12], 12'b0};
     assign imm_j = {{11{ex_stage.insn[31]}}, ex_stage.insn[31], ex_stage.insn[19:12],
                     ex_stage.insn[20], ex_stage.insn[30:21], 1'b0};
-    assign mul_ss = $signed(ex_stage.rs1_value) * $signed(ex_stage.rs2_value);
-    assign mul_su = $signed(ex_stage.rs1_value) * $signed({1'b0, ex_stage.rs2_value});
+    // Share the unsigned 32x32 product across all MUL variants. Signed high
+    // halves differ by subtracting the other operand for each negative input.
+    assign mul_ss = $signed({mul_uu[63:32] -
+        (ex_stage.rs1_value[31] ? ex_stage.rs2_value : 32'b0) -
+        (ex_stage.rs2_value[31] ? ex_stage.rs1_value : 32'b0), mul_uu[31:0]});
+    assign mul_su = $signed({mul_uu[63:32] -
+        (ex_stage.rs1_value[31] ? ex_stage.rs2_value : 32'b0), mul_uu[31:0]});
     assign mul_uu = ex_stage.rs1_value * ex_stage.rs2_value;
     assign ex_is_div = ex_stage.valid && ex_stage.insn[6:0] == 7'h33 &&
         ex_stage.insn[31:25] == 7'h01 && ex_stage.insn[14];

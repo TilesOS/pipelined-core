@@ -32,7 +32,7 @@ module l1_cache #(
         WB_AW, WB_W, WB_B, RESPONSE, BYPASS_REQ, BYPASS_RSP,
         SCAN, SCAN_READ, MAINT_DONE} state_t;
     (* mark_debug = "true" *) state_t state;
-    logic [255:0] data0 [128], data1 [128];
+    (* ram_style = "block" *) logic [255:0] data0 [128], data1 [128];
     logic [19:0] tags0 [128], tags1 [128];
     logic [127:0] valid0, valid1, dirty0, dirty1, lru;
     logic [255:0] q0, q1, writeback_line, refill_line;
@@ -50,6 +50,9 @@ module l1_cache #(
     axi_req_t bridge_req;
     axi_rsp_t bridge_rsp;
     logic [255:0] hit_line, store_line;
+    logic [6:0] ram_read_index;
+    logic ram_read_enable, ram_store, ram_refill, ram_write_way;
+    logic [255:0] ram_write_data;
 
     assign set_index = addr[11:5];
     assign hit0 = valid0[set_index] && qt0 == addr[31:12];
@@ -60,6 +63,32 @@ module l1_cache #(
     assign rsp_rdata = result;
     assign rsp_resp = response;
     assign maintenance_done = state == MAINT_DONE;
+
+    // One synchronous read port per way serves lookup and maintenance. The
+    // shared output has no reset; valid bits and the FSM gate every use.
+    // Reading the arrays separately into q and writeback_line described two
+    // read ports and prevented mapping this wide line store to block RAM.
+    assign ram_read_index = state == SCAN ? scan_index[6:0] : set_index;
+    assign ram_read_enable = state == LOOKUP_READ || state == SCAN;
+    assign ram_store = state == LOOKUP && (hit0 || hit1) && write_request && !READ_ONLY;
+    assign ram_refill = state == REFILL_R && axi_rsp.rvalid && beat &&
+        axi_rsp.rlast && !refill_error && axi_rsp.rresp == AXI_OKAY;
+    assign ram_write_way = ram_store ? hit1 : victim;
+    assign ram_write_data = ram_store ? store_line : {axi_rsp.rdata, refill_line[127:0]};
+    always_ff @(posedge clk) begin
+        if (rst_n && ram_read_enable) begin
+            q0 <= data0[ram_read_index]; q1 <= data1[ram_read_index];
+            qt0 <= tags0[ram_read_index]; qt1 <= tags1[ram_read_index];
+        end
+        if (rst_n && (ram_store || ram_refill)) begin
+            if (ram_write_way) data1[set_index] <= ram_write_data;
+            else data0[set_index] <= ram_write_data;
+        end
+        if (rst_n && ram_refill) begin
+            if (victim) tags1[set_index] <= addr[31:12];
+            else tags0[set_index] <= addr[31:12];
+        end
+    end
 
     axi_width_bridge #(.MASTER_ID(MASTER_ID)) bypass (
         .clk(clk), .rst_n(rst_n), .req_valid(state == BYPASS_REQ),
@@ -108,7 +137,6 @@ module l1_cache #(
             addr <= 0; wdata <= 0; size <= 0; strb <= 0;
             write_request <= 0; victim <= 0; beat <= 0;
             writeback_addr <= 0; writeback_line <= 0; refill_line <= 0;
-            q0 <= 0; q1 <= 0; qt0 <= 0; qt1 <= 0;
             result <= 0; response <= AXI_OKAY; refill_error <= 0;
             cleaning <= 0; invalidating <= 0; scan_index <= 0;
             maintenance_fault <= 0;
@@ -140,8 +168,6 @@ module l1_cache #(
                 end
             end
             LOOKUP_READ: begin
-                q0 <= data0[set_index]; q1 <= data1[set_index];
-                qt0 <= tags0[set_index]; qt1 <= tags1[set_index];
                 state <= LOOKUP;
             end
             LOOKUP: begin
@@ -149,8 +175,6 @@ module l1_cache #(
                     result <= 32'(hit_line >> (8 * addr[4:0]));
                     lru[set_index] <= !hit1;
                     if (write_request && !READ_ONLY) begin
-                        if (hit1) data1[set_index] <= store_line;
-                        else data0[set_index] <= store_line;
                         if (hit1) dirty1[set_index] <= 1;
                         else dirty0[set_index] <= 1;
                     end
@@ -202,12 +226,8 @@ module l1_cache #(
                         state <= RESPONSE;
                     end else begin
                         if (victim) begin
-                            data1[set_index] <= {axi_rsp.rdata, refill_line[127:0]};
-                            tags1[set_index] <= addr[31:12];
                             valid1[set_index] <= 1; dirty1[set_index] <= 0;
                         end else begin
-                            data0[set_index] <= {axi_rsp.rdata, refill_line[127:0]};
-                            tags0[set_index] <= addr[31:12];
                             valid0[set_index] <= 1; dirty0[set_index] <= 0;
                         end
                         state <= LOOKUP_READ;
@@ -226,8 +246,8 @@ module l1_cache #(
                 else scan_index <= scan_index + 1;
             end
             SCAN_READ: begin
-                writeback_line <= scan_index[7] ? data1[scan_index[6:0]] : data0[scan_index[6:0]];
-                writeback_addr <= {scan_index[7] ? tags1[scan_index[6:0]] : tags0[scan_index[6:0]], scan_index[6:0], 5'b0};
+                writeback_line <= scan_index[7] ? q1 : q0;
+                writeback_addr <= {scan_index[7] ? qt1 : qt0, scan_index[6:0], 5'b0};
                 state <= WB_AW;
             end
             MAINT_DONE: begin
