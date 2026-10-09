@@ -48,14 +48,27 @@ foreach name {checkpoint9_board.xdc checkpoint9_cdc.xdc} {
     if {[llength [get_files -quiet $path]] == 0} {
         add_files -norecurse -fileset constrs_1 $path
     }
-    set_property USED_IN_IMPLEMENTATION true [get_files $path]
-    set_property USED_IN_SYNTHESIS [expr {$name ne "checkpoint9_cdc.xdc"}] [get_files $path]
 }
-set_property PROCESSING_ORDER LATE [get_files [file join $repo_root constraints/checkpoint9_cdc.xdc]]
 # The clock-object guards use Tcl conditionals, which managed XDC rejects.
 # Vivado supports Tcl constraint files in constrs_1; preserve late ordering
 # and fail explicitly if the expected MIG/core clock objects are missing.
-set_property FILE_TYPE Tcl [get_files [file join $repo_root constraints/checkpoint9_cdc.xdc]]
+set cdc_file [get_files [file join $repo_root constraints/checkpoint9_cdc.xdc]]
+set_property FILE_TYPE Tcl $cdc_file
+# Apply usage AFTER the file type. MIG is a black box during top synthesis;
+# its internal clock pins become available when the IP DCP is linked.
+set_property USED_IN {implementation} $cdc_file
+set_property USED_IN_SYNTHESIS false $cdc_file
+set_property USED_IN_IMPLEMENTATION true $cdc_file
+set_property PROCESSING_ORDER LATE $cdc_file
+set board_file [get_files [file join $repo_root constraints/checkpoint9_board.xdc]]
+set_property USED_IN_SYNTHESIS true $board_file
+set_property USED_IN_IMPLEMENTATION true $board_file
+if {[get_property USED_IN_SYNTHESIS $cdc_file] ||
+    ![get_property USED_IN_IMPLEMENTATION $cdc_file] ||
+    [lsearch -exact [get_property USED_IN $cdc_file] synthesis] >= 0} {
+    error "checkpoint 9 CDC constraints must be implementation only"
+}
+puts "CDC constraint usage: [get_property USED_IN $cdc_file]; synthesis: [get_property USED_IN_SYNTHESIS $cdc_file]"
 set_property top checkpoint9_board_top [get_filesets sources_1]
 update_compile_order -fileset sources_1
 puts "Checkpoint 9 ROM/CPU/cache board top ready: [get_property top [get_filesets sources_1]]"

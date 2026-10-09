@@ -85,6 +85,9 @@ are not edited or their messages suppressed.
    must never be added to Vivado.
    The CDC file is registered as a Tcl constraint file so its clock-object
    validation conditionals execute; managed XDC does not support `if`.
+   Its implementation-only usage is set after the file type and verified.
+   The first Tcl registration attempt ran during synthesis and failed because
+   the out-of-context MIG was still a black box with no internal UI clock pin.
 3. Run synthesis, then source scripts/checkpoint9_check_synth.tcl. Review
    block RAM inference and hierarchical utilization, including the CPU/cache
    allocation of 3,000 slices, 30 BRAM36 and 8 DSP with space for later TLBs.
