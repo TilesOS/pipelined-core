@@ -65,6 +65,51 @@ After these RTL changes on 2026-10-09, both cache unit-test seeds, the full
 checkpoint 9 cached-CPU/Spike regression (including directed and four seeded
 M-extension programs), and the complete board simulation/lint gate passed.
 
+The operator's Vivado 2026.1 synthesized-design report on 2026-10-09 confirms
+the new mapping: 16,403 total LUTs, 10,867 FFs, 16 RAMB36s, four RAMB18s and
+four DSPs. Each cache uses eight RAMB36s plus two RAMB18s, nine BRAM36
+equivalents. The CPU/cache hierarchy uses 8,851 LUTs, 4,956 FFs, 18 BRAM36
+equivalents and four DSPs, within the 30-BRAM36/eight-DSP allocations.
+The board clock port is E3/LVCMOS33. The console output, with host/path
+metadata removed and trailing whitespace normalized, is retained in
+[09-board-synthesis.txt](evidence/09-board-synthesis.txt). Placed slice use,
+routed setup/hold/CDC/DRC and board execution are still pending; this is not
+physical signoff.
+
+The operator's routed timing summary on 2026-10-09 reports setup WNS
+**+0.893 ns**, TNS **0**, and **0 failing setup endpoints**; hold WHS
+**+0.031 ns**, THS **0**, and **0 failing hold endpoints**. Pulse-width slack
+is **+0.206 ns** with no failures. Routed resource/clock/CDC/methodology/DRC
+review and physical board execution remain pending.
+
+The first routed resource report uses 5,411 total slices (34.14%), with
+3,066 occupied slice sites in the CPU/cache hierarchy, 66 above its
+3,000-slice allocation before TLBs. The core and UI periods are 20.000 ns and
+12.308 ns. There are no methodology Critical warnings or DRC Errors in the
+reported rule summaries, but the new RAM control and calibration-status
+findings prevent accepting this netlist. The initial report excerpts, with
+host/path metadata removed and trailing whitespace normalized, are in
+[09-board-route-before-control-fix.txt](evidence/09-board-route-before-control-fix.txt).
+
+- REQP-1839/1840 identify asynchronously reset `core_release[1]` driving cache
+  RAM enables. RAM read/write controls, addresses and write data now pass
+  through a clocked stage without asynchronous reset. Lookup and maintenance
+  each wait one additional cycle for that stage. An admitted RAM write may
+  drain across reset, while all valid/dirty metadata is discarded.
+- CDC-10 identifies the UI reset/calibration expression feeding the UART
+  status synchronizer. It is now registered on the MIG UI clock before the
+  existing two core-clock synchronizer stages.
+- Cache hit stores now use byte enables and replicated, rotated input bytes
+  instead of a 256-bit read/modify/write network. New tests cover sparse
+  relative strobes spanning words and all 32 line byte offsets, including
+  writeback preservation. Both seeds pass 324 unit-test operations.
+
+The full cache/CPU/Spike and board simulation/lint gates pass these changes.
+The new FPGA slice count, setup/hold timing and diagnostic remediation remain
+unmeasured until the next implementation. The compact helper
+`python3 scripts/summarize_checkpoint9_reports.py` inventories report rule
+counts and CDC source families without waiving any finding.
+
 The generated MIG XDC also tries to apply E3/LVCMOS25 to its scoped
 `sys_clk_i`. A synthesis-inserted shared input buffer prevents that scoped
 pin from resolving to the board port, producing two Netlist 29-160 warnings.

@@ -18,13 +18,17 @@ module checkpoint9_board_system #(
     logic [31:0] retire_pc, retire_cause, retire_tval, last_pc, cause, tval;
     logic [31:0] imiss, dmiss, dwb, ibypass, dbypass, dma_trips, dma_errors, cycles;
     (* async_reg = "true" *) logic [1:0] calib_sync;
+    logic calib_ui;
     logic [31:0] flags;
     assign passed = cpu_done && result == 32'hc900_600d && phase == 8 &&
                     cause == 3 && dma_errors == 0 && dma_trips != 0;
     assign flags = {28'b0, passed, cpu_done, masters_ready, calib_sync[1]};
+    // The board qualifies calibration with UI reset. Register that expression
+    // in its source domain so no combinational logic feeds the synchronizer.
+    always_ff @(posedge mig_clk) calib_ui <= mig_calib_complete;
     always_ff @(posedge core_clk or negedge rst_n) begin
         if (!rst_n) calib_sync <= 0;
-        else calib_sync <= {calib_sync[0], mig_calib_complete};
+        else calib_sync <= {calib_sync[0], calib_ui};
     end
     always_ff @(posedge core_clk) begin
         if (!masters_ready) begin last_pc <= 0; cause <= 0; tval <= 0; cycles <= 0; end
