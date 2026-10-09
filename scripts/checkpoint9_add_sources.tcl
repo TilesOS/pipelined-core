@@ -52,6 +52,10 @@ foreach name {checkpoint9_board.xdc checkpoint9_cdc.xdc} {
     set_property USED_IN_SYNTHESIS [expr {$name ne "checkpoint9_cdc.xdc"}] [get_files $path]
 }
 set_property PROCESSING_ORDER LATE [get_files [file join $repo_root constraints/checkpoint9_cdc.xdc]]
+# The clock-object guards use Tcl conditionals, which managed XDC rejects.
+# Vivado supports Tcl constraint files in constrs_1; preserve late ordering
+# and fail explicitly if the expected MIG/core clock objects are missing.
+set_property FILE_TYPE Tcl [get_files [file join $repo_root constraints/checkpoint9_cdc.xdc]]
 set_property top checkpoint9_board_top [get_filesets sources_1]
 update_compile_order -fileset sources_1
 puts "Checkpoint 9 ROM/CPU/cache board top ready: [get_property top [get_filesets sources_1]]"

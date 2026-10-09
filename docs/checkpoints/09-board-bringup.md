@@ -64,6 +64,8 @@ These counts and cycles are simulation evidence, not physical measurements.
    replaces copied RTL associations, adds the ROM, selects checkpoint9_board_top,
    and enables checkpoint 9's pin/CDC constraints. Simulation vendor stubs
    must never be added to Vivado.
+   The CDC file is registered as a Tcl constraint file so its clock-object
+   validation conditionals execute; managed XDC does not support `if`.
 3. Run synthesis, then source scripts/checkpoint9_check_synth.tcl. Review
    block RAM inference and hierarchical utilization, including the CPU/cache
    allocation of 3,000 slices, 30 BRAM36 and 8 DSP with space for later TLBs.
