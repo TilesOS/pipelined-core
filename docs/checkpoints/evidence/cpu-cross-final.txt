@@ -1,0 +1,82 @@
+CPU hazard x exception x occupied-pipeline-stage coverage evidence
+Date: 2026-10-03 (America/New_York)
+Host: OrbStack ece-dev, Ubuntu 26.04 LTS arm64
+Coverage model/baseline commit: a5f370a
+Seed replay/tests commit: 6b43779
+Simulator: Verilator v5.052, ea338be98e1e838d3518809ce8899f85a009963c
+Model source SHA-256: 77f0ac89a03c5447a604cd69ea6bcd1cd593cbd485f4d75755a630dcbfebc8cf
+
+Fixed model: 147 single-point bins + 96 native three-way cross bins = 243 bins
+Cross domain: 4 hazard classes x 9 trap causes x 5 occupied stages = 180 tuples
+Structural exclusions fixed before baseline: 84 tuples, via coverpoint ignore bins
+Cross partitions: 45 flowing, 9 RAW/IF, 6 RAW/ID, 18 serialization, 18 divider
+Component coverpoint bins are not counted again in the denominator.
+
+Baseline before seed closure:
+  Overall: 212/243 = 87.24%
+  Native cross: 65/96 = 67.71%
+  Unhit cross scenarios: 31 (all hazard-hold scenarios)
+  Baseline original single-point bins: 147/147
+The fresh replay baseline matched the archived baseline JSON exactly, including
+all individual bin counts and the unchanged model hash.
+
+Discovery:
+  76 distinct candidate seeds (1000 through 1075) passed Spike lockstep.
+  30 contributing seeds closed the 31 previously unhit tuples.
+  Full discovery ledger: cpu-cross-seed-search.json
+  Retained seed constraints and assembly hashes: tests/core/hazard_seeds.json
+  No demonstrated CPU correctness bugs: 0
+
+Fresh replay command:
+  bash scripts/run_cpu_coverage.sh
+Exit status: 0
+Scored Spike program runs: 71 (41 baseline + 30 retained seeds)
+Scored Spike architectural events: 3274 (2998 baseline + 276 retained seeds)
+Scored simulator counter files: 81
+
+CPU functional coverage: 243/243 bins (100.00%)
+Merged 81 simulation files; hit threshold: 1
+Hazard × trap × stage cross: 96/96 (100.00%); 84 structurally excluded tuples
+  atomic_order: 4/4
+  branch: 12/12
+  csr_address: 16/16
+  csr_effect: 2/2
+  destination: 2/2
+  divide: 10/10
+  fault: 2/2
+  hazard_trap_stage: 96/96
+  instruction: 64/64
+  memory: 20/20
+  redirect: 2/2
+  sc: 2/2
+  stall: 2/2
+  trap: 9/9
+
+Collector integrity checks: PASS
+- Last trap is sampled even when the controller stops on that retirement edge.
+- Faulting loads cannot credit successfully retired instruction/memory bins.
+- DIV/REM operands classify ordinary, zero-divisor, and signed-overflow cases.
+- Per-model contexts isolate lifetimes in multi-instance LR/SC contention tests.
+- An older MEM fault squashes a younger EX fault; only the older trap contributes.
+- Duplicate paths cannot double-count; incomplete counter files are rejected.
+These integrity-test counters do not contribute to the scored coverage.
+
+Raw final counters: build/coverage/run-m47h6E/*.dat (ignored local build output)
+Full final bin counts: cpu-cross-final.json
+Per-seed replay results, hashes, gains and reference-event counts:
+  cpu-cross-seed-replay.json
+CI now replays the frozen 30-seed set and requires all 243 bins. Remote CI was
+not run or claimed in this local verification session.
+
+Scope: zero-wait M-mode RV32IMA/Zicsr/Zifencei CPU fixture. Stage means the stage
+occupied/held by the eventually faulting instruction, not fault-detection stage.
+Histories are qualified by precise trap retirement and discard squashed tokens.
+The 100% result does not claim exhaustive ISA, operands, hazard combinations,
+caches, AXI, privilege, interrupts, MMU, code or toggle coverage.
+
+Resume-safe wording:
+  ...with 96 hazard/exception/pipeline-stage cross-coverage bins closed to 100%
+  via 30 targeted random seeds.
+Additional precise story: raised total functional coverage from 87.24% to 100%
+by closing 31 previously unhit hazard/trap/stage scenarios; 0 CPU bugs found.
+Do not describe 87.24% as the cross-only baseline: that baseline was 67.71%.

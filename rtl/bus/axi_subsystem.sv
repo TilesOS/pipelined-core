@@ -3,7 +3,7 @@
 // Calibration status is sampled on mig_clk; loss aborts in-flight traffic
 // and resets all FIFOs. A register drives the common reset without a LUT.
 // Masters must remain reset until masters_ready is asserted.
-module axi_subsystem (
+module axi_subsystem #(parameter bit DMA_UNCACHED_ONLY = 0) (
     input logic core_clk,
     input logic mig_clk,
     input logic rst_n,
@@ -45,7 +45,7 @@ module axi_subsystem (
     end
     assign masters_ready = core_release[1];
 
-    axi_fabric fabric (
+    axi_fabric #(.DMA_UNCACHED_ONLY(DMA_UNCACHED_ONLY)) fabric (
         .clk(core_clk), .rst_n(masters_ready), .m_req(master_req),
         .m_rsp(master_rsp), .s_req(slave_req), .s_rsp(slave_rsp),
         .read_owner_probe(read_owner_probe),

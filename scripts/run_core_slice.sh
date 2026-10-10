@@ -17,7 +17,12 @@ mkdir -p "$build_dir"
     -Wl,--no-relax -T tests/lockstep/smoke.ld tests/lockstep/smoke.S \
     -o "$build_dir/smoke.elf"
 "$cross_objcopy" -O binary "$build_dir/smoke.elf" "$build_dir/smoke.bin"
-if ! "$verilator_bin" --cc --exe --build --top-module checkpoint4_top \
+coverage_args=()
+if [[ ${CPU_FUNCTIONAL_COVERAGE:-0} == 1 ]]; then
+    coverage_args=(--coverage-user "$repo_root/tests/core/cpu_coverage.sv")
+fi
+# VERILATOR_BIN is also an internal variable used by Verilator's wrapper.
+if ! env -u VERILATOR_BIN "$verilator_bin" "${coverage_args[@]}" --cc --exe --build --top-module checkpoint4_top \
     --Mdir "$build_dir/obj_dir" -Wall -Wno-fatal \
     "$repo_root/rtl/core/rv32_slice.sv" \
     "$repo_root/rtl/debug/uart_tx_byte.sv" \
@@ -33,7 +38,7 @@ export CORE_IMAGE="$build_dir/smoke.bin"
 python3 scripts/lockstep.py --spike "$spike_bin" \
     --dut "$build_dir/obj_dir/Vcheckpoint4_top" --elf "$build_dir/smoke.elf" \
     --limit 7 --require-done
-if python3 scripts/lockstep.py --spike "$spike_bin" \
+if env -u CPU_COVERAGE_DIR python3 scripts/lockstep.py --spike "$spike_bin" \
     --dut "$build_dir/obj_dir/Vcheckpoint4_top" --elf "$build_dir/smoke.elf" \
     --limit 7 --inject rd@4 > "$build_dir/core-fault.out" 2>&1; then
     echo "CPU lockstep did not detect a wrong load result" >&2

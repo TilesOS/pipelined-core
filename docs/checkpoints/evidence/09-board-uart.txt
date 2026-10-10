@@ -1,0 +1,28 @@
+Checkpoint 9 physical UART evidence supplied by the board operator
+First JTAG-programmed run: 2026-10-10
+RTL source commit: 7d224a7 (operator confirmed)
+Raw capture retained on operator PC: build/checkpoint9-board/uart-first.dat
+Raw capture has not yet been transferred or independently decoded locally.
+Expected LED states confirmed by operator.
+
+Captured 305 bytes
+calibrated=True ready=True halted=True passed=True
+phase=8 result=0xc900600d last_pc=0x00000338 cause=3 tval=0x00000338
+I misses=5; D misses=1035; D writebacks=521; I/D bypasses=53461/27
+DMA trips=27964; DMA errors=0; cycles=935711 (0.018714 s at 50 MHz)
+PASS: checkpoint 9 board smoke test
+
+CPU RESET/retest: 2026-10-10
+Raw capture retained on operator PC: build/checkpoint9-board/uart-reset.dat
+Raw capture has not been transferred or independently decoded locally.
+
+Captured 305 bytes
+calibrated=True ready=True halted=True passed=True
+phase=8 result=0xc900600d last_pc=0x00000338 cause=3 tval=0x00000338
+I misses=5; D misses=1035; D writebacks=521; I/D bypasses=53461/27
+DMA trips=28218; DMA errors=0; cycles=942658 (0.018853 s at 50 MHz)
+PASS: checkpoint 9 board smoke test
+
+Bitstream: checkpoint9_board_top.bit
+Operator-supplied SHA-256:
+9c946fe0656e3dc9cef0325b2b3828624e6e5633c747d5b77015add213ee8816

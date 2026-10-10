@@ -1,0 +1,30 @@
+2026-10-03: fixed-model baseline before targeted random seeds for hazard/trap scenarios
+Command: CPU_COVERAGE_MIN_PERCENT=0 bash scripts/run_cpu_coverage.sh
+Exit status: 0
+CPU functional coverage: 212/243 bins (87.24%)
+Merged 51 simulation files; hit threshold: 1
+Hazard × trap × stage cross: 65/96 (67.71%); 84 structurally excluded tuples
+  atomic_order: 4/4
+  branch: 12/12
+  csr_address: 16/16
+  csr_effect: 2/2
+  destination: 2/2
+  divide: 10/10
+  fault: 2/2
+  hazard_trap_stage: 65/96
+    uncovered: divider_busy_x_breakpoint_x_decode_stage, divider_busy_x_breakpoint_x_fetch_stage, divider_busy_x_illegal_instruction_x_decode_stage, divider_busy_x_instruction_access_x_decode_stage, divider_busy_x_instruction_access_x_fetch_stage, divider_busy_x_instruction_misaligned_x_decode_stage, divider_busy_x_instruction_misaligned_x_fetch_stage, divider_busy_x_load_access_x_decode_stage, divider_busy_x_load_access_x_fetch_stage, divider_busy_x_load_misaligned_x_decode_stage, divider_busy_x_load_misaligned_x_fetch_stage, divider_busy_x_machine_ecall_x_decode_stage, divider_busy_x_machine_ecall_x_fetch_stage, divider_busy_x_store_access_x_decode_stage, divider_busy_x_store_access_x_fetch_stage, divider_busy_x_store_misaligned_x_decode_stage, divider_busy_x_store_misaligned_x_fetch_stage, raw_dependency_x_illegal_instruction_x_decode_stage, raw_dependency_x_instruction_access_x_fetch_stage, raw_dependency_x_instruction_misaligned_x_decode_stage, raw_dependency_x_load_access_x_fetch_stage, raw_dependency_x_store_access_x_fetch_stage, serialization_x_instruction_access_x_decode_stage, serialization_x_instruction_access_x_fetch_stage, serialization_x_instruction_misaligned_x_decode_stage, serialization_x_instruction_misaligned_x_fetch_stage, serialization_x_load_access_x_fetch_stage, serialization_x_load_misaligned_x_fetch_stage, serialization_x_machine_ecall_x_fetch_stage, serialization_x_store_access_x_fetch_stage, serialization_x_store_misaligned_x_fetch_stage
+  instruction: 64/64
+  memory: 20/20
+  redirect: 2/2
+  sc: 2/2
+  stall: 2/2
+  trap: 9/9
+
+Model SHA-256: 77f0ac89a03c5447a604cd69ea6bcd1cd593cbd485f4d75755a630dcbfebc8cf
+Original 147 single-point bins: 147/147
+Native cross bins: 65/96; 31 unhit scenarios
+Matrix: 4 hazard classes x 9 trap causes x 5 stages = 180 tuples
+Structurally excluded before measurement: 84 tuples
+Cross component coverpoints are not counted again in the denominator.
+Stage tracks the faulting instruction's occupied/held stage before precise retirement.
+Zero-wait fixture only; squashed instructions are excluded.

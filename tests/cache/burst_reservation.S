@@ -1,0 +1,11 @@
+.option norvc
+.section .text
+.globl _start
+_start:
+    lui x1, 0x87800
+    addi x1, x1, 16
+    lr.w x3, (x1)
+    addi x4, x3, 1
+    sc.w x5, x4, (x1)
+    lw x6, 0(x1)
+    .word 0xffffffff

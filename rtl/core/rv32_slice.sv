@@ -1,7 +1,8 @@
-// RV32I CPU slice. Single issue, in order, five explicit stage registers.
-// Memory is a zero-wait test interface until the cache/AXI checkpoints.
+// RV32IMA CPU. Single issue, in order, five explicit stage registers.
+// WAIT_MEMORY enables blocking cache handshakes; the fixture keeps zero wait.
 module rv32_slice #(
-    parameter logic [31:0] RESET_PC = 32'h0000_0000
+    parameter logic [31:0] RESET_PC = 32'h0000_0000,
+    parameter bit WAIT_MEMORY = 0
 ) (
     input  logic        clk,
     input  logic        rst_n,
@@ -9,11 +10,29 @@ module rv32_slice #(
     output logic [31:0] imem_addr,
     input  logic [31:0] imem_rdata,
     input  logic        imem_fault,
+    input  logic        imem_ready,
+    output logic        imem_valid,
+    output logic        imem_accept,
+    input  logic        dmem_ready,
+    input  logic        dstore_ready,
+    input  logic        dstore_fault,
+    output logic        dmem_read_valid,
+    output logic        dmem_read_accept,
+    output logic [31:0] dmem_req_addr,
+    output logic [1:0]  dmem_size,
+    output logic        dmem_write_valid,
+    output logic [31:0] dmem_write_addr,
+    output logic [1:0]  dmem_write_size,
+    output logic        fence_i_valid,
+    input  logic        fence_i_ready,
+    input  logic        fence_i_fault,
     output logic [31:0] dmem_addr,
     input  logic [31:0] dmem_rdata,
     input  logic        dmem_fault,
     input  logic        external_store_valid,
     input  logic [31:0] external_store_addr,
+    input  logic [3:0]  external_store_word_mask,
+    input  logic        atomic_memory_ready,
     output logic        atomic_lock,
     output logic [31:0] dmem_waddr,
     output logic [31:0] dmem_wdata,
@@ -76,6 +95,11 @@ module rv32_slice #(
     fetch_stage_t if_stage, id_stage;
     execute_stage_t ex_stage;
     result_stage_t mem_stage, wb_stage, ex_result, mem_result;
+    // The retirement view carries only the fields needed for architectural effects.
+    /* verilator lint_off UNUSEDSIGNAL */
+    result_stage_t wb_commit;
+    /* verilator lint_on UNUSEDSIGNAL */
+    logic wb_wait, mem_wait, fence_wait;
     logic [31:0] fetch_pc;
     logic [31:0] registers [0:31];
     logic front_halted, trap_halted;
@@ -108,12 +132,45 @@ module rv32_slice #(
     logic [63:0] csr_mcycle, csr_minstret;
     integer register_index;
 
+    logic [3:0] unused_external_store_offset;
+    assign unused_external_store_offset = external_store_addr[3:0];
     assign imem_addr = fetch_pc;
     assign dmem_addr = {mem_stage.addr[31:2], 2'b0};
     assign dmem_waddr = {wb_stage.addr[31:2], 2'b0};
     assign dmem_wdata = wb_stage.store_data;
     // Stores become externally visible on the same edge as retirement.
-    assign dmem_wstrb = (wb_stage.valid && wb_stage.store && !debug_halt) ? wb_stage.mem_mask : 4'h0;
+    assign dmem_wstrb = (wb_stage.valid && wb_stage.store && !debug_halt && !wb_wait &&
+                        !(WAIT_MEMORY && dstore_fault)) ? wb_stage.mem_mask : 4'h0;
+    assign wb_wait = WAIT_MEMORY && wb_stage.valid && wb_stage.store && !dstore_ready;
+    assign mem_wait = WAIT_MEMORY && mem_stage.valid &&
+        ((mem_stage.load && !dmem_ready) || (mem_stage.atomic_kind != 0 && !atomic_memory_ready));
+    assign fence_i_valid = WAIT_MEMORY && ex_stage.valid && ex_stage.insn == 32'h0000_100f;
+    assign fence_wait = fence_i_valid && !fence_i_ready;
+    assign imem_valid = !front_halted && !trap_halted && !debug_halt;
+    assign imem_accept = imem_valid && (!WAIT_MEMORY || imem_ready) &&
+        !wb_wait && !mem_wait && !fence_wait && !div_stall && !hazard &&
+        !redirect && !ex_fault && !mem_access_fault;
+    assign dmem_read_valid = mem_stage.valid && mem_stage.load && !wb_stage.valid &&
+        !debug_halt && !trap_halted;
+    assign dmem_read_accept = dmem_read_valid && dmem_ready && !wb_wait;
+    assign dmem_req_addr = mem_stage.addr;
+    assign dmem_size = mem_stage.atomic_kind != 0 ? 2'd2 : mem_stage.insn[13:12];
+    assign dmem_write_valid = wb_stage.valid && wb_stage.store && !debug_halt && !trap_halted;
+    assign dmem_write_addr = wb_stage.addr;
+    assign dmem_write_size = wb_stage.atomic_kind != 0 ? 2'd2 : wb_stage.insn[13:12];
+    always_comb begin
+        wb_commit = wb_stage;
+        if (WAIT_MEMORY && wb_stage.store && dstore_fault) begin
+            wb_commit.trap = 1;
+            wb_commit.cause = 7;
+            wb_commit.tval = wb_stage.addr;
+            wb_commit.rd = 0;
+            wb_commit.store = 0;
+            wb_commit.load = 0;
+            wb_commit.mem_mask = 0;
+            wb_commit.atomic_kind = 0;
+        end
+    end
     assign done = trap_halted;
     assign atomic_lock = (mem_stage.valid && mem_stage.atomic_kind != 0) ||
                          (wb_stage.valid && wb_stage.atomic_kind != 0);
@@ -164,8 +221,13 @@ module rv32_slice #(
     assign imm_u = {ex_stage.insn[31:12], 12'b0};
     assign imm_j = {{11{ex_stage.insn[31]}}, ex_stage.insn[31], ex_stage.insn[19:12],
                     ex_stage.insn[20], ex_stage.insn[30:21], 1'b0};
-    assign mul_ss = $signed(ex_stage.rs1_value) * $signed(ex_stage.rs2_value);
-    assign mul_su = $signed(ex_stage.rs1_value) * $signed({1'b0, ex_stage.rs2_value});
+    // Share the unsigned 32x32 product across all MUL variants. Signed high
+    // halves differ by subtracting the other operand for each negative input.
+    assign mul_ss = $signed({mul_uu[63:32] -
+        (ex_stage.rs1_value[31] ? ex_stage.rs2_value : 32'b0) -
+        (ex_stage.rs2_value[31] ? ex_stage.rs1_value : 32'b0), mul_uu[31:0]});
+    assign mul_su = $signed({mul_uu[63:32] -
+        (ex_stage.rs1_value[31] ? ex_stage.rs2_value : 32'b0), mul_uu[31:0]});
     assign mul_uu = ex_stage.rs1_value * ex_stage.rs2_value;
     assign ex_is_div = ex_stage.valid && ex_stage.insn[6:0] == 7'h33 &&
         ex_stage.insn[31:25] == 7'h01 && ex_stage.insn[14];
@@ -360,15 +422,21 @@ module rv32_slice #(
                         redirect = 1;
                     end
                 end
-                7'h0f: begin // serializing fences on the zero-wait interface
+                7'h0f: begin // serializing fences; FENCE.I waits for cache maintenance
                     if (ex_stage.insn[14:12] == 3'b000 && ex_rd == 0 &&
                         ex_stage.insn[19:15] == 0 &&
                         ex_stage.insn[31:28] inside {4'h0, 4'h8}) begin
                         // All older stores have retired before this reaches EX.
                     end else if (ex_stage.insn[14:12] == 3'b001 && ex_rd == 0 &&
                                  ex_stage.insn[19:15] == 0 && ex_stage.insn[31:20] == 0) begin
-                        redirect = 1;
+                        redirect = !fence_wait;
                         redirect_pc = ex_stage.pc + 32'd4;
+                        if (WAIT_MEMORY && fence_i_ready && fence_i_fault) begin
+                            redirect = 0;
+                            ex_result.trap = 1;
+                            ex_result.cause = 7;
+                            ex_result.tval = ex_stage.pc;
+                        end
                     end else ex_result.trap = 1;
                 end
                 7'h73: begin
@@ -414,11 +482,12 @@ module rv32_slice #(
                 ex_result.atomic_kind = 0;
                 ex_result.csr_write = 0;
             end
-            if (div_stall) ex_result.valid = 0;
+            if (div_stall || fence_wait) ex_result.valid = 0;
         end
     end
     assign mem_access_fault = mem_stage.valid &&
-        (mem_stage.load || mem_stage.store || mem_stage.atomic_kind != 0) && dmem_fault;
+        (mem_stage.load || mem_stage.store || mem_stage.atomic_kind != 0) &&
+        (!WAIT_MEMORY || !mem_stage.load || dmem_ready) && dmem_fault;
     always_comb begin
         mem_result = mem_stage;
         if (mem_stage.atomic_kind == 2) begin
@@ -472,9 +541,11 @@ module rv32_slice #(
     end
     assign ex_fault = ex_result.valid && ex_result.trap;
 
-    // {WB, MEM, EX, ID, IF, decode stall, redirect, fault}.
+    // {WB, MEM, EX, ID, IF, stall, redirect, fault}.
     assign ila_pipeline = {wb_stage.valid, mem_stage.valid, ex_stage.valid,
-                           id_stage.valid, if_stage.valid, hazard, redirect, ex_fault};
+                           id_stage.valid, if_stage.valid,
+                           (hazard || wb_wait || mem_wait || fence_wait || div_stall),
+                           redirect, (ex_fault || mem_access_fault || (WAIT_MEMORY && dstore_fault))};
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
@@ -530,7 +601,11 @@ module rv32_slice #(
             retire_valid <= 0;
             retire_csr_write <= 0;
             csr_mcycle <= csr_mcycle + 64'd1;
-            if (!debug_halt && !trap_halted) begin
+            if (external_store_valid && reservation_valid &&
+                external_store_addr[31:4] == reservation_addr[31:4] &&
+                external_store_word_mask[reservation_addr[3:2]])
+                reservation_valid <= 0;
+            if (!debug_halt && !trap_halted && !wb_wait) begin
                 if (mem_access_fault || ex_fault || redirect || div_ready) begin
                     div_active <= 0;
                 end else if (ex_is_div && !div_active) begin
@@ -565,106 +640,107 @@ module rv32_slice #(
                         div_quotient <= {div_quotient[30:0], 1'b0};
                     end
                 end
-                if (wb_stage.valid) begin
+                if (wb_commit.valid) begin
                     retire_valid <= 1;
-                    retire_pc <= wb_stage.pc;
-                    retire_insn <= wb_stage.insn;
+                    retire_pc <= wb_commit.pc;
+                    retire_insn <= wb_commit.insn;
                     retire_priv <= 2'd3;
-                    retire_rd <= wb_stage.rd;
-                    retire_rd_data <= wb_stage.result;
-                    retire_mem_addr <= wb_stage.addr;
-                    retire_mem_rmask <= wb_stage.load ? wb_stage.mem_mask : 4'h0;
-                    retire_mem_wmask <= wb_stage.store ? wb_stage.mem_mask : 4'h0;
-                    retire_mem_wdata <= wb_stage.store_data;
-                    retire_trap <= wb_stage.trap;
-                    retire_cause <= wb_stage.cause;
-                    retire_tval <= wb_stage.tval;
-                    retire_csr_write <= wb_stage.csr_write;
-                    retire_csr_addr <= wb_stage.csr_addr;
-                    retire_csr_data <= wb_stage.csr_data;
-                    if (wb_stage.rd != 0 && !wb_stage.trap)
-                        registers[wb_stage.rd] <= wb_stage.result;
-                    if (!wb_stage.trap)
+                    retire_rd <= wb_commit.rd;
+                    retire_rd_data <= wb_commit.result;
+                    retire_mem_addr <= wb_commit.addr;
+                    retire_mem_rmask <= wb_commit.load ? wb_commit.mem_mask : 4'h0;
+                    retire_mem_wmask <= wb_commit.store ? wb_commit.mem_mask : 4'h0;
+                    retire_mem_wdata <= wb_commit.store_data;
+                    retire_trap <= wb_commit.trap;
+                    retire_cause <= wb_commit.cause;
+                    retire_tval <= wb_commit.tval;
+                    retire_csr_write <= wb_commit.csr_write;
+                    retire_csr_addr <= wb_commit.csr_addr;
+                    retire_csr_data <= wb_commit.csr_data;
+                    if (wb_commit.rd != 0 && !wb_commit.trap)
+                        registers[wb_commit.rd] <= wb_commit.result;
+                    if (!wb_commit.trap)
                         csr_minstret <= csr_minstret + 64'd1;
-                    if (wb_stage.csr_write && !wb_stage.trap) begin
-                        case (wb_stage.csr_addr)
-                            12'h300: csr_mstatus <= wb_stage.csr_data;
-                            12'h304: csr_mie <= wb_stage.csr_data;
-                            12'h305: csr_mtvec <= wb_stage.csr_data;
-                            12'h340: csr_mscratch <= wb_stage.csr_data;
-                            12'h341: csr_mepc <= wb_stage.csr_data;
-                            12'h342: csr_mcause <= wb_stage.csr_data;
-                            12'h343: csr_mtval <= wb_stage.csr_data;
-                            12'hb00: csr_mcycle[31:0] <= wb_stage.csr_data;
-                            12'hb80: csr_mcycle[63:32] <= wb_stage.csr_data;
-                            12'hb02: csr_minstret[31:0] <= wb_stage.csr_data;
-                            12'hb82: csr_minstret[63:32] <= wb_stage.csr_data;
+                    if (wb_commit.csr_write && !wb_commit.trap) begin
+                        case (wb_commit.csr_addr)
+                            12'h300: csr_mstatus <= wb_commit.csr_data;
+                            12'h304: csr_mie <= wb_commit.csr_data;
+                            12'h305: csr_mtvec <= wb_commit.csr_data;
+                            12'h340: csr_mscratch <= wb_commit.csr_data;
+                            12'h341: csr_mepc <= wb_commit.csr_data;
+                            12'h342: csr_mcause <= wb_commit.csr_data;
+                            12'h343: csr_mtval <= wb_commit.csr_data;
+                            12'hb00: csr_mcycle[31:0] <= wb_commit.csr_data;
+                            12'hb80: csr_mcycle[63:32] <= wb_commit.csr_data;
+                            12'hb02: csr_minstret[31:0] <= wb_commit.csr_data;
+                            12'hb82: csr_minstret[63:32] <= wb_commit.csr_data;
                             default: ;
                         endcase
                     end
-                    if (wb_stage.trap) begin
+                    if (wb_commit.trap) begin
                         trap_halted <= 1;
-                        csr_mepc <= wb_stage.pc;
-                        csr_mcause <= wb_stage.cause;
-                        csr_mtval <= wb_stage.tval;
+                        csr_mepc <= wb_commit.pc;
+                        csr_mcause <= wb_commit.cause;
+                        csr_mtval <= wb_commit.tval;
                         csr_mstatus[7] <= csr_mstatus[3];
                         csr_mstatus[3] <= 0;
                         csr_mstatus[12:11] <= 2'b11;
                     end
-                    if (wb_stage.trap || wb_stage.atomic_kind == 2 ||
-                        (wb_stage.store && reservation_valid &&
-                         wb_stage.addr[31:2] == reservation_addr[31:2]))
+                    if (wb_commit.trap || wb_commit.atomic_kind == 2 ||
+                        (wb_commit.store && reservation_valid &&
+                         wb_commit.addr[31:2] == reservation_addr[31:2]))
                         reservation_valid <= 0;
-                    if (wb_stage.atomic_kind == 1 && !wb_stage.trap) begin
+                    if (wb_commit.atomic_kind == 1 && !wb_commit.trap) begin
                         reservation_valid <= 1;
-                        reservation_addr <= wb_stage.addr;
+                        reservation_addr <= wb_commit.addr;
                     end
                 end
-                if (external_store_valid && reservation_valid &&
-                    external_store_addr[31:2] == reservation_addr[31:2])
-                    reservation_valid <= 0;
-                wb_stage <= mem_result;
-                // A younger load in MEM sees an older store committing from WB
-                // on this edge, even with a synchronous memory implementation.
-                if (mem_stage.load && !mem_access_fault) begin
-                    case (mem_stage.insn[14:12])
-                        3'b000: wb_stage.result <= {{24{load_shifted[7]}}, load_shifted[7:0]};
-                        3'b001: wb_stage.result <= {{16{load_shifted[15]}}, load_shifted[15:0]};
-                        3'b010: wb_stage.result <= load_shifted;
-                        3'b100: wb_stage.result <= {24'b0, load_shifted[7:0]};
-                        3'b101: wb_stage.result <= {16'b0, load_shifted[15:0]};
-                        default: wb_stage.result <= 0;
-                    endcase
-                end else wb_stage.result <= mem_result.result;
-                mem_stage <= mem_access_fault ? '0 : ex_result;
-                if (redirect || ex_fault || mem_access_fault) begin
-                    ex_stage <= '0;
-                    id_stage <= '0;
-                    if_stage <= '0;
-                    if (redirect && !mem_access_fault) fetch_pc <= redirect_pc;
-                    if (ex_fault || mem_access_fault) front_halted <= 1;
-                end else if (div_stall) begin
-                    // Drain older stages while holding DIV/REM and the front end.
-                end else if (hazard) begin
-                    ex_stage <= '0;
+                if (mem_wait) begin
+                    wb_stage <= '0;
                 end else begin
-                    ex_stage.valid <= id_stage.valid;
-                    ex_stage.pc <= id_stage.pc;
-                    ex_stage.insn <= id_stage.insn;
-                    ex_stage.fault <= id_stage.fault;
-                    ex_stage.rs1_value <= id_operand1;
-                    ex_stage.rs2_value <= id_operand2;
-                    id_stage <= if_stage;
-                    if (front_halted) begin
+                    wb_stage <= mem_result;
+                    // A younger load in MEM sees an older store committing from WB
+                    // on this edge, even with a synchronous memory implementation.
+                    if (mem_stage.load && !mem_access_fault) begin
+                        case (mem_stage.insn[14:12])
+                            3'b000: wb_stage.result <= {{24{load_shifted[7]}}, load_shifted[7:0]};
+                            3'b001: wb_stage.result <= {{16{load_shifted[15]}}, load_shifted[15:0]};
+                            3'b010: wb_stage.result <= load_shifted;
+                            3'b100: wb_stage.result <= {24'b0, load_shifted[7:0]};
+                            3'b101: wb_stage.result <= {16'b0, load_shifted[15:0]};
+                            default: wb_stage.result <= 0;
+                        endcase
+                    end else wb_stage.result <= mem_result.result;
+                    mem_stage <= mem_access_fault ? '0 : ex_result;
+                    if (redirect || ex_fault || mem_access_fault) begin
+                        ex_stage <= '0;
+                        id_stage <= '0;
                         if_stage <= '0;
+                        if (redirect && !mem_access_fault) fetch_pc <= redirect_pc;
+                        if (ex_fault || mem_access_fault) front_halted <= 1;
+                    end else if (div_stall || fence_wait) begin
+                        // Drain older stages while holding DIV/REM and the front end.
+                    end else if (hazard) begin
+                        ex_stage <= '0;
                     end else begin
-                        if_stage.valid <= 1;
-                        if_stage.pc <= fetch_pc;
-                        if_stage.insn <= imem_rdata;
-                        if_stage.fault <= imem_fault;
-                        fetch_pc <= fetch_pc + 32'd4;
+                        ex_stage.valid <= id_stage.valid;
+                        ex_stage.pc <= id_stage.pc;
+                        ex_stage.insn <= id_stage.insn;
+                        ex_stage.fault <= id_stage.fault;
+                        ex_stage.rs1_value <= id_operand1;
+                        ex_stage.rs2_value <= id_operand2;
+                        id_stage <= if_stage;
+                        if (front_halted || (WAIT_MEMORY && !imem_ready)) begin
+                            if_stage <= '0;
+                        end else begin
+                            if_stage.valid <= 1;
+                            if_stage.pc <= fetch_pc;
+                            if_stage.insn <= imem_rdata;
+                            if_stage.fault <= imem_fault;
+                            fetch_pc <= fetch_pc + 32'd4;
+                        end
                     end
-                end
+                end // MEM wait: hold MEM and younger stages, drain WB once.
             end
         end
     end

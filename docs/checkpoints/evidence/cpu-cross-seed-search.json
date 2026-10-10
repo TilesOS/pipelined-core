@@ -1,0 +1,682 @@
+{
+  "baseline_cross_hit": 65,
+  "cross_total": 96,
+  "baseline_percent": 87.24279835390946,
+  "model_sha256": "77f0ac89a03c5447a604cd69ea6bcd1cd593cbd485f4d75755a630dcbfebc8cf",
+  "cases": [
+    {
+      "seed": 1000,
+      "target": "divider_busy_x_breakpoint_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_breakpoint_x_fetch_stage"
+      ],
+      "cross_hit_after": 66,
+      "source": "build/coverage/seed-cases/seed_1000_divider_busy_breakpoint_decode_stage.S"
+    },
+    {
+      "seed": 1001,
+      "target": "divider_busy_x_breakpoint_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 66,
+      "source": "build/coverage/seed-cases/seed_1001_divider_busy_breakpoint_decode_stage.S"
+    },
+    {
+      "seed": 1002,
+      "target": "divider_busy_x_breakpoint_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_breakpoint_x_decode_stage"
+      ],
+      "cross_hit_after": 67,
+      "source": "build/coverage/seed-cases/seed_1002_divider_busy_breakpoint_decode_stage.S"
+    },
+    {
+      "seed": 1003,
+      "target": "divider_busy_x_illegal_instruction_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 67,
+      "source": "build/coverage/seed-cases/seed_1003_divider_busy_illegal_instruction_decode_stage.S"
+    },
+    {
+      "seed": 1004,
+      "target": "divider_busy_x_illegal_instruction_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 67,
+      "source": "build/coverage/seed-cases/seed_1004_divider_busy_illegal_instruction_decode_stage.S"
+    },
+    {
+      "seed": 1005,
+      "target": "divider_busy_x_illegal_instruction_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 67,
+      "source": "build/coverage/seed-cases/seed_1005_divider_busy_illegal_instruction_decode_stage.S"
+    },
+    {
+      "seed": 1006,
+      "target": "divider_busy_x_illegal_instruction_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_illegal_instruction_x_decode_stage"
+      ],
+      "cross_hit_after": 68,
+      "source": "build/coverage/seed-cases/seed_1006_divider_busy_illegal_instruction_decode_stage.S"
+    },
+    {
+      "seed": 1007,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_instruction_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1007_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1008,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1008_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1009,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1009_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1010,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1010_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1011,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1011_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1012,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1012_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1013,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1013_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1014,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1014_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1015,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1015_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1016,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1016_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1017,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1017_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1018,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1018_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1019,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1019_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1020,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 69,
+      "source": "build/coverage/seed-cases/seed_1020_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1021,
+      "target": "divider_busy_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_instruction_access_x_decode_stage"
+      ],
+      "cross_hit_after": 70,
+      "source": "build/coverage/seed-cases/seed_1021_divider_busy_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1022,
+      "target": "divider_busy_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 70,
+      "source": "build/coverage/seed-cases/seed_1022_divider_busy_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1023,
+      "target": "divider_busy_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_instruction_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 71,
+      "source": "build/coverage/seed-cases/seed_1023_divider_busy_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1024,
+      "target": "divider_busy_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_instruction_misaligned_x_decode_stage"
+      ],
+      "cross_hit_after": 72,
+      "source": "build/coverage/seed-cases/seed_1024_divider_busy_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1025,
+      "target": "divider_busy_x_load_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_load_access_x_decode_stage"
+      ],
+      "cross_hit_after": 73,
+      "source": "build/coverage/seed-cases/seed_1025_divider_busy_load_access_decode_stage.S"
+    },
+    {
+      "seed": 1026,
+      "target": "divider_busy_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 73,
+      "source": "build/coverage/seed-cases/seed_1026_divider_busy_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1027,
+      "target": "divider_busy_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 73,
+      "source": "build/coverage/seed-cases/seed_1027_divider_busy_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1028,
+      "target": "divider_busy_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_load_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 74,
+      "source": "build/coverage/seed-cases/seed_1028_divider_busy_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1029,
+      "target": "divider_busy_x_load_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_load_misaligned_x_decode_stage"
+      ],
+      "cross_hit_after": 75,
+      "source": "build/coverage/seed-cases/seed_1029_divider_busy_load_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1030,
+      "target": "divider_busy_x_load_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_load_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 76,
+      "source": "build/coverage/seed-cases/seed_1030_divider_busy_load_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1031,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_machine_ecall_x_fetch_stage"
+      ],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1031_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1032,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1032_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1033,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1033_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1034,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1034_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1035,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1035_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1036,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1036_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1037,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1037_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1038,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 77,
+      "source": "build/coverage/seed-cases/seed_1038_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1039,
+      "target": "divider_busy_x_machine_ecall_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_machine_ecall_x_decode_stage"
+      ],
+      "cross_hit_after": 78,
+      "source": "build/coverage/seed-cases/seed_1039_divider_busy_machine_ecall_decode_stage.S"
+    },
+    {
+      "seed": 1040,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 78,
+      "source": "build/coverage/seed-cases/seed_1040_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1041,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 78,
+      "source": "build/coverage/seed-cases/seed_1041_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1042,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_store_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 79,
+      "source": "build/coverage/seed-cases/seed_1042_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1043,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 79,
+      "source": "build/coverage/seed-cases/seed_1043_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1044,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 79,
+      "source": "build/coverage/seed-cases/seed_1044_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1045,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 79,
+      "source": "build/coverage/seed-cases/seed_1045_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1046,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 79,
+      "source": "build/coverage/seed-cases/seed_1046_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1047,
+      "target": "divider_busy_x_store_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_store_access_x_decode_stage"
+      ],
+      "cross_hit_after": 80,
+      "source": "build/coverage/seed-cases/seed_1047_divider_busy_store_access_decode_stage.S"
+    },
+    {
+      "seed": 1048,
+      "target": "divider_busy_x_store_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_store_misaligned_x_decode_stage"
+      ],
+      "cross_hit_after": 81,
+      "source": "build/coverage/seed-cases/seed_1048_divider_busy_store_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1049,
+      "target": "divider_busy_x_store_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "divider_busy_x_store_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 82,
+      "source": "build/coverage/seed-cases/seed_1049_divider_busy_store_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1050,
+      "target": "raw_dependency_x_illegal_instruction_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "raw_dependency_x_illegal_instruction_x_decode_stage"
+      ],
+      "cross_hit_after": 83,
+      "source": "build/coverage/seed-cases/seed_1050_raw_dependency_illegal_instruction_decode_stage.S"
+    },
+    {
+      "seed": 1051,
+      "target": "raw_dependency_x_instruction_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "raw_dependency_x_instruction_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 84,
+      "source": "build/coverage/seed-cases/seed_1051_raw_dependency_instruction_access_fetch_stage.S"
+    },
+    {
+      "seed": 1052,
+      "target": "raw_dependency_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "raw_dependency_x_instruction_misaligned_x_decode_stage"
+      ],
+      "cross_hit_after": 85,
+      "source": "build/coverage/seed-cases/seed_1052_raw_dependency_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1053,
+      "target": "raw_dependency_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "raw_dependency_x_load_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 86,
+      "source": "build/coverage/seed-cases/seed_1053_raw_dependency_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1054,
+      "target": "raw_dependency_x_store_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "raw_dependency_x_store_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 87,
+      "source": "build/coverage/seed-cases/seed_1054_raw_dependency_store_access_fetch_stage.S"
+    },
+    {
+      "seed": 1055,
+      "target": "serialization_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 87,
+      "source": "build/coverage/seed-cases/seed_1055_serialization_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1056,
+      "target": "serialization_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 87,
+      "source": "build/coverage/seed-cases/seed_1056_serialization_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1057,
+      "target": "serialization_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_instruction_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 88,
+      "source": "build/coverage/seed-cases/seed_1057_serialization_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1058,
+      "target": "serialization_x_instruction_access_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_instruction_access_x_decode_stage"
+      ],
+      "cross_hit_after": 89,
+      "source": "build/coverage/seed-cases/seed_1058_serialization_instruction_access_decode_stage.S"
+    },
+    {
+      "seed": 1059,
+      "target": "serialization_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 89,
+      "source": "build/coverage/seed-cases/seed_1059_serialization_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1060,
+      "target": "serialization_x_instruction_misaligned_x_decode_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_instruction_misaligned_x_decode_stage",
+        "serialization_x_instruction_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 91,
+      "source": "build/coverage/seed-cases/seed_1060_serialization_instruction_misaligned_decode_stage.S"
+    },
+    {
+      "seed": 1061,
+      "target": "serialization_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 91,
+      "source": "build/coverage/seed-cases/seed_1061_serialization_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1062,
+      "target": "serialization_x_load_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_load_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 92,
+      "source": "build/coverage/seed-cases/seed_1062_serialization_load_access_fetch_stage.S"
+    },
+    {
+      "seed": 1063,
+      "target": "serialization_x_load_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 92,
+      "source": "build/coverage/seed-cases/seed_1063_serialization_load_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1064,
+      "target": "serialization_x_load_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 92,
+      "source": "build/coverage/seed-cases/seed_1064_serialization_load_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1065,
+      "target": "serialization_x_load_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_load_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 93,
+      "source": "build/coverage/seed-cases/seed_1065_serialization_load_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1066,
+      "target": "serialization_x_machine_ecall_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 93,
+      "source": "build/coverage/seed-cases/seed_1066_serialization_machine_ecall_fetch_stage.S"
+    },
+    {
+      "seed": 1067,
+      "target": "serialization_x_machine_ecall_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 93,
+      "source": "build/coverage/seed-cases/seed_1067_serialization_machine_ecall_fetch_stage.S"
+    },
+    {
+      "seed": 1068,
+      "target": "serialization_x_machine_ecall_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 93,
+      "source": "build/coverage/seed-cases/seed_1068_serialization_machine_ecall_fetch_stage.S"
+    },
+    {
+      "seed": 1069,
+      "target": "serialization_x_machine_ecall_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 93,
+      "source": "build/coverage/seed-cases/seed_1069_serialization_machine_ecall_fetch_stage.S"
+    },
+    {
+      "seed": 1070,
+      "target": "serialization_x_machine_ecall_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_machine_ecall_x_fetch_stage"
+      ],
+      "cross_hit_after": 94,
+      "source": "build/coverage/seed-cases/seed_1070_serialization_machine_ecall_fetch_stage.S"
+    },
+    {
+      "seed": 1071,
+      "target": "serialization_x_store_access_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_store_access_x_fetch_stage"
+      ],
+      "cross_hit_after": 95,
+      "source": "build/coverage/seed-cases/seed_1071_serialization_store_access_fetch_stage.S"
+    },
+    {
+      "seed": 1072,
+      "target": "serialization_x_store_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 95,
+      "source": "build/coverage/seed-cases/seed_1072_serialization_store_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1073,
+      "target": "serialization_x_store_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 95,
+      "source": "build/coverage/seed-cases/seed_1073_serialization_store_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1074,
+      "target": "serialization_x_store_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [],
+      "cross_hit_after": 95,
+      "source": "build/coverage/seed-cases/seed_1074_serialization_store_misaligned_fetch_stage.S"
+    },
+    {
+      "seed": 1075,
+      "target": "serialization_x_store_misaligned_x_fetch_stage",
+      "status": "passed",
+      "new_bins": [
+        "serialization_x_store_misaligned_x_fetch_stage"
+      ],
+      "cross_hit_after": 96,
+      "source": "build/coverage/seed-cases/seed_1075_serialization_store_misaligned_fetch_stage.S"
+    }
+  ],
+  "cpu_bugs": 0,
+  "final_cross_hit": 96,
+  "final_percent": 100.0,
+  "scenarios_closed": 31,
+  "seed_runs": 76
+}

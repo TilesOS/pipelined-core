@@ -1,0 +1,17 @@
+Checkpoint 9 CI image-loading fix, 2026-09-28
+Failed run: https://github.com/TilesOS/pipelined-core/actions/runs/36446453814
+Runner: Ubuntu 24.04; Verilator 5.020
+
+Reproducer: cached smoke image, same DUT/ELF, differing only in final whitespace
+Without newline: DIVERGENCE at trap event 6; insn/tval 0x00ffffff vs 0xffffffff
+With newline: PASS: 7 architectural events (6 retirements, 1 trap) match Spike
+
+Fresh Verilator 5.020 build:
+PASS: 279 L1 operations and directed cached-system checks
+PASS: all 21 Spike comparisons, 3,024 architectural events
+
+Verilator 5.032:
+PASS: bash scripts/run_checkpoint9.sh; all 21 Spike comparisons, 3,024 events
+PASS: cache unit, contention, faults, calibration restart, hung-refill UART
+
+PASS: bash -n scripts/run_checkpoint9.sh; git diff --check
