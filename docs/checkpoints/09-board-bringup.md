@@ -1,8 +1,11 @@
 # Checkpoint 9 board bring-up
 
-Status: board harness prepared and simulated on 2026-10-08. Physical FPGA
-resources, timing and execution remain unmeasured until the operator records
-the Vivado reports and UART captures. Checkpoint 10 remains a separate branch.
+Status: checkpoint 9's functional board gate is complete on 2026-10-10.
+The measured RTL is `7d224a7aaa56007d020cbc75e3879c9e9a00adf6`. BRAM mapping,
+50 MHz routed setup/hold timing, timing coverage, first UART execution and
+CPU RESET/retest pass. The CPU/cache slice allocation overage remains an
+open area review for privilege/TLB integration. Checkpoint 10 remains a
+separate branch.
 
 The harness uses the checkpoint 8 PLL, MIG wrapper and physical pinout with
 the actual checkpoint 9 CPU, L1 caches, fabric and clock crossing. A committed
@@ -105,18 +108,124 @@ host/path metadata removed and trailing whitespace normalized, are in
   writeback preservation. Both seeds pass 324 unit-test operations.
 
 The full cache/CPU/Spike and board simulation/lint gates pass these changes.
-The new FPGA slice count, setup/hold timing and diagnostic remediation remain
-unmeasured until the next implementation. The compact helper
+At that point, new FPGA slice/timing measurements and diagnostic remediation
+needed a fresh implementation, now recorded below. The compact helper
 `python3 scripts/summarize_checkpoint9_reports.py` inventories report rule
 counts and CDC source families without waiving any finding.
+
+### Corrected route at source commit 7d224a7
+
+The operator initially reopened an older implemented design after updating
+the checkout. Its timing/resources were identical to the previous route and
+it contained no `calib_ui_reg`. Explicitly resetting both `impl_1` and
+`synth_1`, rebuilding synthesis, and checking for one `calib_ui_reg` confirmed
+the current RTL before a new implementation. A checkout revision alone does
+not identify a saved Vivado netlist.
+
+The new route reports setup WNS **+1.310 ns**, hold WHS **+0.027 ns** and
+pulse-width slack **+0.206 ns**, with zero failing endpoints and zero total
+negative slack for all three checks. Core/UI/reference periods remain
+20.000/12.308/5.000 ns. Total use is **5,387 slices (33.99%)**, 15,765 LUTs,
+11,242 registers, 18 BRAM36 equivalents and four DSPs. The operator's
+primitive-to-site query reports **3,161 CPU/cache occupied slice sites**.
+These are operator-supplied measurements, not locally reproduced Vivado runs.
+
+REQP-1839/1840 and CDC-10/13 are absent. Calibration status now has one
+CDC-3 synchronized crossing. The complete helper inventory accounts for
+all CDC summary counts, with no OTHER or incomplete-inventory category:
+
+| Finding | Count | Source inventory and review |
+|---|---:|---|
+| CDC-1 Critical | 1,432 | FIFO payload RAM: 110 B, 998 R, 324 W sources. Registered cache controls remove the previous direct RAM-control endpoints. Payload remains stable until the read pointer returns through two source registers; destination consumption follows the synchronized write pointer and ready/valid handshake. |
+| CDC-15 Warning | 381 | FIFO payload RAM: 26 AR, 26 AW, 322 R, 7 W sources. The same storage ownership and synchronized-pointer protocol applies. |
+| CDC-6 Warning | 10 | Both Gray-pointer directions in all five FIFOs; registered pointers cross through two ASYNC_REG stages. The 12 ns datapath bound is below the fastest source period. |
+| CDC-11 Critical | 6 | Registered link reset, including core_release and the five core-domain FIFO release chains. Assertion is asynchronous; release is synchronized locally. Ready/valid and master reset gating prevent handshakes during local reset. |
+| CDC-3 Info | 4 | Three generated MIG crossings and one registered UART calibration-status crossing. |
+| CDC-8 Warning | 2 | Generated MIG reset endpoints; the same IP configuration used in checkpoint 8. |
+
+This is a manual protocol review of the reported source inventory and current
+RTL, not a severity change or automatic CDC waiver. The timing coverage and
+physical reset/retest results are recorded below. Methodology has no
+Critical findings. Remaining methodology rule counts match the earlier
+MIG/custom-FIFO findings; SYNTH-6/10 are optional RAM/DSP timing optimization
+guidance, with routed timing passing. DRC reports only DPOP-1/2 (four each,
+optional DSP output/multiplier pipeline stages) and the generated MIG clock
+cascade REQP-1709 (one).
+
+The CPU/cache slice allocation is exceeded by **161 sites (5.37%)**, before
+TLBs. The RAM input registers add sequential logic and the placement count
+increased even though total occupied slices fell by 24. The area reduction
+hoped for from byte stores was not demonstrated. Review decision: proceed
+with checkpoint 9 physical functional testing because the build fits the
+device and meets timing; retain the 3,000-site allocation and an open area
+review for privilege/TLB integration. Do not represent the CPU as within its
+allocation or add accelerator lanes without reviewing the complete measured
+design. Shared slice sites across hierarchies can also make per-block site
+counts non-additive. The total board build has 10,463 unused slice sites;
+that is current capacity, not a reservation for unimplemented features.
+
+The operator subsequently completed bitstream generation and ran
+`check_timing -verbose` on the routed `checkpoint9_board_top`. No-clock,
+constant-clock, pulse-width-clock, unconstrained internal endpoints,
+multiple clocks, generated-clock connectivity, combinational/latch loops,
+and partial input/output delay checks all report zero. The only missing
+external delays are `CPU_RESETN` and the five outputs `LED[0..3]` and
+`UART_RXD_OUT`. These are an asynchronous button, human-visible status and
+asynchronous serial output, with no synchronous external receiver clock
+contract. No external I/O timing constraint is invented to silence these
+messages. Bitstream generation completed and both physical runs below pass.
+
+### First physical execution, 2026-10-10
+
+The operator programmed the new bitstream over JTAG and reported the expected
+LED states (calibration/success on, failure off, heartbeat blinking).
+A five-second UART capture contains 305 bytes; the decoder finds a complete
+61-byte report.
+The decoder reports phase 8, result `0xc900600d`, halted/passed flags, and the
+deliberate EBREAK at PC/tval `0x338`, cause 3. I/D misses are 5/1,035,
+dirty writebacks 521, I/D bypasses 53,461/27, DMA trips 27,964 and DMA errors
+zero. The reported CPU runtime is 935,711 cycles, 0.018714 s at 50 MHz;
+this is a smoke-test duration, not a bandwidth or accelerator benchmark.
+The supplied decoder output is retained in
+[09-board-uart.txt](evidence/09-board-uart.txt). The raw first capture is
+retained on the operator PC as `build/checkpoint9-board/uart-first.dat`;
+it has not been transferred or independently decoded locally.
+
+### CPU RESET/retest and board-gate acceptance, 2026-10-10
+
+After pressing/releasing CPU RESET and waiting for the board to restart,
+the operator captured another 305 bytes and ran the same decoder. The
+second run passes with the same phase, result, EBREAK diagnostic and cache
+counters. DMA trips are 28,218 with zero errors; runtime is 942,658 cycles,
+0.018853 s at 50 MHz. The second raw capture remains on the operator PC as
+`build/checkpoint9-board/uart-reset.dat`. Both operator-supplied decoder
+outputs are preserved in [09-board-uart.txt](evidence/09-board-uart.txt).
+
+The operator's SHA-256 for `checkpoint9_board_top.bit` is:
+
+```text
+9c946fe0656e3dc9cef0325b2b3828624e6e5633c747d5b77015add213ee8816
+```
+
+The reports apply to `checkpoint9_board_top`, `xc7a100tcsg324-1`, Vivado
+2026.1 and source commit `7d224a7`. The accepted result is the ROM smoke
+test with cached CPU and competing DMA plus reset/retest; it is not a
+Linux/OpenSBI boot, flash boot or a throughput measurement. Physical results
+are supplied by the operator, with raw captures and full Vivado reports
+retained on that PC rather than reproduced on the Mac. The compact routed
+evidence is in [09-board-route.txt](evidence/09-board-route.txt).
+The [GitHub Actions run for the exact measured RTL](https://github.com/TilesOS/pipelined-core/actions/runs/37996434305)
+completed successfully. The functional board gate is accepted with the
+reviewed area overage and retained diagnostic severities described above.
 
 The generated MIG XDC also tries to apply E3/LVCMOS25 to its scoped
 `sys_clk_i`. A synthesis-inserted shared input buffer prevents that scoped
 pin from resolving to the board port, producing two Netlist 29-160 warnings.
-The top-level board XDC owns the actual E3/LVCMOS33 assignment. The synthesis
-check verifies that assignment; the routed I/O and clock reports still need
-review before accepting those generated-IP diagnostics. Generated MIG files
-are not edited or their messages suppressed.
+The top-level board XDC owns the actual E3/LVCMOS33 assignment. Both the
+synthesis and implementation check scripts verify that assignment, and
+the routed clock/timing coverage and physical calibration/reset retest pass.
+These scoped-IP diagnostics are accepted for this board configuration.
+Generated MIG files are not edited or their messages suppressed.
 
 ## Vivado and board procedure
 
@@ -137,6 +246,9 @@ are not edited or their messages suppressed.
    block RAM inference and hierarchical utilization, including the CPU/cache
    allocation of 3,000 slices, 30 BRAM36 and 8 DSP with space for later TLBs.
    Total board utilization includes ROM, MIG, fabric and test traffic.
+   After pulling changed RTL, close the open design and explicitly reset
+   impl_1 and synth_1 before rebuilding. Confirm the new calibration source
+   register exists in synthesis; do not rely only on the checkout revision.
 4. Run implementation and source scripts/checkpoint9_check_impl.tcl. Review
    setup and hold timing, clocks, CDC, exceptions, methodology and DRC for
    this netlist. The core clock must be 50 MHz. Prior checkpoint 8 endpoint
