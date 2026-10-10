@@ -1,0 +1,510 @@
+[operator command; local terminal prompt omitted]
+==> utilization.rpt <==
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:14:19 2026
+| Host : [omitted]
+| Command      : report_utilization -file <repo>/build/checkpoint9-board/vivado-reports/utilization.rpt
+| Design       : checkpoint9_board_top
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Slice Logic
+1.1 Summary of Registers by Type
+2. Slice Logic Distribution
+3. Memory
+4. DSP
+5. IO and GT Specific
+6. Clocking
+7. Specific Feature
+8. Primitives
+9. Black Boxes
+10. Instantiated Netlists
+
+1. Slice Logic
+--------------
+
++----------------------------+-------+-------+------------+-----------+-------+
+|          Site Type         |  Used | Fixed | Prohibited | Available | Util% |
++----------------------------+-------+-------+------------+-----------+-------+
+| Slice LUTs                 | 15612 |     0 |          0 |     63400 | 24.62 |
+|   LUT as Logic             | 14858 |     0 |          0 |     63400 | 23.44 |
+|   LUT as Memory            |   754 |     0 |          0 |     19000 |  3.97 |
+|     LUT as Distributed RAM |   580 |     0 |            |           |       |
+|     LUT as Shift Register  |   174 |     0 |            |           |       |
+| Slice Registers            | 10620 |     2 |          0 |    126800 |  8.38 |
+|   Register as Flip Flop    | 10608 |     2 |          0 |    126800 |  8.37 |
+|   Register as Latch        |     0 |     0 |          0 |    126800 |  0.00 |
+|   Register as AND/OR       |    12 |     0 |          0 |    126800 | <0.01 |
+| F7 Muxes                   |   514 |     0 |          0 |     31700 |  1.62 |
+| F8 Muxes                   |    32 |     0 |          0 |     15850 |  0.20 |
+| Unique Control Sets        |   331 |       |          0 |     15850 |  2.09 |
++----------------------------+-------+-------+------------+-----------+-------+
+* Warning! LUT value is adjusted to account for LUT combining.
+** Note: Available Control Sets calculated as Slice * 1, Review the Control Sets Report for more information regarding control sets.
+
+
+1.1 Summary of Registers by Type
+--------------------------------
+
++-------+--------------+-------------+--------------+
+| Total | Clock Enable | Synchronous | Asynchronous |
++-------+--------------+-------------+--------------+
+| 12    |            _ |           - |            - |
+| 0     |            _ |           - |          Set |
+| 0     |            _ |           - |        Reset |
+| 0     |            _ |         Set |            - |
+| 0     |            _ |       Reset |            - |
+| 0     |          Yes |           - |            - |
+| 46    |          Yes |           - |          Set |
+| 460   |          Yes |           - |        Reset |
+| 103   |          Yes |         Set |            - |
+| 9999  |          Yes |       Reset |            - |
++-------+--------------+-------------+--------------+
+
+
+2. Slice Logic Distribution
+---------------------------
+
++--------------------------------------------+-------+-------+------------+-----------+-------+
+|                  Site Type                 |  Used | Fixed | Prohibited | Available | Util% |
++--------------------------------------------+-------+-------+------------+-----------+-------+
+| Slice                                      |  5411 |     0 |          0 |     15850 | 34.14 |
+|   SLICEL                                   |  3812 |     0 |            |           |       |
+|   SLICEM                                   |  1599 |     0 |            |           |       |
+| LUT as Logic                               | 14858 |     0 |          0 |     63400 | 23.44 |
+|   using O5 output only                     |     1 |       |            |           |       |
+|   using O6 output only                     | 12204 |       |            |           |       |
+|   using O5 and O6                          |  2653 |       |            |           |       |
+| LUT as Memory                              |   754 |     0 |          0 |     19000 |  3.97 |
+|   LUT as Distributed RAM                   |   580 |     0 |            |           |       |
+|     using O5 output only                   |     0 |       |            |           |       |
+|     using O6 output only                   |     2 |       |            |           |       |
+|     using O5 and O6                        |   578 |       |            |           |       |
+|   LUT as Shift Register                    |   174 |     0 |            |           |       |
+|     using O5 output only                   |    14 |       |            |           |       |
+|     using O6 output only                   |   159 |       |            |           |       |
+|     using O5 and O6                        |     1 |       |            |           |       |
+| Slice Registers                            | 10620 |     0 |          0 |    126800 |  8.38 |
+|   Register driven from within the Slice    |  5835 |       |            |           |       |
+|   Register driven from outside the Slice   |  4785 |       |            |           |       |
+|     LUT in front of the register is unused |  2339 |       |            |           |       |
+|     LUT in front of the register is used   |  2446 |       |            |           |       |
++--------------------------------------------+-------+-------+------------+-----------+-------+
+
+
+
+==> methodology.rpt <==
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:14:17 2026
+| Host : [omitted]
+| Command      : report_methodology -file <repo>/build/checkpoint9-board/vivado-reports/methodology.rpt
+| Design       : checkpoint9_board_top
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Methodology
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 59
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| Rule      | Severity | Description                                                                                           | Checks |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| LUTAR-1   | Warning  | LUT drives async reset alert                                                                          | 1      |
+| PDRC-190  | Warning  | Suboptimally placed synchronized register chain                                                       | 12     |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal                                                            | 20     |
+| SYNTH-10  | Warning  | Wide multiplier                                                                                       | 4      |
+| TIMING-9  | Warning  | Unknown CDC Logic                                                                                     | 1      |
+| TIMING-47 | Warning  | False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks | 2      |
+| XDCB-5    | Warning  | Runtime inefficient way to find pin objects                                                           | 1      |
+| XDCC-1    | Warning  | Scoped Clock constraint overwritten with the same name                                                | 1      |
+| XDCC-7    | Warning  | Scoped Clock constraint overwritten on the same source                                                | 1      |
+| REQP-1959 | Advisory | connects_SERDES_RST_driver_not_FF                                                                     | 16     |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+LUTAR-1#1 Warning
+LUT drives async reset alert
+LUT cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_iodelay_ctrl/rstdiv2_sync_r[11]_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__0/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__1/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__10/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__11/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__12/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__13/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__14/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__2/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__3/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__4/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__5/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__6/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__7/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__8/PRE
+ (the first 15 of 28 listed). The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+PDRC-190#1 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[0] in site SLICE_X37Y128 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[0] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#2 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[10] in site SLICE_X37Y130 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[10] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#3 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[11] in site SLICE_X41Y127 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[11] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#4 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[1] in site SLICE_X36Y129 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[1] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#5 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[2] in site SLICE_X34Y127 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[2] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#6 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[3] in site SLICE_X39Y128 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[3] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#7 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[4] in site SLICE_X36Y127 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[4] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#8 Warning
+Suboptimally placed synchronized register chain
+
+==> drc.rpt <==
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:14:22 2026
+| Host : [omitted]
+| Command      : report_drc -file <repo>/build/checkpoint9-board/vivado-reports/drc.rpt
+| Design       : checkpoint9_board_top
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max checks: <unlimited>
+             Checks found: 51
++-----------+----------+----------------------------+--------+
+| Rule      | Severity | Description                | Checks |
++-----------+----------+----------------------------+--------+
+| CHECK-3   | Warning  | Report rule limit reached  | 2      |
+| DPOP-1    | Warning  | PREG Output pipelining     | 4      |
+| DPOP-2    | Warning  | MREG Output pipelining     | 4      |
+| REQP-1709 | Warning  | Clock output buffering     | 1      |
+| REQP-1839 | Warning  | RAMB36 async control check | 20     |
+| REQP-1840 | Warning  | RAMB18 async control check | 20     |
++-----------+----------+----------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+CHECK-3#1 Warning
+Report rule limit reached
+REQP-1839 rule limit reached: 20 violations have been found.
+Related violations: <none>
+
+CHECK-3#2 Warning
+Report rule limit reached
+REQP-1840 rule limit reached: 20 violations have been found.
+Related violations: <none>
+
+DPOP-1#1 Warning
+PREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu output system/cpu_system/cpu/core/mul_uu/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#2 Warning
+PREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__0 output system/cpu_system/cpu/core/mul_uu__0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#3 Warning
+PREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__1 output system/cpu_system/cpu/core/mul_uu__1/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#4 Warning
+PREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__2 output system/cpu_system/cpu/core/mul_uu__2/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-2#1 Warning
+MREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu multiplier stage system/cpu_system/cpu/core/mul_uu/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#2 Warning
+MREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__0 multiplier stage system/cpu_system/cpu/core/mul_uu__0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#3 Warning
+MREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__1 multiplier stage system/cpu_system/cpu/core/mul_uu__1/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#4 Warning
+MREG Output pipelining
+DSP system/cpu_system/cpu/core/mul_uu__2 multiplier stage system/cpu_system/cpu/core/mul_uu__2/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+REQP-1709#1 Warning
+Clock output buffering
+PLLE2_ADV connectivity violation. The signal mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/pll_clk3_out on the mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT3 pin of mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i does not drive the same kind of BUFFER load as the other CLKOUT pins. Routing from the different buffer types will not be phase aligned.
+Related violations: <none>
+
+REQP-1839#1 Warning
+RAMB36 async control check
+The RAMB36E1 system/cpu_system/cpu/icache/data0_reg_0 has an input control pin system/cpu_system/cpu/icache/data0_reg_0/ENARDEN (net: system/cpu_system/cpu/icache/tags0_reg_i_1_n_0) which is driven by a register (system/cpu_system/bus/core_release_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+
+==> cdc.rpt <==
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:14:21 2026
+| Host : [omitted]
+| Command      : report_cdc -details -file <repo>/build/checkpoint9-board/vivado-reports/cdc.rpt
+| Design       : checkpoint9_board_top
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+ID      Severity  Count  Description
+------  --------  -----  ---------------------------------------------------------------
+CDC-1   Critical   1168  1-bit unknown CDC circuitry
+CDC-3   Info          3  1-bit synchronized with ASYNC_REG property
+CDC-6   Warning      10  Multi-bit synchronized with ASYNC_REG property
+CDC-8   Warning       2  Asynchronous reset synchronized with missing ASYNC_REG property
+CDC-10  Critical      1  Combinational logic detected before a synchronizer
+CDC-11  Critical      6  Fan-out from launch flop to destination clock
+CDC-13  Critical    656  1-bit CDC path on a non-FD primitive
+CDC-15  Warning     379  Clock enable controlled CDC structure detected
+
+Source Clock: clk_pll_i
+Destination Clock: clk200_unbuffered
+CDC Type: Safely Timed
+
+Row  ID     Severity  Description                                 Depth  Exception                Source (From)                                                                                                  Destination (To)
+---  -----  --------  ------------------------------------------  -----  -----------------------  -------------------------------------------------------------------------------------------------------------  -------------------------------------------------------------------------------------------------------------------------------
+  1  CDC-3  Info      1-bit synchronized with ASYNC_REG property      2  Max Delay Datapath Only  mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep/C  mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/xadc_supplied_temperature.rst_r1_reg/D
+
+Source Clock: input port clock
+Destination Clock: clk200_unbuffered
+CDC Type: No Common Primary Clock
+
+Row  ID     Severity  Description                                                      Depth  Exception   Source (From)  Destination (To)
+---  -----  --------  ---------------------------------------------------------------  -----  ----------  -------------  ---------------------------------------------------------------------------------------------------------
+  1  CDC-8  Warning   Asynchronous reset synchronized with missing ASYNC_REG property     15  False Path  CPU_RESETN     mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_iodelay_ctrl/rst_ref_sync_r_reg[0][0]/PRE
+
+Source Clock: clk_pll_i
+Destination Clock: clk50_unbuffered
+CDC Type: Safely Timed
+
+ Row  ID      Severity  Description                                         Depth  Exception                Source (From)                                                                                                  Destination (To)
+----  ------  --------  --------------------------------------------------  -----  -----------------------  -------------------------------------------------------------------------------------------------------------  ------------------------------------------------------------
+   1  CDC-10  Critical  Combinational logic detected before a synchronizer      2  Max Delay Datapath Only  mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep/C  system/calib_sync_reg[0]/D
+   2  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/core_release_reg[0]/CLR
+   3  CDC-6   Warning   Multi-bit synchronized with ASYNC_REG property          2  Max Delay Datapath Only  system/cpu_system/bus/crossing/ar_fifo/rd_gray_reg[2:0]/C                                                      system/cpu_system/bus/crossing/ar_fifo/rd_gray_w1_reg[2:0]/D
+   4  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/crossing/ar_fifo/wr_release_reg[0]/CLR
+   5  CDC-6   Warning   Multi-bit synchronized with ASYNC_REG property          2  Max Delay Datapath Only  system/cpu_system/bus/crossing/aw_fifo/rd_gray_reg[2:0]/C                                                      system/cpu_system/bus/crossing/aw_fifo/rd_gray_w1_reg[2:0]/D
+   6  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/crossing/aw_fifo/wr_release_reg[0]/CLR
+   7  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/crossing/b_fifo/rd_release_reg[0]/CLR
+   8  CDC-6   Warning   Multi-bit synchronized with ASYNC_REG property          2  Max Delay Datapath Only  system/cpu_system/bus/crossing/b_fifo/wr_gray_reg[2:0]/C                                                       system/cpu_system/bus/crossing/b_fifo/wr_gray_r1_reg[2:0]/D
+   9  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/crossing/r_fifo/rd_release_reg[0]/CLR
+  10  CDC-6   Warning   Multi-bit synchronized with ASYNC_REG property          2  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/wr_gray_reg[2:0]/C                                                       system/cpu_system/bus/crossing/r_fifo/wr_gray_r1_reg[2:0]/D
+  11  CDC-6   Warning   Multi-bit synchronized with ASYNC_REG property          2  Max Delay Datapath Only  system/cpu_system/bus/crossing/w_fifo/rd_gray_reg[2:0]/C                                                       system/cpu_system/bus/crossing/w_fifo/rd_gray_w1_reg[2:0]/D
+  12  CDC-11  Critical  Fan-out from launch flop to destination clock           2  Max Delay Datapath Only  system/cpu_system/bus/link_rst_n_reg/C                                                                         system/cpu_system/bus/crossing/w_fifo/wr_release_reg[0]/CLR
+  13  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/bus/fabric/FSM_sequential_rstate_reg[0]/D
+  14  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/bus/fabric/FSM_sequential_rstate_reg[1]/D
+  15  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/bus/fabric/r_next_reg[0]/D
+  16  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/bus/fabric/r_next_reg[1]/D
+  17  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/cpu/dcache/beat_reg/D
+  18  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_60_65/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[0]/D
+  19  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[1]/D
+  20  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_54_59/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[2]/D
+  21  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMB/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[3]/D
+  22  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[4]/D
+  23  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[5]/D
+  24  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[6]/D
+  25  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_114_119/RAMC/CLK                                         system/cpu_system/cpu/dcache/bypass/result_data_reg[7]/D
+  26  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_60_65/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[8]/D
+  27  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[9]/D
+  28  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_54_59/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[10]/D
+  29  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMB/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[11]/D
+  30  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_48_53/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[12]/D
+  31  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[13]/D
+  32  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[14]/D
+  33  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_114_119/RAMC/CLK                                         system/cpu_system/cpu/dcache/bypass/result_data_reg[15]/D
+  34  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_54_59/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[16]/D
+  35  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_72_77/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[17]/D
+  36  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_54_59/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[18]/D
+  37  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_66_71/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[19]/D
+  38  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_54_59/RAMC_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[20]/D
+  39  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[21]/D
+  40  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_84_89/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[22]/D
+  41  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMB/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[23]/D
+  42  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_60_65/RAMB_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[24]/D
+  43  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_72_77/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[25]/D
+  44  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_120_125/RAMA_D1/CLK                                      system/cpu_system/cpu/dcache/bypass/result_data_reg[26]/D
+  45  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_66_71/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[27]/D
+  46  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_90_95/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[28]/D
+  47  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMA/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[29]/D
+  48  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_84_89/RAMA_D1/CLK                                        system/cpu_system/cpu/dcache/bypass/result_data_reg[30]/D
+  49  CDC-15  Warning   Clock enable controlled CDC structure detected          0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_36_41/RAMB/CLK                                           system/cpu_system/cpu/dcache/bypass/result_data_reg[31]/D
+  50  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/b_fifo/storage_reg_0_3_0_5/DP/CLK                                               system/cpu_system/cpu/dcache/bypass/result_resp_reg[0]/D
+  51  CDC-1   Critical  1-bit unknown CDC circuitry                             0  Max Delay Datapath Only  system/cpu_system/bus/crossing/b_fifo/storage_reg_0_3_0_5__0/DP/CLK                                            system/cpu_system/cpu/dcache/bypass/result_resp_reg[1]/D
+  52  CDC-13  Critical  1-bit CDC path on a non-FD primitive                    0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/cpu/dcache/data0_reg_0/WEBWE[0]
+  53  CDC-13  Critical  1-bit CDC path on a non-FD primitive                    0  Max Delay Datapath Only  system/cpu_system/bus/crossing/r_fifo/storage_reg_0_3_0_5/RAMA/CLK                                             system/cpu_system/cpu/dcache/data0_reg_0/WEBWE[1]
+
+==> clocks.rpt <==
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:14:19 2026
+| Host : [omitted]
+| Command      : report_clocks -file <repo>/build/checkpoint9-board/vivado-reports/clocks.rpt
+| Design       : checkpoint9_board_top
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Clock Report
+
+
+Attributes
+  P: Propagated
+  G: Generated
+  A: Auto-derived
+  R: Renamed
+  V: Virtual
+  I: Inverted
+  S: Pin phase-shifted with Latency mode
+
+Clock                                                                                                                                                      Period(ns)  Waveform(ns)    Attributes  Sources
+board_clk_100                                                                                                                                              10.000      {0.000 5.000}   P           {sys_clk_i}
+mig/ddr_probe_i/mig_7series_0/sys_clk_i                                                                                                                    10.000      {0.000 5.000}   P,G         {mig/ddr_probe_i/mig_7series_0/sys_clk_i}
+clk200_unbuffered                                                                                                                                          5.000       {0.000 2.500}   P,G,A       {clocks/pll/CLKOUT1}
+clk50_unbuffered                                                                                                                                           20.000      {0.000 10.000}  P,G,A       {clocks/pll/CLKOUT0}
+clk_pll_i                                                                                                                                                  12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT}
+feedback                                                                                                                                                   10.000      {0.000 5.000}   P,G,A       {clocks/pll/CLKFBOUT}
+freq_refclk                                                                                                                                                1.538       {0.000 0.769}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT0}
+iserdes_clkdiv                                                                                                                                             12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLKDIV}
+iserdes_clkdiv_1                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLKDIV}
+mem_refclk                                                                                                                                                 3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT1}
+oserdes_clk                                                                                                                                                3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLK}
+oserdes_clk_1                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLK}
+oserdes_clk_2                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLK}
+oserdes_clk_3                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLK}
+oserdes_clkdiv                                                                                                                                             6.154       {0.000 3.077}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLKDIV}
+oserdes_clkdiv_1                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLKDIV}
+oserdes_clkdiv_2                                                                                                                                           6.154       {0.000 3.077}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLKDIV}
+oserdes_clkdiv_3                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLKDIV}
+pll_clk3_out                                                                                                                                               12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT3}
+pll_clkfbout                                                                                                                                               10.000      {0.000 5.000}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKFBOUT}
+sync_pulse                                                                                                                                                 49.231      {1.346 4.423}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT2}
+u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/iserdes_clk  3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLK}
+u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/iserdes_clk  3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLK}
+
+
+====================================================
+Generated Clocks
+====================================================
+
+Generated Clock     : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Master Source       : sys_clk_i
+Master Clock        : board_clk_100
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/sys_clk_i}
+
+Generated Clock     : clk200_unbuffered
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Multiply By         : 2
+Generated Sources   : {clocks/pll/CLKOUT1}
+
+Generated Clock     : clk50_unbuffered
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 5.000 10.000}
+Generated Sources   : {clocks/pll/CLKOUT0}
+
+Generated Clock     : clk_pll_i
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKIN1
+Master Clock        : pll_clk3_out
+Multiply By         : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT}
+
+Generated Clock     : feedback
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Multiply By         : 1
+Generated Sources   : {clocks/pll/CLKFBOUT}
+
+Generated Clock     : freq_refclk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 -4.231 -8.462}
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT0}
+
+Generated Clock     : iserdes_clkdiv
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLK
+Master Clock        : u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/iserdes_clk
+Divide By           : 4
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLKDIV}
+
+Generated Clock     : iserdes_clkdiv_1
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLK

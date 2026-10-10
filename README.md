@@ -10,7 +10,9 @@ Checkpoints 1–7 are complete in simulation, and [checkpoint 8 DDR2 board bring
 
 The CPU testbench also has [SystemVerilog functional coverage](docs/cpu-functional-coverage.md) with a reproducible named-bin report and CI gate.
 
-The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) gives the regression commands. The [debug trace path](docs/debug.md) records retirement and traps. [Checkpoint 10](docs/checkpoints/10-privilege-peripherals.md) adds M/S/U traps and interrupts, eight PMP entries, CLINT/PLIC/ns16550a devices, MMIO, and a device tree. Pinned generic OpenSBI v1.7 reaches an S-mode payload and passes timer and firmware-isolation tests in RTL. Sv32 follows in checkpoint 11. Checkpoint 8's measured bitstream uses synthetic traffic. Timing, BRAM inference, and board execution of the cached CPU have not yet been measured.
+The [architecture contract](docs/architecture-contract.md) freezes the target and flash allocation; the [simulation guide](docs/simulation.md) gives the regression commands. The [debug trace path](docs/debug.md) records retirement and traps. [Checkpoint 10](docs/checkpoints/10-privilege-peripherals.md) adds M/S/U traps and interrupts, eight PMP entries, CLINT/PLIC/ns16550a devices, MMIO, and a device tree. Pinned generic OpenSBI v1.7 reaches an S-mode payload and passes timer and firmware-isolation tests in RTL. Sv32 follows in checkpoint 11.
+
+[Checkpoint 9 board testing](docs/checkpoints/09-board-bringup.md) now passes at 50 MHz, including a CPU RESET retest: both caches map to BRAM, routed setup/hold timing passes, and DMA reports zero errors. The build uses 5,387 slices, 18 BRAM36 equivalents and four DSPs. CPU/cache use exceeds its slice allocation by 161 sites; that area review remains open for privilege/TLB integration. These physical measurements apply to checkpoint 9; checkpoint 10 board integration remains pending.
 
 ## Development hosts
 

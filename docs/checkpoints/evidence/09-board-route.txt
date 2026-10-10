@@ -1,0 +1,79 @@
+Checkpoint 9 corrected routed implementation: operator-supplied evidence
+RTL source: 7d224a7aaa56007d020cbc75e3879c9e9a00adf6
+Design: checkpoint9_board_top
+Part: xc7a100tcsg324-1
+Vivado: 2026.1
+Route measured 2026-10-09; physical UART pass/reset retest on 2026-10-10.
+This compact transcription retains the operator's measured counts/severities.
+Full reports remain on the operator PC; host/user/device-serial metadata omitted.
+
+Timing, min_max:
+Setup WNS +1.310 ns; TNS 0; 0 failing / 33523 total endpoints.
+Hold WHS +0.027 ns; THS 0; 0 failing / 33478 total endpoints.
+Pulse width WPWS +0.206 ns; TPWS 0; 0 failing / 12818 total endpoints.
+All user specified timing constraints are met.
+
+Clock periods:
+board_clk_100: 10.000 ns
+clk200_unbuffered: 5.000 ns
+clk50_unbuffered: 20.000 ns
+clk_pll_i: 12.308 ns
+
+Routed resources:
+Slice LUTs: 15765 / 63400 (24.87%)
+Slice registers: 11242 / 126800 (8.87%)
+Slices: 5387 / 15850 (33.99%)
+RAMB36: 16; RAMB18: 4; 18 BRAM36 equivalents total / 135 (13.33%)
+DSP48E1: 4 / 240 (1.67%)
+CPU/cache occupied slice sites: 3161 (budget 3000; overage 161, 5.37%).
+Synthesis: icache 10 RAMB primitives; dcache 10; CPU 4 DSPs (budget 8).
+Fresh synthesis has one calib_ui_reg; the old saved implementation had zero.
+Board clock: E3 / LVCMOS33; synthesis and implementation script checks passed.
+
+Methodology, original severities:
+LUTAR-1 Warning 1
+PDRC-190 Warning 12
+SYNTH-6 Warning 20
+SYNTH-10 Warning 4
+TIMING-9 Warning 1
+TIMING-47 Warning 2
+XDCB-5 Warning 1
+XDCC-1 Warning 1
+XDCC-7 Warning 1
+REQP-1959 Advisory 16
+
+DRC, original severities:
+DPOP-1 Warning 4
+DPOP-2 Warning 4
+REQP-1709 Warning 1
+No REQP-1839/1840, rule-limit warnings or Errors in the supplied summary.
+
+CDC, original severities and complete available source inventory:
+CDC-1 Critical 1432: b_fifo payload 110, r_fifo payload 998, w_fifo payload 324.
+CDC-3 Info 4: generated MIG 3, registered UART calibration status 1.
+CDC-6 Warning 10: two Gray-pointer crossings per FIFO (AR/AW/B/R/W).
+CDC-8 Warning 2: generated MIG reset endpoints.
+CDC-11 Critical 6: registered link reset.
+CDC-15 Warning 381: AR payload 26, AW payload 26, R payload 322, W payload 7.
+CDC-10 and CDC-13 absent. No OTHER or incomplete-inventory category reported.
+Example CDC-11: system/cpu_system/bus/link_rst_n_reg/C ->
+               system/cpu_system/bus/core_release_reg[0]/CLR
+Manual protocol review and limitations: docs/checkpoints/09-board-bringup.md.
+These counts are not an automatic waiver of the original severities.
+
+check_timing -verbose, routed design:
+no_clock 0
+constant_clock 0
+pulse_width_clock 0
+unconstrained_internal_endpoints 0
+no_input_delay 1: CPU_RESETN
+no_output_delay 5: LED[0], LED[1], LED[2], LED[3], UART_RXD_OUT
+multiple_clock 0
+generated_clocks 0
+loops 0
+partial_input_delay 0
+partial_output_delay 0
+latch_loops 0
+
+Bitstream generation completed. Physical first run and CPU RESET/retest pass.
+UART evidence and bitstream identity: docs/checkpoints/evidence/09-board-uart.txt.

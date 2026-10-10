@@ -1,11 +1,18 @@
 # Fresh-chat handoff: checkpoint 10 peripherals and privilege
 
-Branch: `codex/checkpoint10-peripherals`, based on checkpoint 9 `ec59ced`.
+Branch: `codex/checkpoint10-peripherals`, originally based on checkpoint 9
+`ec59ced`. On 2026-10-10, integrated approved `main` at `142a347` (checkpoint 9
+PR #2) so this branch includes the final FPGA cache/multiplier/CDC fixes
+and checkpoint 9 board evidence. All eight combined regression gates pass;
+see the [integration record](../checkpoints/10-privilege-peripherals.md#integration-with-approved-main-2026-10-10)
+and [compact evidence](../checkpoints/evidence/10-main-integration.txt).
 The original Mac worktree is
 `/Users/tylermcclure/.codex/worktrees/checkpoint10-peripherals/pipelined-core`.
-This continuation ran in the separate cloud checkout `/workspace/pipelined-core`.
-Keep the checkpoint 9 checkout available for board bring-up. No board checkout,
-checkpoint 8 board RTL, or measured board build was modified.
+The original checkpoint 10 implementation ran in a separate cloud checkout.
+The main integration is validated in the original Mac worktree using OrbStack.
+Keep the checkpoint 9 checkout and measured bitstream available. The checkpoint 9
+physical signoff applies to its recorded source commit; it does not establish
+checkpoint 10 hardware results.
 
 ## Current state
 
@@ -46,8 +53,9 @@ bash scripts/run_checkpoint10.sh
 bash scripts/run_checkpoint10_opensbi.sh
 bash scripts/run_checkpoint9.sh
 bash scripts/run_checkpoint7.sh
-bash scripts/run_core_slice.sh
-bash scripts/run_checkpoint6.sh
+bash scripts/run_checkpoint9_board.sh
+bash scripts/run_cpu_coverage.sh
+bash scripts/run_lockstep_smoke.sh --self-test
 ```
 
 New Verilator builds have no default warnings. The integrated programs run
@@ -59,7 +67,10 @@ in the checkpoint record). Build products remain ignored under `build/`.
 
 ## Next work
 
-1. Board bring-up continues independently in checkpoint 9's checkout.
+1. Checkpoint 9 board bring-up is complete. Prepare checkpoint 10 board
+   integration from this combined branch; retain the measured checkpoint 9
+   project and bitstream as the reference. Remeasure the CPU/cache area overage
+   together with privilege and peripherals.
 2. Checkpoint 11: Sv32 TLBs/walker, Svade A/D faults, translated PMP/physical
    cacheability, SATP and SFENCE.VMA semantics, paging and stale-TLB tests.
    Keep the DTB Bare-only until those gates pass.

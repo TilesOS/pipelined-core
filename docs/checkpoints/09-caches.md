@@ -1,8 +1,14 @@
 # Checkpoint 9: L1 caches and cached CPU integration
 
-Status: complete in RTL simulation on 2026-09-28. The implementation and this
-record are committed together. No cached-CPU bitstream, resource report, or
-board timing result is claimed here.
+Status: complete in RTL simulation on 2026-09-28 and physical board testing
+on 2026-10-10. The measured board RTL is commit `7d224a7`; routed timing,
+resources, diagnostic review, first UART pass and CPU RESET/retest are recorded
+in the [board bring-up record](09-board-bringup.md).
+
+The board harness was added on 2026-10-08. Both caches map to BRAM and the
+50 MHz cached-CPU smoke test passes twice with zero DMA errors. CPU/cache
+slice use is 161 sites over its 3,000 allocation; that reviewed overage
+remains an open area item for privilege/TLB integration.
 
 ## Delivered
 
@@ -131,8 +137,9 @@ and leaves the I-cache valid. This is a platform error policy tested directly,
 not a Spike comparison of an injected hardware failure. It requires review
 when checkpoint 10 introduces trap routing/recovery.
 
-Checkpoint 8's measured board shell remains unchanged and still uses synthetic
-CPU-like traffic. `checkpoint9_top` is the synthesizable MIG integration
-boundary. Actual FPGA BRAM inference, CPU/cache utilization, 50 MHz timing,
-and board execution must be measured on the later integrated board build;
-the previous shell's timing and bandwidth do not establish those results.
+Checkpoint 8's preserved board shell uses synthetic CPU-like traffic.
+`checkpoint9_top` is the synthesizable MIG integration boundary used by the
+separate checkpoint 9 board harness. Its own measured timing, resources and
+UART results establish the cached-CPU board gate; the background DMA counter
+is a correctness check, not a new bandwidth benchmark. Privilege, Linux and
+accelerator performance are outside this checkpoint's physical signoff.

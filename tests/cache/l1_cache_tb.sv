@@ -63,10 +63,12 @@ module l1_cache_tb;
     end
     task automatic access(input bit write_access, input logic [31:0] address,
         input logic [31:0] value, input logic [1:0] size,
-        input logic [31:0] expected, input logic [1:0] expected_resp = AXI_OKAY);
+        input logic [31:0] expected, input logic [1:0] expected_resp = AXI_OKAY,
+        input int strobe_override = -1);
         @(negedge clk);
         req_valid = 1; req_write = write_access; req_addr = address;
-        req_wdata = value; req_size = size; req_wstrb = 4'( (1 << (1 << size)) - 1 );
+        req_wdata = value; req_size = size;
+        req_wstrb = strobe_override < 0 ? 4'( (1 << (1 << size)) - 1 ) : 4'(strobe_override);
         do @(posedge clk); while (!req_ready);
         @(negedge clk); req_valid = 0;
         do @(negedge clk); while (!rsp_valid);
@@ -169,6 +171,25 @@ module l1_cache_tb;
         // Last cached byte line is legal; adjacent DMA line bypasses.
         access(1, 32'h877f_fffc, 32'h1234_5678, 2, 0);
         maintain(0);
+        // Sparse relative strobes can span two words. Disabled bytes must
+        // survive, and all 32 byte offsets must write back in the right lane.
+        access(1, 32'h8000_6020, 0, 2, 0);
+        access(1, 32'h8000_6024, 0, 2, 0);
+        access(1, 32'h8000_6021, 32'ha1b2_c3d4, 0, 0, AXI_OKAY, 10);
+        access(0, 32'h8000_6020, 0, 2, 32'h00c3_0000);
+        access(0, 32'h8000_6024, 0, 2, 32'h0000_00a1);
+        for (int byte_no = 0; byte_no < 32; byte_no++)
+            access(1, 32'h8000_6020 + 32'(byte_no), 32'(byte_no ^ 32'h96), 0, 0);
+        for (int word_no = 0; word_no < 8; word_no++) begin
+            snapshot = 0;
+            for (int lane = 0; lane < 4; lane++)
+                snapshot[8*lane +: 8] = 8'(4*word_no + lane) ^ 8'h96;
+            access(0, 32'h8000_6020 + 32'(4*word_no), 0, 2, snapshot);
+        end
+        maintain(0);
+        for (int byte_no = 0; byte_no < 32; byte_no++)
+            if (memory.mem[24608 + byte_no] != (8'(byte_no) ^ 8'h96))
+                $fatal(1, "byte-enable writeback changed lane %0d", byte_no);
         $display("PASS: %0d L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery", operations);
         $finish;
     end

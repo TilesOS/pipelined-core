@@ -1,0 +1,124 @@
+source <repo>/scripts/checkpoint9_check_synth.tcl
+# set repo_root [file normalize [file join [file dirname [info script]] ..]]
+# set report_dir [file join $repo_root build checkpoint9-board vivado-reports]
+# file mkdir $report_dir
+# open_run synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a100tcsg324-1
+INFO: [Project 1-5699] Read binary netlist with skipMacroContent - 1
+INFO: [Project 1-454] Reading design checkpoint '<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0.dcp' for cell 'mig/ddr_probe_i/mig_7series_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 11852.281 ; gain = 0.000 ; free physical = 20968 ; free virtual = 33540
+INFO: [Netlist 29-17] Analyzing 1334 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Opt 31-35] Removing redundant IBUF, mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_clk_ibuf/se_input_clk.u_ibufg_sys_clk, from the path connected to top-level port: sys_clk_i
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'mig/ddr_probe_i/mig_7series_0/sys_clk_i' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+Parsing XDC File [<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc] for cell 'mig/ddr_probe_i/mig_7series_0'
+INFO: [Vivado 12-4777] Setting CLOCK_DEDICATED_ROUTE constraint on the PARENT net instead of the specified net segment (net name: mig/ddr_probe_i/mig_7series_0/sys_clk_i). Placer only honors CLOCK_DEDICATED_ROUTE when set on the PARENT net, e.g. net segment directly connected to the driver. To eliminate this message, please update your constraint to specify the PARENT net instead. [<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc:41]
+CRITICAL WARNING: [Netlist 29-160] Cannot set property 'IOSTANDARD', because the property does not exist for objects of type 'pin'. [<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc:265]
+Resolution: Modify the set_property command to apply the property on the correct object type. Since the property is being applied as a scoped constraint, ensure the proper connectivity of the object port objects can be translated into pin objects. This could be due to the insertion of IO Buffers between the top level terminal and cell pin. If the goal is to apply constraints that will migrate to top level ports it is required that IO Buffers manually be instanced.
+CRITICAL WARNING: [Netlist 29-160] Cannot set property 'PACKAGE_PIN', because the property does not exist for objects of type 'pin'. [<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc:266]
+Resolution: Modify the set_property command to apply the property on the correct object type. Since the property is being applied as a scoped constraint, ensure the proper connectivity of the object port objects can be translated into pin objects. This could be due to the insertion of IO Buffers between the top level terminal and cell pin. If the goal is to apply constraints that will migrate to top level ports it is required that IO Buffers manually be instanced.
+Finished Parsing XDC File [<vivado-project>/checkpoint9_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc] for cell 'mig/ddr_probe_i/mig_7series_0'
+Parsing XDC File [<repo>/constraints/checkpoint9_board.xdc]
+Finished Parsing XDC File [<repo>/constraints/checkpoint9_board.xdc]
+Sourcing Tcl File [<repo>/constraints/checkpoint9_cdc.xdc]
+WARNING: [Constraints 18-619] A clock with name 'mig/ddr_probe_i/mig_7series_0/sys_clk_i' already exists, overwriting the previous clock with the same name. [<repo>/constraints/checkpoint9_cdc.xdc:9]
+Finished Sourcing Tcl File [<repo>/constraints/checkpoint9_cdc.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 11852.281 ; gain = 0.000 ; free physical = 20899 ; free virtual = 33472
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 194 instances were transformed.
+  IBUFDS_INTERMDISABLE => IBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2)): 2 instances
+  IOBUFDS_INTERMDISABLE => IOBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2), INV, OBUFTDS(x2)): 2 instances
+  IOBUF_INTERMDISABLE => IOBUF_INTERMDISABLE (IBUF_INTERMDISABLE, OBUFT): 16 instances
+  LUT6_2 => LUT6_2 (LUT5, LUT6): 24 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 144 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 3 instances
+
+# report_utilization -file [file join $report_dir synthesis_utilization.rpt]
+# report_utilization -hierarchical -file [file join $report_dir synthesis_hierarchy.rpt]
+# set ram_cells [get_cells -hier -quiet -filter {REF_NAME =~ RAMB*}]
+# set output [open [file join $report_dir synthesis_ram_cells.txt] w]
+# foreach cell $ram_cells {puts output"cell [get_property REF_NAME $cell]"}
+# close $output
+# puts "Block RAM primitives: [llength $ram_cells]"
+Block RAM primitives: 20
+# set clock_port [get_ports sys_clk_i]
+# set clock_pin [get_property PACKAGE_PIN $clock_port]
+# set clock_standard [get_property IOSTANDARD $clock_port]
+# puts "Board clock pin: $clock_pin; IOSTANDARD: $clock_standard"
+Board clock pin: E3; IOSTANDARD: LVCMOS33
+# if {$clock_pin ne "E3" || $clock_standard ne "LVCMOS33"} {
+#     error "board clock must use E3/LVCMOS33 from checkpoint9_board.xdc"
+# }
+# foreach cache {icache dcache} {
+#     set cache_ram [get_cells -hier -quiet -filter "REF_NAME =~ RAMB* && NAME =~ system/cpu_system/cpu/$cache/*"]
+#     puts "$cache block RAM primitives: [llength $cache_ram]"
+#     if {[llength $cache_ram] == 0} {error "$cache data store did not map to block RAM"}
+# }
+icache block RAM primitives: 10
+dcache block RAM primitives: 10
+# set cpu_dsp [get_cells -hier -quiet -filter {REF_NAME =~ DSP* && NAME =~ system/cpu_system/cpu/*}]
+# puts "CPU DSP primitives: [llength $cpu_dsp] (budget: 8)"
+CPU DSP primitives: 4 (budget: 8)
+# if {[llength $cpu_dsp] > 8} {error "CPU exceeds the DSP allocation"}
+# puts "Synthesis reports: $report_dir"
+Synthesis reports: <repo>/build/checkpoint9-board/vivado-reports
+# puts "Review cache RAM mapping and utilization before implementation."
+Review cache RAM mapping and utilization before implementation.
+report_utilization -hierarchical -hierarchical_depth 4
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct  9 17:08:19 2026
+| Host : [omitted]
+| Command      : report_utilization -hierarchical -hierarchical_depth 4
+| Design       : checkpoint9_board_top
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------------------------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|                 Instance                |             Module            | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++-----------------------------------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| checkpoint9_board_top                   |                         (top) |      16403 |      15605 |     582 |  216 | 10867 |     16 |      4 |          4 |
+|   (checkpoint9_board_top)               |                         (top) |          1 |          1 |       0 |    0 |    26 |      0 |      0 |          0 |
+|   mig                                   |             ddr_probe_wrapper |       5205 |       4637 |     352 |  216 |  4804 |      0 |      0 |          0 |
+|     ddr_probe_i                         |                     ddr_probe |       5204 |       4636 |     352 |  216 |  4804 |      0 |      0 |          0 |
+|       mig_7series_0                     |     ddr_probe_mig_7series_0_0 |       5204 |       4636 |     352 |  216 |  4804 |      0 |      0 |          0 |
+|         (mig_7series_0)                 |     ddr_probe_mig_7series_0_0 |        216 |          0 |     216 |    0 |     0 |      0 |      0 |          0 |
+|         u_ddr_probe_mig_7series_0_0_mig | ddr_probe_mig_7series_0_0_mig |       4988 |       4636 |     136 |  216 |  4804 |      0 |      0 |          0 |
+|   system                                |      checkpoint9_board_system |      11195 |      10965 |     230 |    0 |  6037 |     16 |      4 |          4 |
+|     (system)                            |      checkpoint9_board_system |          1 |          1 |       0 |    0 |   130 |      0 |      0 |          0 |
+|     cpu_system                          |               checkpoint9_top |      10215 |       9985 |     230 |    0 |  5139 |     16 |      4 |          4 |
+|       cpu                               |              rv32_cached_core |       8851 |       8851 |       0 |    0 |  4956 |     16 |      4 |          4 |
+|         trace                           |               trace_ring_uart |         66 |         66 |       0 |    0 |    60 |      0 |      0 |          0 |
+|         core                            |                    rv32_slice |       3593 |       3593 |       0 |    0 |  2419 |      0 |      0 |          4 |
+|         dcache                          |      l1_cache__parameterized0 |       3674 |       3674 |       0 |    0 |  1411 |      8 |      2 |          0 |
+|         icache                          |                      l1_cache |       1489 |       1489 |       0 |    0 |  1026 |      8 |      2 |          0 |
+|       bus                               |                 axi_subsystem |       1347 |       1117 |     230 |    0 |   155 |      0 |      0 |          0 |
+|         fabric                          |                    axi_fabric |       1049 |       1049 |       0 |    0 |    20 |      0 |      0 |          0 |
+|         crossing                        |                       axi_cdc |        296 |         66 |     230 |    0 |   130 |      0 |      0 |          0 |
+|     mmio                                |        checkpoint9_smoke_mmio |        619 |        619 |       0 |    0 |   218 |      0 |      0 |          0 |
+|       (mmio)                            |        checkpoint9_smoke_mmio |        170 |        170 |       0 |    0 |    98 |      0 |      0 |          0 |
+|       adapter                           |        axi_peripheral_adapter |        449 |        449 |       0 |    0 |   120 |      0 |      0 |          0 |
+|     report                              |       checkpoint9_uart_report |        330 |        330 |       0 |    0 |   483 |      0 |      0 |          0 |
+|       (report)                          |       checkpoint9_uart_report |         52 |         52 |       0 |    0 |   459 |      0 |      0 |          0 |
+|       uart                              |                  uart_tx_byte |        278 |        278 |       0 |    0 |    24 |      0 |      0 |          0 |
+|     traffic                             |         checkpoint9_smoke_dma |         30 |         30 |       0 |    0 |    67 |      0 |      0 |          0 |
++-----------------------------------------+-------------------------------+------------+------------+---------+------+-------+--------+--------+------------+

@@ -80,3 +80,12 @@ jobs:
         run: bash scripts/run_checkpoint10.sh
       - name: Run pinned generic OpenSBI and S-mode timer/PMP payload
         run: bash scripts/run_checkpoint10_opensbi.sh
+
+  board-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install board simulation tools
+        run: sudo apt-get update && sudo apt-get install -y verilator gcc-riscv64-unknown-elf
+      - name: Verify board ROM, cached DDR, UART report and calibration restart
+        run: bash scripts/run_checkpoint9_board.sh

@@ -2,8 +2,11 @@
 
 Status: complete in RTL simulation on 2026-10-05. No FPGA timing, BRAM/resource,
 physical UART, or Linux boot result is claimed. Boot ROM/loader implementation
-also remains a later gate; the simulation starts directly in DDR firmware. The checkpoint 9 board checkout
-was not used for this work.
+also remains a later gate; the simulation starts directly in DDR firmware.
+The initial implementation did not use checkpoint 9's board checkout.
+Approved main and the final checkpoint 9 FPGA fixes were integrated and
+retested on 2026-10-10, as recorded below; checkpoint 10 physical testing
+remains pending.
 
 ## Delivered
 
@@ -121,3 +124,38 @@ Board UART pin arbitration, FPGA synthesis/timing/resources, and physical
 execution remain board integration work. Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.
+
+## Integration with approved main, 2026-10-10
+
+Merged `main` at `142a34783f2ac167b09d3cb998e740e936f03f2d` (checkpoint 9
+PR #2) into checkpoint 10 at `42f2b18`. Retained the registered cache RAM
+controls, byte-enable stores, shared RV32 multiplier, CDC constraints,
+board harness and recorded checkpoint 9 physical evidence. The opt-in
+privilege/PMP and standard peripherals remain intact.
+
+Resolved the CI conflict by keeping all six jobs, and combined the README and
+plan records so checkpoint 9 is complete on the board while checkpoint 10
+is complete in simulation. The CPU multiplier change merged automatically
+and was reviewed. Updated the legacy checkpoint 9 smoke harness for the new
+interfaces: interrupt/time inputs are tied to zero, retire_priv is unused,
+and the adapter's decode-error input is tied low to preserve its SLVERR behavior.
+The initial board lint found the missing adapter input; the corrected build
+and complete smoke gate pass without default Verilator warnings.
+
+All eight combined regression gates pass on OrbStack with Verilator 5.032
+(5.052 for CPU coverage), bare-metal GCC 14.2.0 and Linux RISC-V GCC 15.2.0:
+cache/CPU/Spike, ROM/board/UART/calibration-restart, AXI, CLINT/PLIC/UART/MMIO,
+privilege/PMP/MMIO faults, failed FENCE.I policy, pinned OpenSBI and CPU
+coverage/comparator self-tests. CPU coverage reaches 243/243 named bins and
+96/96 included hazard/trap/stage cross tuples. These are project-authored
+regressions, not architectural certification. OpenSBI remains pinned to
+`a32a91069119e7a5aa31e6bc51d5e00860be3d80`; this toolchain's firmware is
+133,892 bytes, under 256 KiB, and the real cached simulation reaches the
+S-mode payload and passes SBI BASE, timer delivery and resident PMP isolation.
+
+See [the integration evidence](evidence/10-main-integration.txt) for commands
+and compact results. Checkpoint 9's physical measurements still identify
+its original measured RTL and bitstream. This merge does not establish
+checkpoint 10 timing, area or physical execution; its console/debug UART
+selection and firmware startup path need board integration. The recorded
+CPU/cache allocation overage must be remeasured with privilege/peripherals.
