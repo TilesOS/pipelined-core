@@ -17,7 +17,8 @@ checkpoint 10 hardware results.
 
 ## Current state
 
-Checkpoint 10 is complete in RTL simulation. Read
+Checkpoint 10 is complete in RTL simulation and on the Nexys A7-100T
+(physical acceptance 2026-10-11). Read
 [the checkpoint record](../checkpoints/10-privilege-peripherals.md) for full
 scope, commands, firmware pin, evidence, and remaining board/paging gates.
 
@@ -118,14 +119,19 @@ in the checkpoint record). Build products remain ignored under `build/`.
    diagnostics are retained; no new crossing family. CPU/cache now uses
    4,710 sites (1,710 over allocation); total device use is 7,334 slices.
    See [fifth-route review](../checkpoints/evidence/10-fifth-route/review.txt).
-   Generate the bitstream from this existing routed design, program only
-   the checkpoint 10 project, then capture first boot, CPU RESET retest,
-   full S-mode trace and post-trace CPU RESET recovery with LED state and
-   bitstream hash. The evidence-only follow-up requires no rebuild/reroute.
-   Physical execution remains pending; keep the area review open.
+   Physical first boot, CPU RESET retest and post-trace CPU RESET recovery
+   each pass OpenSBI/S timer/PMP and physical UART RX/PLIC milestones.
+   All three 2,598-byte captures are identical. The complete 4,358-byte trace
+   contains 256 S-mode retirement records in the post-success loop. Operator
+   reports LEDs 0/1/3 on and supplies bitstream SHA-256
+   `720f04fe02beef8279393162707290f69e58833f300c366c812cb4dbaa6aedf4`.
+   All archived reports/image identity match the fifth route. See
+   [physical acceptance](../checkpoints/evidence/10-board-acceptance/review.txt).
+   Checkpoint 10 functional board gate is complete; keep the area review open.
+   The evidence-only follow-up requires no rebuild/reroute.
    The operator
    controls Vivado locally on the Ubuntu PC and
-   wants a new `/home/tyler/checkpoint10_board` project copied from the accepted
+   uses a separate `/home/tyler/checkpoint10_board` project copied from the accepted
    `/home/tyler/checkpoint9_board`. Retain the original project/bitstream.
    Remeasure the CPU/cache area overage with privilege and peripherals.
 2. Checkpoint 11: Sv32 TLBs/walker, Svade A/D faults, translated PMP/physical
@@ -133,8 +139,9 @@ in the checkpoint record). Build products remain ignored under `build/`.
    Keep the DTB Bare-only until those gates pass.
 3. The board UART owner halts on BTNC, drains console TX, then retains trace
    ownership until CPU RESET. `checkpoint10_top` still exposes separate TX
-   outputs for other integrations. Measure actual FPGA timing, resources/BRAM
-   inference, repeatable serial execution and a complete trace dump.
+   outputs for other integrations. Actual FPGA timing, resources/BRAM inference,
+   repeatable serial execution, complete trace and ownership reset recovery
+   pass on the recorded build. A future changed build needs fresh evidence.
 4. Production loader/image addresses and Linux boot are later gates. This
    checkpoint proves bounded generic firmware execution, not Linux boot or
    architectural certification.

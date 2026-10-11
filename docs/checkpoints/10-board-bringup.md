@@ -1,12 +1,15 @@
 # Checkpoint 10 board bring-up
 
-Status: the fifth route at clean implementation source `5b74119`, retaining
+Status: checkpoint 10's functional board gate is complete on 2026-10-11.
+First boot, CPU RESET retest, complete S-mode trace and post-trace reset recovery
+pass; the operator reports LEDs 0, 1 and 3 on. See
+[physical acceptance](#physical-board-acceptance-2026-10-11).
+The fifth route at clean implementation source `5b74119`, retaining
 `74d26b9` synthesis/image, passes 50 MHz setup/hold/pulse timing
 (+0.308/+0.017/+0.206 ns). The targeted tag-RAM power-gating exclusion clears
 REQP-1839/1840; both tag enables now have only their registered RTL startpoint.
-FDRE CPU reset and 84/135 block RAM tiles are retained. The physical report
-review permits bitstream generation and functional board validation.
-CPU/cache area is 4,710/3,000 sites; that review and physical execution remain open.
+FDRE CPU reset and 84/135 block RAM tiles are retained.
+CPU/cache area is 4,710/3,000 sites; that area review remains open.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -84,7 +87,7 @@ Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
 These results establish the prepared target in simulation. Physical synthesis
 resource checks and the fifth route pass timing and RAM-control review as
-recorded below; physical execution remains pending.
+recorded below; subsequent physical execution passes as recorded below.
 
 ## First physical synthesis and ROM capacity fix
 
@@ -393,11 +396,52 @@ review applies; severities are preserved. Asynchronous external port contracts
 and remaining DSP/MIG/methodology diagnostics are unchanged. The sole LUTAR-1
 remains generated MIG reset logic.
 
-This review permits generating a bitstream from the existing routed design.
+This review permitted generating a bitstream from the existing routed design.
 Keep the operator's current source/image/synthesis/implementation together;
 the evidence-only follow-up commit requires no rebuild or reroute. Physical
-UART/LED/reset/trace acceptance below is still pending. The unchanged RTL
+UART/LED/reset/trace acceptance subsequently passes below. The unchanged RTL
 retains the privilege, legacy board and two-ratio full board simulation evidence.
+
+## Physical board acceptance, 2026-10-11
+
+The operator supplied `checkpoint10_board_evidence.tar` after programming the
+Nexys A7-100T. All included Vivado reports and the image manifest byte-match
+the reviewed fifth route. Implementation source remains clean `5b74119`, with
+clean `74d26b9` synthesis/image. The operator-recorded bitstream SHA-256 is
+`720f04fe02beef8279393162707290f69e58833f300c366c812cb4dbaa6aedf4`.
+The archive contains the hash record rather than the bitstream binary; the
+hash was not independently recomputed. See the retained
+[acceptance review](evidence/10-board-acceptance/review.txt).
+
+All three raw boot captures pass `capture_checkpoint10.py --verify`:
+[first boot](evidence/10-board-acceptance/uart-first.dat),
+[CPU RESET retest](evidence/10-board-acceptance/uart-reset.dat) and
+[post-trace reset recovery](evidence/10-board-acceptance/uart-after-trace.dat).
+Each is 2,598 bytes, and all three are byte-identical. They contain the ordered
+OpenSBI v1.7 banner, SBI timer/PMP PASS, UART RX READY and UART RX/PLIC PASS.
+The console reports one hart, eight PMP entries, the 1 MHz timer, uart8250,
+and S-mode entry at `0x80040000` with FDT `0x80060000`. A readable
+[console copy](evidence/10-board-acceptance/uart-first.txt) accompanies the raw bytes.
+The operator reports LEDs **0, 1 and 3 on**, matching the expected pass on-set.
+
+The [raw trace](evidence/10-board-acceptance/trace.dat) is exactly 4,358 bytes:
+one `TRCE` header and 256 complete records, with no leading/trailing bytes.
+The [decoded records](evidence/10-board-acceptance/trace-decoded.txt) all show
+S-mode retirement (`priv=1`) at `0x8004014c`, instruction `0x0000006f`, with
+zero cause/tval. This is the payload's post-success self-loop; its instruction
+matches the hash-identical payload binary. Earlier interrupt/trap records
+have wrapped out, while the serial milestones establish the timer/PMP and
+physical UART RX/PLIC checks. Reset after diagnostic ownership restores the
+same complete console sequence.
+
+The functional board gate is complete, with the 50 MHz timing/resource and
+RAM/CDC/DRC review retained. Raw captures, source/image identity, operator LED
+report and checksums are saved under
+[10-board-acceptance](evidence/10-board-acceptance/review.txt).
+CPU/cache allocation remains exceeded by 1,710 slice sites (57.0%); retain that
+area review for Sv32 and accelerator growth. Checkpoint 9's proven project and
+bitstream remain separate. Sv32, production QSPI loading and Linux boot are
+later checkpoints.
 
 ## Separate source and Vivado projects
 
@@ -480,10 +524,17 @@ After route review, generate the bitstream and program FPGA SRAM over JTAG:
 catch {close_design}
 launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
+set checkpoint10_bitstream [file join [get_property DIRECTORY [get_runs impl_1]] checkpoint10_board_top.bit]
+if {![file exists $checkpoint10_bitstream]} {error "checkpoint 10 bitstream was not generated; inspect impl_1 status"}
+puts "Checkpoint 10 bitstream: $checkpoint10_bitstream"
+set checkpoint10_hash_file [open /home/tyler/checkpoint10_src/build/checkpoint10-board/bitstream.sha256 w]
+puts $checkpoint10_hash_file [exec sha256sum $checkpoint10_bitstream]
+close $checkpoint10_hash_file
 ```
 
-Use Hardware Manager to program
-`/home/tyler/checkpoint10_board/checkpoint10_board.runs/impl_1/checkpoint10_board_top.bit`.
+Use Hardware Manager to program the exact path printed by Vivado. Querying
+`impl_1`'s directory avoids assuming a run-folder name after copying a project.
+The commands also save its SHA-256 in the source checkout's evidence directory.
 Find the same
 USB serial device used for checkpoint 9, close competing terminal programs,
 then start capture **before** pressing/releasing CPU RESET:
@@ -511,13 +562,11 @@ python3 scripts/decode_trace.py build/checkpoint10-board/trace.dat
 
 Press BTNC after the capture starts. A full oldest-first trace packet must
 decode, including S-mode retirement. Then capture CPU RESET recovery from
-diagnostic ownership and record the generated bitstream hash:
+diagnostic ownership and package the captures with the generated bitstream hash:
 
 ```sh
 python3 scripts/capture_checkpoint10.py /dev/ttyUSB1 \
     --output build/checkpoint10-board/uart-after-trace.dat
-sha256sum /home/tyler/checkpoint10_board/checkpoint10_board.runs/impl_1/checkpoint10_board_top.bit \
-    > build/checkpoint10-board/bitstream.sha256
 tar -czf /home/tyler/checkpoint10_board_evidence.tar.gz \
     -C /home/tyler/checkpoint10_src/build/checkpoint10-board \
     uart-first.dat uart-reset.dat trace.dat uart-after-trace.dat \
@@ -527,6 +576,7 @@ tar -czf /home/tyler/checkpoint10_board_evidence.tar.gz \
 Press/release CPU RESET when the post-trace capture says it is ready; it must
 report PASS again. Record the LED state and bitstream-generation console output.
 Retain implementation source identity, image manifest and bitstream SHA-256 with
-the synthesis/routed reports and all raw captures. The physical board gate remains
-pending until those measurements and repeatable serial results are reviewed.
+the synthesis/routed reports and all raw captures. These are the acceptance
+conditions satisfied by the recorded 2026-10-11 board build; a changed RTL/image
+or constraint build needs its own measurements and repeatable serial results.
 Sv32, Linux boot and production QSPI loading remain later checkpoints.

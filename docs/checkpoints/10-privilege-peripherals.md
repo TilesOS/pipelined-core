@@ -1,14 +1,16 @@
 # Checkpoint 10: privilege, standard peripherals, and OpenSBI
 
-Status: complete in RTL simulation on 2026-10-05. Source-specific FPGA timing
-and resource measurements are recorded in the board procedure; physical UART
-and Linux boot remain pending. Production QSPI loading and
+Status: complete in RTL simulation on 2026-10-05 and on the Nexys A7-100T
+on 2026-10-11. Source-specific FPGA timing/resource review, physical OpenSBI,
+S-mode timer/PMP, UART RX/PLIC, CPU RESET retest, complete trace and post-trace
+reset recovery pass; see [board acceptance](10-board-bringup.md#physical-board-acceptance-2026-10-11).
+The CPU/cache area review remains open. Sv32, Linux boot, production QSPI loading and
 UART recovery remain later gates; the original simulation starts directly in
 DDR firmware, while the board proof copies a test-image ROM into DDR.
 The initial implementation did not use checkpoint 9's board checkout.
 Approved main and the final checkpoint 9 FPGA fixes were integrated and
-retested on 2026-10-10, as recorded below; checkpoint 10 physical testing
-remains pending.
+retested on 2026-10-10, as recorded below; subsequent physical testing passes
+on the source/image identities recorded in the board procedure.
 
 ## Delivered
 
@@ -120,7 +122,7 @@ The earlier cached Spike, fault, contention, calibration restart, stalled-debug,
 AXI, zero-wait CPU and M/A/CSR gates pass. Saved compact output is in
 [evidence/10-simulation.txt](evidence/10-simulation.txt).
 
-## Remaining gates
+## Board acceptance and remaining gates
 
 The [checkpoint 10 board target](10-board-bringup.md) now provides UART pin
 ownership, a readback-verified DDR test-image loader and a serial RX/PLIC
@@ -129,8 +131,13 @@ synthesis/image, fits at 84/135 BRAM tiles, passes 50 MHz timing
 (+0.308/+0.017/+0.206 ns) and confirms FDRE CPU reset. The targeted per-cell
 power-gating exclusion clears the RAM warnings; both tag enables use only
 their registered RTL startpoint. Pin/exception and CDC inventory review passes.
-RTL is unchanged. CPU/cache area is 4,710 sites against 3,000; bitstream and
-physical UART/LED/reset/trace execution remain pending.
+The operator's three boot captures pass OpenSBI/S timer/PMP and physical
+UART RX/PLIC milestones, including CPU RESET retest and post-trace reset
+recovery. A complete 256-record S-mode trace and the reported LED on-set
+0/1/3 complete the functional board gate; see
+[physical evidence](evidence/10-board-acceptance/review.txt).
+CPU/cache area remains 4,710 sites against 3,000; retain that review for Sv32
+and accelerator growth. The unchanged RTL retains its simulation evidence.
 Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.
