@@ -1,0 +1,64 @@
+
+OpenSBI v1.7
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name               : TilesOS Nexys A7 RV32 checkpoint 10
+Platform Features           : medeleg
+Platform HART Count         : 1
+Platform IPI Device         : aclint-mswi
+Platform Timer Device       : aclint-mtimer @ 1000000Hz
+Platform Console Device     : uart8250
+Platform HSM Device         : ---
+Platform PMU Device         : ---
+Platform Reboot Device      : ---
+Platform Shutdown Device    : ---
+Platform Suspend Device     : ---
+Platform CPPC Device        : ---
+Firmware Base               : 0x80000000
+Firmware Size               : 181 KB
+Firmware RW Offset          : 0x20000
+Firmware RW Size            : 53 KB
+Firmware Heap Offset        : 0x24000
+Firmware Heap Size          : 37 KB (total), 2 KB (reserved), 9 KB (used), 25 KB (free)
+Firmware Scratch Size       : 4096 B (total), 228 B (used), 3868 B (free)
+Runtime SBI Version         : 3.0
+Standard SBI Extensions     : time,rfnc,ipi,base,hsm,dbcn,fwft,legacy
+Experimental SBI Extensions : none
+
+Domain0 Name                : root
+Domain0 Boot HART           : 0
+Domain0 HARTs               : 0*
+Domain0 Region00            : 0x10000000-0x10000fff M: (I,R,W) S/U: (R,W)
+Domain0 Region01            : 0x02000000-0x0200ffff M: (I,R,W) S/U: ()
+Domain0 Region02            : 0x80020000-0x8002ffff M: (R,W) S/U: ()
+Domain0 Region03            : 0x80000000-0x8001ffff M: (R,X) S/U: ()
+Domain0 Region04            : 0x0c000000-0x0fffffff M: (I,R,W) S/U: (R,W)
+Domain0 Region05            : 0x00000000-0xffffffff M: () S/U: (R,W,X)
+Domain0 Next Address        : 0x80040000
+Domain0 Next Arg1           : 0x80060000
+Domain0 Next Mode           : S-mode
+Domain0 SysReset            : yes
+Domain0 SysSuspend          : yes
+
+Boot HART ID                : 0
+Boot HART Domain            : root
+Boot HART Priv Version      : v1.12
+Boot HART Base ISA          : rv32ima
+Boot HART ISA Extensions    : zicntr
+Boot HART PMP Count         : 8
+Boot HART PMP Granularity   : 2 bits
+Boot HART PMP Address Bits  : 32
+Boot HART MHPM Info         : 0 (0x00000000)
+Boot HART Debug Triggers    : 0 triggers
+Boot HART MIDELEG           : 0x00000222
+Boot HART MEDELEG           : 0x0000b109
+CHECKPOINT10 SBI TIMER/PMP PASS
+CHECKPOINT10 UART RX READY: send K
+CHECKPOINT10 UART RX/PLIC PASS

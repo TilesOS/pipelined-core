@@ -22,7 +22,8 @@ module checkpoint9_smoke_mmio #(
         .bus_req_valid(req_valid), .bus_req_ready(req_ready),
         .bus_req_write(req_write), .bus_req_addr(addr), .bus_req_size(size),
         .bus_req_wdata(wdata), .bus_req_wstrb(strb), .bus_rsp_valid(rsp_valid),
-        .bus_rsp_ready(rsp_ready), .bus_rsp_rdata(rdata), .bus_rsp_error(rsp_error)
+        .bus_rsp_ready(rsp_ready), .bus_rsp_rdata(rdata),
+        .bus_rsp_decode_error(1'b0), .bus_rsp_error(rsp_error)
     );
     assign req_ready = !pending;
     assign rsp_valid = pending;

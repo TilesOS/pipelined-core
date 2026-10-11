@@ -1,0 +1,171 @@
+# Fresh-chat handoff: checkpoint 10 peripherals and privilege
+
+Branch: `checkpoint10-peripherals` (renamed from
+`codex/checkpoint10-peripherals`), originally based on checkpoint 9 `ec59ced`.
+On 2026-10-10, integrated approved `main` at `142a347` (checkpoint 9
+PR #2) so this branch includes the final FPGA cache/multiplier/CDC fixes
+and checkpoint 9 board evidence. All eight combined regression gates pass;
+see the [integration record](../checkpoints/10-privilege-peripherals.md#integration-with-approved-main-2026-10-10)
+and [compact evidence](../checkpoints/evidence/10-main-integration.txt).
+The original Mac worktree is
+`/Users/tylermcclure/.codex/worktrees/checkpoint10-peripherals/pipelined-core`.
+The original checkpoint 10 implementation ran in a separate cloud checkout.
+The main integration is validated in the original Mac worktree using OrbStack.
+Keep the checkpoint 9 checkout and measured bitstream available. The checkpoint 9
+physical signoff applies to its recorded source commit; it does not establish
+checkpoint 10 hardware results.
+
+## Current state
+
+Checkpoint 10 is complete in RTL simulation and on the Nexys A7-100T
+(physical acceptance 2026-10-11). Read
+[the checkpoint record](../checkpoints/10-privilege-peripherals.md) for full
+scope, commands, firmware pin, evidence, and remaining board/paging gates.
+
+- CLINT and PLIC retain their directed tests. CLINT now also exposes `mtime`
+  for the core's time CSR.
+- `rtl/peripherals/uart16550.sv` implements the byte-spaced ns16550a, serial
+  TX/RX, divisor/framing, 16-byte FIFOs, timeout and prioritized interrupts,
+  line errors/overrun, THRE acknowledgement, and loopback.
+- `checkpoint10_mmio` connects the exact-address adapter and all three devices,
+  rejects invalid accesses without side effects, and reports explicit DECERR
+  for unmapped/future apertures. `checkpoint10_top` connects this subsystem
+  to checkpoint 9's CPU/cache/fabric/CDC MIG boundary.
+- `rv32_slice` has opt-in M/S/U privilege, precise trap entry/return,
+  delegation, vectored interrupts, software S interrupt pending bits,
+  counter control, MPRV, and eight PMP entries checked before cache/MMIO
+  requests. Legacy fixtures keep privilege disabled and first-trap halt.
+- Failed dirty `FENCE.I` writeback still fails stop, even with privilege enabled.
+  Cause 7 and fence-PC `tval` are diagnostics; dirty data and I-cache validity
+  are retained. Ordinary precise access faults enter handlers.
+- `config/dts/checkpoint10.dts` describes the standard devices, reserved
+  firmware/DMA memory, and Bare-only CPU. `satp` remains WARL Bare;
+  SFENCE.VMA and WFI are permitted no-ops subject to privilege/TVM/TW.
+- Generic OpenSBI v1.7, pinned to
+  `a32a91069119e7a5aa31e6bc51d5e00860be3d80`, executes on the real cached
+  system, enters S mode, and passes SBI BASE, timer delivery, DTB, and resident
+  firmware PMP isolation tests. The 133,884-byte `-Os` image fits the firmware
+  allocation. Test payload/FDT addresses differ from production boot placement.
+
+## Verification
+
+```sh
+bash scripts/run_checkpoint10_peripherals.sh
+bash scripts/run_checkpoint10.sh
+bash scripts/run_checkpoint10_opensbi.sh
+bash scripts/run_checkpoint9.sh
+bash scripts/run_checkpoint7.sh
+bash scripts/run_checkpoint9_board.sh
+bash scripts/run_cpu_coverage.sh
+bash scripts/run_lockstep_smoke.sh --self-test
+```
+
+New Verilator builds have no default warnings. The integrated programs run
+with three unrelated core/MIG clock ratios and seeded backpressure. The
+PMP interval fixture now clocks and resets a halted core so Verilator 5.020
+reevaluates derived masks after hierarchical stimulus writes, matching 5.032;
+all 106,808 checks and the fresh 5.020 privilege gate pass. See
+[CI compatibility evidence](../checkpoints/evidence/10-ci-pmp-scheduling.txt).
+This fixture-only correction preserves the physical RTL/image evidence.
+PR #3's UART follow-up also accepts a THR write when a full TX FIFO pops on
+the same cycle. The directed regression covers depths 1/16, serial ordering,
+held successful responses and THRE behavior; see the
+[UART review fix](../checkpoints/10-privilege-peripherals.md#uart-full-fifo-popwrite-review-fix-2026-10-11).
+Fresh UART-fix synthesis/routing at clean `5e0fb45` passes timing
+(+0.932/+0.024/+0.206 ns), preserves registered tag controls and FDRE reset,
+and retains image/pin/clock/exception and CDC source-family review. CPU/cache
+uses 4,513 sites (1,513 over allocation); total device use is 6,874 slices.
+Both exact-source CI workflows pass. See
+[route review](../checkpoints/evidence/10-uart-fix-route/review.txt).
+The UART-fix physical boot/reset/trace/recovery gate now passes too. All three
+2,598-byte boot captures are identical; the complete trace has 256 S-mode
+retires in the success loop. Operator confirms LEDs 0/1/3 on and 2 off. The
+recorded bitstream hash is
+`cb7097546110f510456e53b436bc8a4467868c604f58183ee025b5ad42840155`.
+Reports and image manifest byte-match the reviewed `5e0fb45` route; see
+[latest acceptance](../checkpoints/evidence/10-uart-fix-board-acceptance/review.txt).
+Older physical acceptance stays scoped to its bitstream. This evidence-only
+update requires no new rebuild or reroute; the checkpoint 9 project stays free.
+The firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
+`gcc-riscv64-linux-gnu`. The bare-metal Debian linker rejects PIE, so the cloud
+uses its GCC code generator with a local Linux BFD linker wrapper (documented
+in the checkpoint record). Build products remain ignored under `build/`.
+
+## Next work
+
+1. Checkpoint 9 board bring-up is complete. Checkpoint 10's separate Nexys
+   target, readback-verified test-image loader, shared console/trace UART and
+   physical RX/PLIC payload are prepared. Follow
+   [the board procedure](../checkpoints/10-board-bringup.md). First physical
+   synthesis used 144/135 BRAM tiles (128 in the padded ROM). The ROM now stores
+   firmware/payload compactly; the loader generates and verifies the DDR zero
+   gap. Fresh synthesis passes at 84/135 BRAM tiles, with 64 ROM primitives
+   and four CPU DSPs. The first route at clean `c444cb6` fits but fails setup
+   with WNS -9.369 ns and shows trace RAM REQP-1839 warnings. PMP decoding
+   now uses prefix masks and parallel selection with independent instruction/
+   data checks; trace RAM controls are registered without reset. The privilege,
+   interval-reference PMP, core/trace and two-ratio full board regressions pass;
+   see [remediation evidence](../checkpoints/evidence/10-timing-fix-simulation.txt).
+   The second route at clean `704f4a8` passes setup/hold/pulse timing
+   (+0.368/+0.016/+0.206 ns) and clears trace RAM warnings. CPU/cache use is
+   4,749 slice sites, 1,749 above allocation; keep the area review open.
+   A newly reported LUTAR-1 identifies loader-state decoding on asynchronous
+   CPU/cache reset pins. Checkpoint 10 now enables registered CPU release;
+   legacy checkpoint 9's default behavior remains unchanged. Directed pulse/
+   link-loss tests, privilege/PMP, legacy board and both full checkpoint 10
+   board clock ratios pass; see [reset evidence](../checkpoints/evidence/10-cpu-reset-simulation.txt).
+   The third route at clean `0805859` passes setup/hold/pulse timing
+   (+0.392/+0.030/+0.206 ns), confirms one FDCE CPU reset primitive and clears
+   the custom loader LUTAR-1. Two new REQP-1840 warnings identify that FDCE
+   driving I-cache tag RAM enables. CPU reset assertion/release now use only
+   the core clock; transport still aborts asynchronously on link loss. The
+   pulse/master-loss unit and privilege/legacy/full board gates pass; see
+   [clocked-reset evidence](../checkpoints/evidence/10-clocked-reset-simulation.txt).
+   CPU/cache area is now 4,813 sites (1,813 above allocation). All 55 assigned
+   user pins and timing exceptions match the preceding route; CDC rule totals
+   and source families are retained. Both Vivado checkers now require FDRE
+   CPU-reset primitives and reject stale FDCE runs. The fourth route at clean
+   `74d26b9` confirms FDRE and passes setup/hold/pulse timing
+   (+0.127/+0.021/+0.206 ns), but two REQP-1840 warnings remain, now driven
+   by asynchronous `core_release_reg[1]`. Operator fan-in inspection proves
+   synthesis uses only the reset-free read-enable register; implementation
+   adds loader/cache/reset/release gating. An implementation-only
+   `set_power_opt -exclude_cells` now excludes exactly the two I-cache tag
+   RAMs, with no RTL/firmware or clock/CDC-bound changes. Tcl scope/count and
+   DRC guards pass; see [power-gating evidence](../checkpoints/evidence/10-tag-ram-power-gating.txt).
+   The checker saves tag-enable fan-in/power reports and rejects remaining
+   REQP-1839/1840. CPU/cache area is 4,507 sites (1,507 over allocation).
+   The fifth route at clean implementation `5b74119`, retaining `74d26b9`
+   synthesis/image, passes timing (+0.308/+0.017/+0.206 ns). Both tag enables
+   now have only the registered RTL read-enable startpoint; REQP-1839/1840
+   are absent. All 55 pins, timing exceptions, image and synthesis reports
+   match the fourth route. CDC totals/source families and remaining DSP/MIG
+   diagnostics are retained; no new crossing family. CPU/cache now uses
+   4,710 sites (1,710 over allocation); total device use is 7,334 slices.
+   See [fifth-route review](../checkpoints/evidence/10-fifth-route/review.txt).
+   Physical first boot, CPU RESET retest and post-trace CPU RESET recovery
+   each pass OpenSBI/S timer/PMP and physical UART RX/PLIC milestones.
+   All three 2,598-byte captures are identical. The complete 4,358-byte trace
+   contains 256 S-mode retirement records in the post-success loop. Operator
+   reports LEDs 0/1/3 on and supplies bitstream SHA-256
+   `720f04fe02beef8279393162707290f69e58833f300c366c812cb4dbaa6aedf4`.
+   All archived reports/image identity match the fifth route. See
+   [physical acceptance](../checkpoints/evidence/10-board-acceptance/review.txt).
+   Checkpoint 10 functional board gate is complete; keep the area review open.
+   The evidence-only follow-up requires no rebuild/reroute.
+   The operator
+   controls Vivado locally on the Ubuntu PC and
+   uses a separate `/home/tyler/checkpoint10_board` project copied from the accepted
+   `/home/tyler/checkpoint9_board`. Retain the original project/bitstream.
+   Remeasure the CPU/cache area overage with privilege and peripherals.
+2. Checkpoint 11: Sv32 TLBs/walker, Svade A/D faults, translated PMP/physical
+   cacheability, SATP and SFENCE.VMA semantics, paging and stale-TLB tests.
+   Keep the DTB Bare-only until those gates pass.
+3. The board UART owner halts on BTNC, drains console TX, then retains trace
+   ownership until CPU RESET. `checkpoint10_top` still exposes separate TX
+   outputs for other integrations. Actual FPGA timing, resources/BRAM inference,
+   repeatable serial execution, complete trace and ownership reset recovery
+   pass on the recorded build. A future changed build needs fresh evidence.
+4. Production loader/image addresses and Linux boot are later gates. This
+   checkpoint proves bounded generic firmware execution, not Linux boot or
+   architectural certification.

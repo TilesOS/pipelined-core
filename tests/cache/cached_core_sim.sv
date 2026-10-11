@@ -31,11 +31,12 @@ module cached_core_sim (
     end
     checkpoint9_top #(.RESET_PC(32'h8000_0000), .UART_CLOCKS_PER_BIT(8)) system (
         .core_clk(clk), .mig_clk(mig_clk), .rst_n(rst_n), .mig_calib_complete(mig_calib_complete),
+        .msip_irq(1'b0), .mtip_irq(1'b0), .meip_irq(1'b0), .seip_irq(1'b0), .time_value(64'b0),
         .cpu_run(1'b1), .manual_halt(manual_halt), .dump_button(dump_button), .uart_tx(uart_tx),
         .masters_ready(masters_ready), .atomic_lock(atomic_lock),
         .loader_req('0), .loader_rsp(), .dma_req(dma_req), .dma_rsp(dma_rsp),
         .peripheral_req(peripheral_req), .peripheral_rsp('0), .mig_req(mig_req), .mig_rsp(mig_rsp),
-        .retire_valid(retire_valid),
+        .retire_priv(), .retire_valid(retire_valid),
         .retire_pc(retire_pc),
         .retire_insn(retire_insn),
         .retire_rd(retire_rd),

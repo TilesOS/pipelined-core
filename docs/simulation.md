@@ -87,3 +87,42 @@ pipeline-stage cross bins closed with 30 retained targeted random seeds.
 It produces text and JSON reports under `build/coverage`; CI uploads those
 reports and raw counters. See the [coverage model and reproduction guide](cpu-functional-coverage.md)
 for the bin definitions, sampling rules, collector self-tests, and scope.
+
+## Checkpoint 10: standard devices, privilege, and OpenSBI
+
+```sh
+bash scripts/run_checkpoint10_peripherals.sh
+bash scripts/run_checkpoint10.sh
+bash scripts/run_checkpoint10_opensbi.sh
+```
+
+The first gate runs directed CLINT/PLIC/UART and MMIO adapter tests. The second
+runs three cached-system privilege/PMP/MMIO-fault programs with three clock
+ratios and a fatal fence-writeback test. The firmware gate builds pinned generic
+OpenSBI v1.7 and verifies an S-mode payload, SBI BASE/TIME, timer interrupts,
+and firmware PMP isolation through the real UART. It needs DTC and a
+PIE-capable compiler/linker (`gcc-riscv64-linux-gnu` on Debian/Ubuntu). Override
+`OPENSBI_CC`, `OPENSBI_CROSS_COMPILE`, and `OPENSBI_LD` for other toolchains.
+Build logs and images are under ignored `build/privilege` and `build/peripherals`.
+The firmware simulation is bounded at 100 million core cycles; `BOOT_DIAGNOSTICS=1`
+prints optional probe traps and progress. Earlier first-trap Spike fixtures keep
+privilege disabled. See the [checkpoint 10 record](checkpoints/10-privilege-peripherals.md)
+for tested scope and the board/paging gates that remain.
+
+## Checkpoint 10 board integration simulation
+
+```sh
+bash scripts/build_checkpoint10_board_image.sh
+bash scripts/run_checkpoint10_board.sh
+```
+
+The gate verifies ROM-to-DDR copy/readback errors and timeout blocking, UART
+ownership, board top lint, then runs the actual board execution boundary on
+initially nonzero DDR with two unrelated core/MIG clock ratios and backpressure.
+It interrupts the loader with calibration loss, runs OpenSBI and the S-mode
+timer/PMP payload, injects a 115200-baud RX byte through the serial pin, checks
+S PLIC claim/complete and the success LED, resets and reruns, then captures a
+complete shared-pin diagnostic packet. Firmware uses the same pinned source
+and toolchain as the existing OpenSBI gate. The firmware watchdog is 100 million
+core cycles; these are simulation results, not Vivado or physical evidence.
+See [the board procedure](checkpoints/10-board-bringup.md) for hardware gates.

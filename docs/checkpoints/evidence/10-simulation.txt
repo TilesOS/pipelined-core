@@ -1,0 +1,182 @@
+Checkpoint 10 simulation evidence — 2026-10-05
+Verilator 5.032; GCC 14.2; DTC 1.7.2; pinned Spike 1.1.0.
+
+
+Devices and MMIO
+PASS: CLINT 1 MHz divider, MSIP, safe RV32 mtimecmp writes, 64-bit rollover and backpressure
+PASS: PLIC priorities, thresholds, M/S contexts, claim/complete, level re-pending and backpressure
+PASS: UART divisor, serial TX/RX, FIFOs, timeout, IRQ priority/ack, parity/break/overrun, loopback and held responses
+PASS: MMIO narrow AXI lanes, device errors/DECERR, CLINT timer, UART-to-PLIC and held claim response
+
+Integrated privilege/PMP/MMIO-fault and fail-stop gates
+Running privilege with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+PASS: failed FENCE.I writeback remains fail-stop with privilege enabled
+
+Cached CPU regression
+PASS: 279 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 279 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 60 architectural events (59 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 22 architectural events (21 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 28 architectural events (27 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 11 architectural events (10 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 19 architectural events (18 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: calibration loss reset an in-flight refill and dirty cache; CPU restarted with seven ordered events
+PASS: button UART dumped the last retired PC during a hung cache refill
+PASS: uncached executable DMA pages bypass both L1s and observe updated code
+PASS: LR/SC same/different word and burst interference, AMO arbitration/drain, cached DMA rejection
+PASS: precise instruction/refill/store/eviction/FENCE.I AXI faults; younger work suppressed
+PASS: checkpoint 9 cached CPU, AXI fabric/CDC and Spike gates
+
+AXI regression
+PASS: 10 bridge operations, byte lanes, errors, response hold
+PASS: seven narrow peripheral accesses, exact byte address and one device request each
+PASS: 77 bus operations, clocks 5/7, reset after 1 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 3/11, reset after 7 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 11/3, reset after 15 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 4/13, reset after 4 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 13/4, reset after 11 beats, W FIFO full=1
+
+Zero-wait CPU and debug regression
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: real CPU retirement mismatch stopped at event 4
+PASS: forced pipeline hang; button UART dumped five ordered PC/instruction records
+PASS: captured UART packet decoded to the last retired PC
+PASS: 8 architectural events (7 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 256-entry trace ring retained newest 256 of 300 retirements in UART order
+
+M/A/CSR regression
+PASS: 22 architectural events (21 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 28 architectural events (27 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 11 architectural events (10 retirements, 1 trap) match Spike, including register and memory effects
+PASS: competing same-word store invalidated LR; other-word store preserved it
+PASS: same-hart conflicting store cleared the reservation
+PASS: AMO held memory lock through commit and serialized competing store
+PASS: 64-bit mcycle/minstret halves, write/read order, and monotonic cycles
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 5
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 6
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 7
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: randomized M seed 8
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: lr_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: sc_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: amo_misaligned precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: lr_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: sc_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: amo_access precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_lr precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_amo precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: invalid_csr precise trap
+PASS: 6 architectural events (5 retirements, 1 trap) match Spike, including register and memory effects
+PASS: readonly_csr precise trap
+
+Pinned generic OpenSBI v1.7 (actual UART output)
+OpenSBI v1.7 firmware: 133884 bytes (256 KiB cap)
+
+OpenSBI v1.7
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name               : TilesOS Nexys A7 RV32 checkpoint 10
+Platform Features           : medeleg
+Platform HART Count         : 1
+Platform IPI Device         : aclint-mswi
+Platform Timer Device       : aclint-mtimer @ 1000000Hz
+Platform Console Device     : uart8250
+Platform HSM Device         : ---
+Platform PMU Device         : ---
+Platform Reboot Device      : ---
+Platform Shutdown Device    : ---
+Platform Suspend Device     : ---
+Platform CPPC Device        : ---
+Firmware Base               : 0x80000000
+Firmware Size               : 181 KB
+Firmware RW Offset          : 0x20000
+Firmware RW Size            : 53 KB
+Firmware Heap Offset        : 0x24000
+Firmware Heap Size          : 37 KB (total), 2 KB (reserved), 9 KB (used), 25 KB (free)
+Firmware Scratch Size       : 4096 B (total), 228 B (used), 3868 B (free)
+Runtime SBI Version         : 3.0
+Standard SBI Extensions     : ipi,legacy,dbcn,hsm,rfnc,time,base,fwft
+Experimental SBI Extensions : none
+
+Domain0 Name                : root
+Domain0 Boot HART           : 0
+Domain0 HARTs               : 0*
+Domain0 Region00            : 0x10000000-0x10000fff M: (I,R,W) S/U: (R,W)
+Domain0 Region01            : 0x02000000-0x0200ffff M: (I,R,W) S/U: ()
+Domain0 Region02            : 0x80020000-0x8002ffff M: (R,W) S/U: ()
+Domain0 Region03            : 0x80000000-0x8001ffff M: (R,X) S/U: ()
+Domain0 Region04            : 0x0c000000-0x0fffffff M: (I,R,W) S/U: (R,W)
+Domain0 Region05            : 0x00000000-0xffffffff M: () S/U: (R,W,X)
+Domain0 Next Address        : 0x80040000
+Domain0 Next Arg1           : 0x80060000
+Domain0 Next Mode           : S-mode
+Domain0 SysReset            : yes
+Domain0 SysSuspend          : yes
+
+Boot HART ID                : 0
+Boot HART Domain            : root
+Boot HART Priv Version      : v1.12
+Boot HART Base ISA          : rv32ima
+Boot HART ISA Extensions    : zicntr
+Boot HART PMP Count         : 8
+Boot HART PMP Granularity   : 2 bits
+Boot HART PMP Address Bits  : 32
+Boot HART MHPM Info         : 0 (0x00000000)
+Boot HART Debug Triggers    : 0 triggers
+Boot HART MIDELEG           : 0x00000222
+Boot HART MEDELEG           : 0x0000b109
+CHECKPOINT10 SBI TIMER/PMP PASS
+PASS: generic OpenSBI v1.7 entered S payload; SBI BASE, timer interrupt and resident PMP isolation

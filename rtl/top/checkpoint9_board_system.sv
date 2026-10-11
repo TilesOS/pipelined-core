@@ -43,7 +43,9 @@ module checkpoint9_board_system #(
     checkpoint9_top cpu_system (
         .core_clk(core_clk), .mig_clk(mig_clk), .rst_n(rst_n),
         .mig_calib_complete(mig_calib_complete), .cpu_run(1'b1),
-        .manual_halt(1'b0), .dump_button(1'b0), .masters_ready(masters_ready),
+        .manual_halt(1'b0), .dump_button(1'b0),
+        .msip_irq(1'b0), .mtip_irq(1'b0), .meip_irq(1'b0), .seip_irq(1'b0),
+        .time_value(64'b0), .retire_priv(), .masters_ready(masters_ready),
         .uart_tx(), .atomic_lock(), .loader_req('0), .loader_rsp(),
         .dma_req(dma_req), .dma_rsp(dma_rsp), .peripheral_req(peripheral_req),
         .peripheral_rsp(peripheral_rsp), .mig_req(mig_req), .mig_rsp(mig_rsp),

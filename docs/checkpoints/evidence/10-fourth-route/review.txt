@@ -1,0 +1,26 @@
+Checkpoint 10 fourth physical route review, 2026-10-11
+Uploaded archive: checkpoint10_reports_clockreset.tar (6133760 bytes)
+Archive SHA-256: 5730dae21f0073c3302019b91ebdb5bd0b56c1abc7a742a84968f8c26f05a077
+Image source: clean 74d26b9a0e0abac3d3b7931a72393bc289b9bfdc.
+Vivado 2026.1 / Ubuntu 24.04.5 / xc7a100tcsg324-1 / routed.
+Firmware/payload/image/ROM hashes match the preceding routes.
+
+PASS: setup +0.127 ns, hold +0.021 ns, pulse +0.206 ns; no failing endpoints.
+PASS: CPU reset register is FDRE in synthesis and implementation.
+PASS: all 55 assigned user pins/directions/standards and timing exceptions unchanged.
+PASS: no missing clocks, unconstrained internal endpoints or loops.
+PASS: ROM/cache/trace mapping retained; 84/135 BRAM tiles; CPU four DSPs.
+PASS: loader LUTAR-1 cleared; remaining LUTAR-1 is generated MIG.
+PASS: complete CDC rule totals/source families retained; no new crossing family.
+OPEN: CPU/cache 4507 sites vs 3000; overage 1507 (50.2%). Device 6878/15850 slices.
+BLOCKER: two REQP-1840 warnings remain on I-cache tag ENARDEN pins.
+         The async driver is now bus/core_release_reg[1], not CPU reset.
+DIAGNOSIS: operator's synthesis fan-in has only the reset-free read-enable stage.
+           Implementation adds loader/cache/reset/master-release power gating.
+           Retained tag-enable-fanin.txt reproduces the reported endpoint lists.
+
+Next update excludes exactly the two I-cache tag RAMs from implementation power
+optimization via set_power_opt -exclude_cells; no RTL/firmware changes or timing
+constraint/diagnostic-severity relaxations. Reuse synthesis and rerun implementation.
+Fresh reports must show the exclusion resolves the RAM controls and timing still passes.
+Physical UART/LED/reset/trace execution remains pending.

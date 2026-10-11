@@ -49,7 +49,8 @@ module checkpoint4_top #(
     // The legacy fixture deliberately ignores the cache handshake outputs.
     /* verilator lint_off PINCONNECTEMPTY */
     rv32_slice #(.RESET_PC(32'h8000_0000)) core (
-        .clk(clk), .rst_n(rst_n), .debug_halt(manual_halt || freeze_core),
+        .clk(clk), .rst_n(rst_n), .msip_irq(1'b0), .mtip_irq(1'b0), .meip_irq(1'b0), .seip_irq(1'b0),
+        .time_value(64'b0), .imem_protection_fault(), .debug_halt(manual_halt || freeze_core),
         .imem_ready(1'b1), .imem_valid(), .imem_accept(),
         .dmem_ready(1'b1), .dstore_ready(1'b1), .dstore_fault(1'b0),
         .dmem_read_valid(), .dmem_read_accept(), .dmem_req_addr(), .dmem_size(),

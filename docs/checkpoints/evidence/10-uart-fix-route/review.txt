@@ -1,0 +1,51 @@
+Checkpoint 10 UART full-FIFO fix physical route review, 2026-10-11
+Uploaded archive: checkpoint10_reports_uartfix.tar (10393600 bytes)
+Archive SHA-256: 0f1e0cfab4e9a8bd279fe33707399002b454ac53a935e7ec9700fad6523e3da4
+Clean implementation and image source: 5e0fb45523cd599f9acdbe85d03f0818248b54c7.
+Vivado 2026.1 / Ubuntu 24.04.5 / xc7a100tcsg324-1 / fully routed.
+Firmware/payload/DDR image/ROM hashes and sizes match the accepted fifth route.
+The source change allows a THR write when a full TX FIFO simultaneously pops.
+
+PASS: setup +0.932 ns, hold +0.024 ns, pulse +0.206 ns; zero failing endpoints/negative totals.
+PASS: both tag RAM ENARDEN fan-ins contain only icache/ram_read_enable_q_reg/C.
+PASS: both tag RAMs remain user gated by registered RTL read/write controls.
+PASS: REQP-1839/1840 absent; no DRC errors or custom loader LUTAR-1.
+PASS: synthesis and routed CPU reset remain FDRE.
+PASS: all assigned I/O, clock definitions and timing exceptions match fifth route
+      after normalizing report dates and whitespace; no timing relaxation.
+PASS: no missing clocks, unconstrained internal endpoints or loops.
+PASS: 84/135 BRAM tiles: 64 ROM RAMB36, each cache 8 RAMB36 + 2 RAMB18,
+      trace 2 RAMB36. CPU four DSPs; total five DSPs.
+PASS: complete CDC inventory retains rule totals and reviewed source families.
+      CDC-1 Critical 1418 = B 34 / R 1060 / W 324 FIFO payload sources.
+      CDC-15 Warning 381 = AR 26 / AW 26 / R 322 / W 7 FIFO payload sources.
+      CDC-6 Warning 10 = both Gray-pointer directions across five FIFOs.
+      CDC-11 Critical 6 = registered link-reset fanout; CDC-3 Info 3 / CDC-8 Warning 2 = MIG.
+      No OTHER or incomplete source inventory. Existing stable-payload ownership,
+      two-stage Gray synchronization, 12 ns bounds and local reset/release review
+      apply; diagnostic severities are retained.
+      Asynchronous RX/button/reset and LED/TX port contracts are unchanged.
+REVIEWED: DPIR-1 count rises from 1 to 15; all are UART timeout_cycles0 DSP
+          input pins A[5:19] driven by asynchronously reset registers. These are
+          pipeline-merging optimization guidance for the same timeout DSP,
+          not new RAM asynchronous-control or CDC findings. Routed timing passes.
+          Other methodology rule counts and all DRC rule counts match fifth route.
+          Remaining LUTAR-1 is generated MIG reset logic.
+OPEN: CPU/cache 4513 sites vs 3000; overage 1513 (50.4%). Device 6874/15850 slices.
+      LUT 22599, registers 12148, RAMB36 82 + RAMB18 4, DSP 5.
+Worst setup: execute-stage PC bit 6 -> I-cache state bit 3;
+             data delay 18.987 ns, 27 logic levels (8 CARRY4).
+
+Both push and PR CI workflows at this exact source pass, including the new
+depth-1/depth-16 FIFO regressions, UART/MMIO, privilege/OpenSBI, both full board
+simulation ratios, legacy board smoke, AXI and lockstep/coverage gates.
+PR CI: https://github.com/TilesOS/pipelined-core/actions/runs/38170453837
+Push CI: https://github.com/TilesOS/pipelined-core/actions/runs/38170452592
+
+Review permits bitstream generation and functional validation of this route.
+CPU/cache area review remains open. No RTL/firmware/constraint changes in this
+evidence update; retain the current synthesized/routed design and image.
+At route review, first boot/reset/trace/recovery, LEDs and bitstream identity
+were pending. Subsequent physical validation now passes; see
+../10-uart-fix-board-acceptance/review.txt.
+The preceding physical board acceptance remains scoped to its older bitstream.

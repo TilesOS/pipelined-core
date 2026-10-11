@@ -1,0 +1,2 @@
+Operator report: "LEDs match" after the UART-fix programming/capture sequence.
+Expected state supplied in that sequence: LEDs 0,1,3 on; LED 2 off.

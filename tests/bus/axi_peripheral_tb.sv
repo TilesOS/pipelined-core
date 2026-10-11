@@ -34,7 +34,7 @@ module axi_peripheral_tb;
         .bus_req_size(bus_req_size), .bus_req_wdata(bus_req_wdata),
         .bus_req_wstrb(bus_req_wstrb), .bus_rsp_valid(bus_rsp_valid),
         .bus_rsp_ready(bus_rsp_ready), .bus_rsp_rdata(bus_rsp_rdata),
-        .bus_rsp_error(bus_rsp_error));
+        .bus_rsp_decode_error(1'b0), .bus_rsp_error(bus_rsp_error));
     assign bus_req_ready = !pending && cycles[0];
     assign bus_rsp_valid = pending && cycles[1];
     assign bus_rsp_error = 0;

@@ -1,6 +1,7 @@
 // Cached CPU integration. Physical addresses feed separate blocking L1s.
 // Reset this module with axi_subsystem.masters_ready at the MIG boundary.
 module rv32_cached_core #(
+    parameter bit ENABLE_PRIVILEGE = 0,
     parameter logic [31:0] RESET_PC = 32'h0000_0000,
     parameter integer UART_CLOCKS_PER_BIT = 8,
     parameter integer BUTTON_STABLE_CYCLES = 3
@@ -8,6 +9,8 @@ module rv32_cached_core #(
     input  logic        clk,
     input  logic        rst_n,
     input  logic        manual_halt,
+    input logic msip_irq, mtip_irq, meip_irq, seip_irq,
+    input logic [63:0] time_value,
     input  logic        dump_button,
     input logic external_store_valid,
     input logic [31:0] external_store_addr,
@@ -45,7 +48,7 @@ module rv32_cached_core #(
 );
     import axi128_pkg::*;
     import physical_memory_pkg::*;
-    logic freeze_core, halt;
+    logic freeze_core, halt, imem_protection_fault;
     logic [31:0] imem_addr, imem_rdata, dmem_rdata, dmem_req_addr, dmem_write_addr, dmem_wdata;
     logic [1:0] dmem_size, dmem_write_size;
     logic imem_fault, dmem_fault, imem_ready, imem_valid, imem_accept;
@@ -65,11 +68,11 @@ module rv32_cached_core #(
     logic d_clean_done, d_clean_fault, i_invalidate_done;
     logic [31:0] d_read_addr;
     assign halt = manual_halt || freeze_core;
-    assign imem_ready = i_busy && i_rsp_valid && i_addr == imem_addr && fstate == F_IDLE;
+    assign imem_ready = imem_protection_fault || i_busy && i_rsp_valid && i_addr == imem_addr && fstate == F_IDLE;
     assign imem_rdata = i_data;
-    assign imem_fault = i_resp != AXI_OKAY;
+    assign imem_fault = imem_protection_fault || i_resp != AXI_OKAY;
     // Discard an outstanding wrong-path fetch, including before invalidation.
-    assign i_rsp_ready = i_busy && (imem_accept || i_addr != imem_addr || fence_i_valid || done);
+    assign i_rsp_ready = i_busy && (imem_accept || imem_protection_fault || i_addr != imem_addr || fence_i_valid || done);
     assign dmem_ready = dstate == D_READ && d_rsp_valid;
     assign dmem_rdata = d_data << (8 * d_read_addr[1:0]);
     assign dmem_fault = !accessible(dmem_req_addr, !dmem_read_valid) ||
@@ -95,7 +98,7 @@ module rv32_cached_core #(
             dstate <= D_IDLE; d_read_addr <= 0;
             fstate <= F_IDLE; fence_i_fault <= 0;
         end else begin
-            if (!i_busy && imem_valid && fstate == F_IDLE && !fence_i_valid && i_req_ready) begin
+            if (!i_busy && imem_valid && !imem_protection_fault && fstate == F_IDLE && !fence_i_valid && i_req_ready) begin
                 i_busy <= 1; i_addr <= imem_addr;
             end else if (i_rsp_valid && i_rsp_ready) i_busy <= 0;
             if (d_req_valid && d_req_ready) begin
@@ -116,7 +119,7 @@ module rv32_cached_core #(
     end
     l1_cache #(.READ_ONLY(1), .MASTER_ID(0)) icache (
         .clk(clk), .rst_n(rst_n),
-        .req_valid(!i_busy && imem_valid && fstate == F_IDLE && !fence_i_valid),
+        .req_valid(!i_busy && imem_valid && !imem_protection_fault && fstate == F_IDLE && !fence_i_valid),
         .req_ready(i_req_ready), .req_write(1'b0), .req_addr(imem_addr),
         .req_wdata(32'b0), .req_size(2'd2), .req_wstrb(4'b0),
         .rsp_valid(i_rsp_valid), .rsp_ready(i_rsp_ready), .rsp_rdata(i_data), .rsp_resp(i_resp),
@@ -135,8 +138,10 @@ module rv32_cached_core #(
         .axi_req(data_req), .axi_rsp(data_rsp),
         .miss_count(dcache_misses), .writeback_count(dcache_writebacks), .bypass_count(dcache_bypasses)
     );
-    rv32_slice #(.RESET_PC(RESET_PC), .WAIT_MEMORY(1)) core (
+    rv32_slice #(.RESET_PC(RESET_PC), .WAIT_MEMORY(1), .ENABLE_PRIVILEGE(ENABLE_PRIVILEGE)) core (
         .clk(clk), .rst_n(rst_n), .debug_halt(manual_halt || freeze_core),
+        .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq),
+        .time_value(time_value), .imem_protection_fault(imem_protection_fault),
         .imem_ready(imem_ready), .imem_valid(imem_valid), .imem_accept(imem_accept),
         .dmem_ready(dmem_ready), .dstore_ready(dstore_ready), .dstore_fault(dstore_fault),
         .dmem_read_valid(dmem_read_valid), .dmem_read_accept(dmem_read_accept),

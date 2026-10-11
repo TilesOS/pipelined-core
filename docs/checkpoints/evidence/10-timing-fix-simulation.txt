@@ -1,0 +1,36 @@
+PMP/trace physical-remediation regression, managed Debian 13 cloud, 2026-10-11
+Working tree based on 7dd58a2 with the accompanying PMP/trace changes.
+Verilator 5.032; RISC-V GCC 14.2; DTC 1.7.2; pinned OpenSBI v1.7.
+Commands: run_checkpoint10.sh; run_core_slice.sh; run_checkpoint10_board.sh.
+Board gate uses the documented cloud PIE linker wrapper.
+Privilege/PMP and full board default builds have no Verilator warnings.
+
+PASS: 106808 real-checker comparisons to an independent numeric interval model
+      NAPOT trailing-one counts 0..32, permissions/locks, boundaries, NA4/TOR,
+      empty/reversed TOR, overlapping entries, first-match priority and M/S/U
+PASS: privilege, PMP and precise MMIO-fault programs at core/MIG ratios 5/7, 3/11, 11/3
+PASS: locked R-only LR succeeds; SC/AMO store faults and denied LR load fault have correct mtval
+PASS: failed dirty FENCE.I writeback retains fail-stop behavior
+PASS: CPU/Spike lockstep, injected mismatch detection, hung-core trace and UART decode
+PASS: trace ring retains newest 256 of 300 records in oldest-first UART order
+PASS: full/compact image-loader negative, readback, reset and watchdog tests
+PASS: UART owner debounce, halt/drain and final-stop-bit tests
+PASS: both full board runs (5/7 and 3/11): calibration loss during image copy,
+      DDR image readback, OpenSBI, S-mode timer/PMP, serial K -> UART/S PLIC,
+      CPU RESET/reload/retest, and complete shared-pin 256-record trace packet
+PASS: Tcl syntax/area-report formatting with collection stubs; shell syntax; git diff --check
+
+Cloud image: firmware 133884 bytes; payload 672 bytes;
+DDR 262816 bytes/16426 words; ROM 134560 bytes/8410 words.
+DDR image SHA-256: 2ab5a51bd53a8617b59e38f59dfee030958459a3e9f7e539c608a5610c1aeac3
+ROM text SHA-256: 49db1410e353abb47232ad35aea1ab71b60f6ad3634609f07f5568da969621d1
+
+Tested source-file SHA-256:
+278b19afe69668a193faa4090e7e7d9b32759a1c7ff76e7f6b20f3f38eb23f8f  rtl/core/rv32_slice.sv
+ca9be87bf8f0ed70c0edb25db637ee97abc206d3af2ae49d87241046ca443fb3  rtl/debug/trace_ring_uart.sv
+51ed34815490a86bec3e0c712be59577ce69229c51c91bb543ba335fe86235aa  tests/privilege/pmp.S
+855e7f2ec2662ef265edfd28ba7509b67b28df6815d2b8e5cee3d97f8d273572  tests/privilege/checkpoint10_pmp_tb.sv
+
+The supplied first-route evidence is in 10-first-route/. It fails setup and trace RAM controls.
+These tests establish RTL behavior only. Fresh Vivado synthesis/routing and physical
+UART/LED/reset/trace evidence are required before checkpoint 10 board signoff.

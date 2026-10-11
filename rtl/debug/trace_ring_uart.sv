@@ -22,10 +22,13 @@ module trace_ring_uart #(
     output logic [7:0]  trace_write_ptr
 );
     typedef enum logic [2:0] {IDLE, QUIESCE_ONE, QUIESCE_TWO,
-                              HEADER, FETCH, RECORD} state_t;
+                              HEADER, FETCH, FETCH_WAIT, RECORD} state_t;
     state_t state;
     logic [135:0] entries [0:255];
     logic [135:0] read_word;
+    logic ram_write_enable_q, ram_read_enable_q;
+    logic [7:0] ram_write_addr_q, ram_read_addr_q;
+    logic [135:0] ram_write_data_q;
     logic [8:0] count, snapshot_count, sent_records;
     logic [7:0] write_ptr, read_ptr;
     logic [4:0] byte_index;
@@ -66,6 +69,22 @@ module trace_ring_uart #(
         .ready(tx_ready), .tx(uart_tx)
     );
 
+    // Reset affects RAM controls only at a clock edge. An admitted write
+    // may drain during reset; count/pointers invalidate all old contents.
+    // RAM contents and the read output have no reset.
+    always_ff @(posedge clk) begin
+        ram_write_enable_q <= rst_n && retire_valid;
+        ram_write_addr_q <= write_ptr;
+        ram_write_data_q <= {{5'b0, retire_trap, retire_priv},
+                            retire_tval, retire_cause, retire_insn, retire_pc};
+        ram_read_enable_q <= rst_n && state == FETCH;
+        ram_read_addr_q <= read_ptr;
+    end
+    always_ff @(posedge clk) begin
+        if (ram_write_enable_q) entries[ram_write_addr_q] <= ram_write_data_q;
+        if (ram_read_enable_q) read_word <= entries[ram_read_addr_q];
+    end
+
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             button_meta <= 0;
@@ -78,7 +97,6 @@ module trace_ring_uart #(
             snapshot_count <= 0;
             sent_records <= 0;
             read_ptr <= 0;
-            read_word <= 0;
             byte_index <= 0;
             header_index <= 0;
             state <= IDLE;
@@ -95,9 +113,6 @@ module trace_ring_uart #(
             // A completed retirement is sampled even while the core has just
             // entered the quiesce state; the snapshot occurs two clocks later.
             if (retire_valid) begin
-                entries[write_ptr] <= {{5'b0, retire_trap, retire_priv},
-                                       retire_tval, retire_cause,
-                                       retire_insn, retire_pc};
                 write_ptr <= write_ptr + 1'b1;
                 if (count != 9'd256) count <= count + 1'b1;
             end
@@ -117,10 +132,10 @@ module trace_ring_uart #(
                     end else header_index <= header_index + 1'b1;
                 end
                 FETCH: begin
-                    read_word <= entries[read_ptr];
                     byte_index <= 0;
-                    state <= RECORD;
+                    state <= FETCH_WAIT;
                 end
+                FETCH_WAIT: state <= RECORD;
                 RECORD: if (tx_valid && tx_ready) begin
                     if (byte_index == 16) begin
                         sent_records <= sent_records + 1'b1;

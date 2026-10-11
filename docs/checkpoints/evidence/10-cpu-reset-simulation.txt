@@ -1,0 +1,33 @@
+Checkpoint 10 registered CPU release regression, managed Debian 13 cloud, 2026-10-11
+Working tree based on 704f4a8 with the accompanying CPU reset changes.
+Verilator 5.032; RISC-V GCC 14.2; DTC 1.7.2; pinned OpenSBI v1.7.
+Commands: run_checkpoint10.sh; run_checkpoint9_board.sh; run_checkpoint10_board.sh.
+Full board gate uses the documented cloud PIE-capable linker wrapper.
+All default Verilator builds/lint for these gates have no warnings.
+
+PASS: actual CPU reset input rejects subcycle completion pulses before image release
+PASS: actual CPU reset input rejects subcycle run glitches while executing
+PASS: real run withdrawal/release samples at core edges; calibration loss asserts reset
+PASS: master-ready recovery precedes registered CPU release
+PASS: negative control with REGISTER_CPU_RESET=0 reproduces premature CPU release
+      Expected assertion: CPU reset expected=0 actual=1
+PASS: 106808 PMP interval-reference checks and three-ratio privilege/PMP/MMIO programs
+PASS: failed FENCE.I writeback retains fail-stop behavior
+PASS: legacy checkpoint 9 board ROM/UART at both clock ratios and injected DMA failure rejection
+PASS: full/compact loader layout, negative AXI/readback/reset/watchdog tests
+PASS: UART ownership and complete serializer tail
+PASS: full board core/MIG ratios 5/7 and 3/11: copy interrupted by calibration loss,
+      DDR readback, OpenSBI and S timer/PMP, serial K -> UART/S PLIC,
+      CPU RESET/reload/retest and complete 256-record shared UART trace
+PASS: shell syntax; Tcl completeness and reset-register inventory/stale-run guards with collection stubs
+
+Tested source-file SHA-256:
+f15be5baf1e5a55ce03154fa12cf4da2bf7920963299ccfd8db941a05b8a4462  rtl/top/checkpoint9_top.sv
+3cf41372eecc92fa0bfe408993c2ee9c7db420e824a4d8d494a8e2675dd0db8f  rtl/top/checkpoint10_top.sv
+3881e26d51b1b71149291b681f936d99464e1f8e8f3b4132ecec2b7cdbc35977  tests/board/checkpoint10_cpu_reset_tb.sv
+
+The second route evidence at clean 704f4a8 is retained in 10-second-route/.
+That route passes timing and removes trace RAM warnings, but reports a loader-decode
+LUTAR-1 on CPU/cache asynchronous reset pins. The registered-release change needs
+fresh Vivado synthesis/routing and actual reset primitive/DRC/timing review.
+Physical UART/LED/reset/trace execution remains pending. CPU/cache allocation remains exceeded.

@@ -1,0 +1,4 @@
+board/system/system/cpu/icache/tags0_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C
+board/system/system/cpu/icache/tags1_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C

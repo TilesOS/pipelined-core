@@ -1,0 +1,126 @@
+Checkpoint 10 integration with approved main: 2026-10-10
+Checkpoint 10 pre-merge source: 42f2b18e1d303e10c816647acc6467a89b93566d
+Main source: 142a34783f2ac167b09d3cb998e740e936f03f2d (checkpoint 9 PR #2)
+Linux environment: OrbStack; Verilator 5.032; coverage Verilator 5.052
+Bare-metal RISC-V GCC 14.2.0; Linux RISC-V GCC 15.2.0
+Pinned existing Spike build selected through SPIKE_BIN.
+Pinned OpenSBI source: a32a91069119e7a5aa31e6bc51d5e00860be3d80
+All eight final scripts completed with exit status 0.
+First board lint detected an unconnected new decode-error input;
+tie it low to preserve legacy SLVERR behavior, then rebuild/retest.
+The DMA-error injection intentionally produces phase 7/decoder exit 2;
+the board script requires that rejection before reporting overall success.
+No new physical FPGA results are claimed for checkpoint 10.
+
+Comparator self-test
+bash scripts/run_lockstep_smoke.sh --self-test
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: rd@4 detected at architectural event 4
+PASS: store@3 detected at architectural event 3
+PASS: cause@6 detected at architectural event 6
+
+CPU functional coverage and legacy I/M/A/CSR gates
+bash scripts/run_cpu_coverage.sh
+CPU functional coverage: 243/243 bins (100.00%)
+Merged 81 simulation files; hit threshold: 1
+Hazard × trap × stage cross: 96/96 (100.00%); 84 structurally excluded tuples
+  atomic_order: 4/4
+  branch: 12/12
+  csr_address: 16/16
+  csr_effect: 2/2
+  destination: 2/2
+  divide: 10/10
+  fault: 2/2
+  hazard_trap_stage: 96/96
+  instruction: 64/64
+  memory: 20/20
+  redirect: 2/2
+  sc: 2/2
+  stall: 2/2
+  trap: 9/9
+
+Spike comparisons: 21 runs, 3024 architectural events.
+Checkpoint 9 cache/CPU/Spike
+bash scripts/run_checkpoint9.sh
+PASS: 324 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 324 L1 operations, two-way eviction, all 256 dirty lines, physical bypass, response hold and AXI error recovery
+PASS: 7 architectural events (6 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 60 architectural events (59 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 22 architectural events (21 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 28 architectural events (27 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 11 architectural events (10 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 19 architectural events (18 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 25 architectural events (24 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 27 architectural events (26 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 447 architectural events (446 retirements, 1 trap) match Spike, including register and memory effects
+PASS: 227 architectural events (226 retirements, 1 trap) match Spike, including register and memory effects
+PASS: calibration loss reset an in-flight refill and dirty cache; CPU restarted with seven ordered events
+PASS: button UART dumped the last retired PC during a hung cache refill
+PASS: uncached executable DMA pages bypass both L1s and observe updated code
+PASS: LR/SC same/different word and burst interference, AMO arbitration/drain, cached DMA rejection
+PASS: precise instruction/refill/store/eviction/FENCE.I AXI faults; younger work suppressed
+PASS: checkpoint 9 cached CPU, AXI fabric/CDC and Spike gates
+
+Checkpoint 9 ROM, board simulation, lint and UART
+bash scripts/run_checkpoint9_board.sh
+PASS: committed ROM matches assembly source
+PASS: checkpoint 9 board ROM phase=8 result=c900600d I/D misses=5/1035 writebacks=521 DMA trips=44485 errors=0
+PASS: checkpoint 9 board smoke test
+PASS: checkpoint 9 board ROM phase=8 result=c900600d I/D misses=5/1035 writebacks=521 DMA trips=26138 errors=0
+PASS: checkpoint 9 board ROM phase=7 result=c9ba0007 I/D misses=5/1035 writebacks=521 DMA trips=44361 errors=44361
+
+AXI/CDC and bridges
+bash scripts/run_checkpoint7.sh
+PASS: 10 bridge operations, byte lanes, errors, response hold
+PASS: seven narrow peripheral accesses, exact byte address and one device request each
+PASS: 77 bus operations, clocks 5/7, reset after 1 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 3/11, reset after 7 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 11/3, reset after 15 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 4/13, reset after 4 beats, W FIFO full=1
+PASS: 77 bus operations, clocks 13/4, reset after 11 beats, W FIFO full=1
+
+Checkpoint 10 peripherals/MMIO
+bash scripts/run_checkpoint10_peripherals.sh
+PASS: CLINT 1 MHz divider, MSIP, safe RV32 mtimecmp writes, 64-bit rollover and backpressure
+PASS: PLIC priorities, thresholds, M/S contexts, claim/complete, level re-pending and backpressure
+PASS: UART divisor, serial TX/RX, FIFOs, timeout, IRQ priority/ack, parity/break/overrun, loopback and held responses
+PASS: MMIO narrow AXI lanes, device errors/DECERR, CLINT timer, UART-to-PLIC and held claim response
+
+Checkpoint 10 privilege/PMP
+bash scripts/run_checkpoint10.sh
+Running privilege with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 5/7, seed 44257
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 3/11, seed 137
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 11/3, seed 31119
+PASS: integrated privilege program reached success signature
+PASS: failed FENCE.I writeback remains fail-stop with privilege enabled
+
+Pinned generic OpenSBI
+bash scripts/run_checkpoint10_opensbi.sh
+OpenSBI v1.7 firmware: 133892 bytes (256 KiB cap)
+CHECKPOINT10 SBI TIMER/PMP PASS
+PASS: generic OpenSBI v1.7 entered S payload; SBI BASE, timer interrupt and resident PMP isolation

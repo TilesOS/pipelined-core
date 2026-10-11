@@ -1,0 +1,25 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version     : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date             : Sun Oct 11 16:18:05 2026
+| Host             : B850M-Riptide-WiFi running 64-bit Ubuntu 24.04.5 LTS
+| Command          : report_power_opt -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/power_opt.rpt
+| Design           : checkpoint10_board_top
+| Device           : xc7a100tcsg324-1
+| Design State     : Routed
+| Grade            : commercial
+| Process          : typical
+| Characterization : Production
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Power optimization report
+
+Table of Contents
+-----------------
+1. Summary
+2. Recommendations
+3. Hierarchical Information
+3.1 BRAMs
+3.1.1 User Gated BRAMs
+3.1.2 Tool Gated BRAMs
+3.1.3 BRAM WRITE_MODE Optimizations

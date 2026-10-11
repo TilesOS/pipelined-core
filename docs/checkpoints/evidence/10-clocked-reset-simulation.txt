@@ -1,0 +1,39 @@
+Checkpoint 10 clocked CPU reset regression, managed Debian 13 cloud, 2026-10-11
+Working tree based on 0805859 with the accompanying clocked-assertion change.
+Verilator 5.032; RISC-V GCC 14.2; DTC 1.7.2; pinned OpenSBI v1.7.
+Commands: run_checkpoint10.sh; run_checkpoint9_board.sh; run_checkpoint10_board.sh.
+Full board gate uses the documented cloud PIE-capable linker wrapper.
+All three gates exit 0; all default builds and board lint are warning-free.
+
+PASS: CPU reset rejects decode pulses, clocks assertion/release and recovers from link loss
+PASS: between-edge master loss leaves actual CPU reset stable until next core edge
+PASS: actual calibration loss holds CPU reset until synchronized master recovery
+PASS: negative control using 0805859 FDCE-style reset fails the new master-loss check
+      Observed expected assertion at 122000: CPU reset expected=1 actual=0
+PASS: Tcl reset-register guards accept FDRE, reject FDCE and reject missing registers
+PASS: both entire Tcl helper files have complete syntax
+PASS: 106808 independent PMP interval-reference comparisons and nine integrated
+      privilege/PMP/MMIO successes across three unrelated core/MIG clock ratios
+PASS: failed FENCE.I writeback remains fail-stop
+PASS: legacy checkpoint 9 board ratios 5/7 and 3/11; phase 8/c900600d with zero DMA errors
+PASS: legacy injected DMA failure still reaches phase 7/c9ba0007 and decoder rejects it
+PASS: compact/full image layout, gap/payload readback, restart, AXI errors and watchdog
+PASS: UART owner drain, debounce, sticky ownership and complete serializer tail
+PASS: full checkpoint 10 board ratios 5/7 and 3/11, each with calibration loss
+      during copy, verified DDR, real OpenSBI/S timer/PMP and physical-pin UART/S PLIC
+PASS: both ratios CPU RESET/reload/retest and complete 256-record UART trace packets
+      with no interleaving and a complete final stop bit
+
+Tested source-file SHA-256:
+05601d4a5afce0ce1a2c7de8ce768a79fdb0598f2190dd066abfd5657a9d092c  rtl/top/checkpoint9_top.sv
+3cf41372eecc92fa0bfe408993c2ee9c7db420e824a4d8d494a8e2675dd0db8f  rtl/top/checkpoint10_top.sv
+9a2cea6d6ededa0d8d46d8067713d89b02b1e4fb742bb4a32ab192dc877534d5  tests/board/checkpoint10_cpu_reset_tb.sv
+
+The measured 0805859 third route passes timing and clears loader LUTAR-1,
+but its FDCE CPU reset drives two I-cache tag RAM enables (REQP-1840).
+The accompanying source uses only core-clock edges for reset assertion/release,
+while fabric/FIFO asynchronous link abort and legacy reset behavior are preserved.
+Fresh Vivado synthesis/routing must establish FDRE mapping, no custom RAM
+asynchronous-control warnings, and continued timing/resource/I/O/CDC coverage.
+No constraints or diagnostic severities were relaxed.
+Physical serial/reset/LED/trace evidence remains pending; CPU/cache area review is open.

@@ -1,0 +1,50 @@
+Checkpoint 10 UART FIFO fix physical board acceptance, 2026-10-11
+Operator: Tyler, locally controlling the Nexys A7-100T / Vivado 2026.1.
+Uploaded archive: checkpoint10_uartfix_board_evidence.tar (10414080 bytes)
+Archive SHA-256: 58581858d4f1e26216232596630c0dee46e0117bf8eb0173cf02eabb953cbe13
+Clean implementation and image source: 5e0fb45523cd599f9acdbe85d03f0818248b54c7.
+All 20 uploaded Vivado reports and image manifest byte-match the reviewed
+UART-fix route. Firmware/payload/DDR image/ROM hashes match the earlier acceptance.
+Bitstream SHA-256 recorded by operator:
+cb7097546110f510456e53b436bc8a4467868c604f58183ee025b5ad42840155
+Bitstream path:
+/home/tyler/checkpoint10_board/checkpoint10_board.runs/impl_1/checkpoint10_board_top.bit
+The bitstream binary and write_bitstream console were not uploaded. The hash
+is operator-recorded identity, not independently recomputed from a supplied binary.
+
+PASS: first boot, CPU RESET retest and post-trace CPU RESET recovery each pass
+      scripts/capture_checkpoint10.py --verify, with ordered milestones:
+      OpenSBI v1.7; CHECKPOINT10 SBI TIMER/PMP PASS;
+      CHECKPOINT10 UART RX READY: send K; CHECKPOINT10 UART RX/PLIC PASS.
+      Each capture is 2598 bytes. All three are byte-identical and match the
+      preceding accepted console sequence. Capture SHA-256 is saved separately.
+PASS: trace decodes using scripts/decode_trace.py. Exactly one complete
+      4358-byte TRCE packet, count 256, no leading/trailing bytes or truncation.
+      All records are S-mode (priv=1) retires at PC 0x8004014c, instruction
+      0x0000006f, cause/tval zero. This is the post-success self-loop; the
+      instruction is independently checked in a locally built payload binary
+      matching the archived payload hash. Trace matches the earlier acceptance.
+      Earlier interrupt/trap records have wrapped out; the serial milestones
+      establish timer/PMP and physical UART RX/PLIC execution.
+PASS: operator reports "LEDs match", confirming the instructed state:
+      LEDs 0,1,3 on and LED 2 off.
+PASS: previously reviewed setup/hold/pulse +0.932/+0.024/+0.206 ns, 84/135
+      BRAM tiles, FDRE CPU reset and registered tag RAM controls retained.
+PASS: physical UART/PLIC, complete shared-pin S-mode trace and CPU RESET
+      recovery work through the updated UART RTL.
+      The exact full-TX-FIFO simultaneous pop/write collision is covered by
+      depth-1/depth-16 simulation regressions, which fail on the preceding RTL;
+      the physical payload does not specifically align that collision.
+
+Acceptance: UART-fix build functional board validation complete. Both exact-source
+push and PR CI workflows also pass; see ../10-uart-fix-route/review.txt.
+OPEN: CPU/cache 4513/3000 sites, overage 1513 (50.4%); device 6874/15850 slices.
+      Retain the area review for Sv32 and accelerator growth.
+Source-specific physical evidence for the older bitstream remains available.
+Checkpoint 9's checkout/project/accepted bitstream remain separate.
+Sv32, Linux boot, production QSPI loading and UART recovery are later gates.
+This evidence-only update changes no RTL, firmware or Vivado constraints.
+
+Verification: three capture_checkpoint10.py --verify invocations; decode_trace.py;
+independent exact header/count/length/record checks; payload SHA/instruction check;
+byte comparison of all 20 reports/image manifest; saved capture SHA-256 checks.

@@ -1,0 +1,12 @@
+Operator-provided read-only fan-in comparison, 2026-10-11
+Source: clean 74d26b9 / existing synth_1 and impl_1.
+Query: all_fanin -flat -startpoints_only -to each I-cache tag ENARDEN pin.
+
+synth_1 board/system/system/cpu/icache/tags0_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C
+synth_1 board/system/system/cpu/icache/tags1_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C
+impl_1 board/system/system/cpu/icache/tags0_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C board/loader/state_reg[1]/C board/loader/state_reg[2]/C board/loader/state_reg[0]/C board/system/system/bus/core_release_reg[1]/C board/system/system/cpu/icache/state_reg[2]/C board/system/system/cpu/icache/state_reg[3]/C board/system/system/cpu/icache/state_reg[0]/C board/system/system/cpu/icache/state_reg[1]/C board/system/system/registered_cpu_reset.cpu_reset_n_reg/C
+impl_1 board/system/system/cpu/icache/tags1_reg/ENARDEN
+STARTPOINTS: board/system/system/cpu/icache/ram_read_enable_q_reg/C board/loader/state_reg[1]/C board/loader/state_reg[2]/C board/loader/state_reg[0]/C board/system/system/bus/core_release_reg[1]/C board/system/system/cpu/icache/state_reg[2]/C board/system/system/cpu/icache/state_reg[3]/C board/system/system/cpu/icache/state_reg[0]/C board/system/system/cpu/icache/state_reg[1]/C board/system/system/registered_cpu_reset.cpu_reset_n_reg/C

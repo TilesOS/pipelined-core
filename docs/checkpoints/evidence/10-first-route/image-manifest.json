@@ -1,0 +1,21 @@
+{
+  "rom_layout": "firmware_then_payload_v1",
+  "source_commit": "c444cb69287f3291fe1f7fa7391896e271e735f7",
+  "source_dirty": false,
+  "opensbi_commit": "a32a91069119e7a5aa31e6bc51d5e00860be3d80",
+  "firmware_bytes": 133892,
+  "payload_bytes": 672,
+  "image_bytes": 262816,
+  "image_words": 16426,
+  "rom_bytes": 134576,
+  "rom_words": 8411,
+  "firmware_words": 8369,
+  "payload_word": 16384,
+  "firmware_address": "0x80000000",
+  "payload_address": "0x80040000",
+  "relocated_fdt_address": "0x80060000",
+  "firmware_sha256": "39f5f21aef97c17b1699cd5850c92a7e0a6c002bd7b43049bdda50b15287834c",
+  "payload_sha256": "4489301abccc1afb494eb76ff9f8c60e2e0aa2c2aa1039aeb8651286fda1047b",
+  "image_sha256": "22a5122e38c54f7c8894d2d3ea3c7bdc675f1356307ac6930c8adfe96aecbc26",
+  "rom_file_sha256": "82d181546d006611b2306720839c9d8bda0f60b773d4ccb8a7fbc0bdb056937b"
+}
