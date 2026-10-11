@@ -8,7 +8,7 @@ module checkpoint10_top #(
     input logic core_clk, mig_clk, rst_n, mig_calib_complete,
     input logic cpu_run, manual_halt, dump_button,
     input logic uart_rx, dma_irq,
-    output logic masters_ready, uart_tx, debug_uart_tx, atomic_lock,
+    output logic masters_ready, uart_tx, uart_tx_idle, debug_uart_tx, atomic_lock,
     input axi128_pkg::axi_req_t loader_req, dma_req,
     output axi128_pkg::axi_rsp_t loader_rsp, dma_rsp,
     output axi128_pkg::axi_req_t mig_req,
@@ -33,7 +33,7 @@ module checkpoint10_top #(
     logic msip_irq, mtip_irq, meip_irq, seip_irq;
     logic [63:0] time_value;
     checkpoint10_mmio mmio (
-        .clk(core_clk), .rst_n(masters_ready), .uart_rx(uart_rx), .uart_tx(uart_tx), .dma_irq(dma_irq),
+        .clk(core_clk), .rst_n(masters_ready), .uart_rx(uart_rx), .uart_tx(uart_tx), .uart_tx_idle(uart_tx_idle), .dma_irq(dma_irq),
         .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq), .time_value(time_value),
         .axi_req(peripheral_req), .axi_rsp(peripheral_rsp)
     );

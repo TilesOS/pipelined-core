@@ -6,7 +6,7 @@ module checkpoint10_mmio_tb;
     axi_req_t req;
     axi_rsp_t rsp;
     checkpoint10_mmio #(.UART_DEFAULT_DIVISOR(1)) dut (
-        .clk(clk), .rst_n(rst_n), .uart_rx(1'b1), .dma_irq(1'b0), .uart_tx(tx),
+        .clk(clk), .rst_n(rst_n), .uart_rx(1'b1), .dma_irq(1'b0), .uart_tx(tx), .uart_tx_idle(),
         .time_value(), .msip_irq(msip), .mtip_irq(mtip), .meip_irq(meip), .seip_irq(seip), .axi_req(req), .axi_rsp(rsp)
     );
     initial begin #1000000; $fatal(1, "MMIO watchdog"); end

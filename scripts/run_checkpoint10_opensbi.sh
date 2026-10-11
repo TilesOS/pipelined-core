@@ -50,5 +50,6 @@ image = firmware + bytes(0x40000 - len(firmware)) + payload
 (p / 'opensbi.hex').write_text(image.hex(' ') + '\n')
 print(f'OpenSBI v1.7 firmware: {len(firmware)} bytes (256 KiB cap)')
 PY
+[[ ${1:-} != --build-only ]] || exit 0
 bash scripts/run_checkpoint10.sh --build-only
 CACHE_IMAGE="$build_dir/opensbi.hex" "$build_dir/obj/Vprivileged_core_sim" --opensbi

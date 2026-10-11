@@ -23,7 +23,7 @@ module privileged_core_sim (
     axi_rsp_t mig_rsp;
     checkpoint10_top #(.RESET_PC(32'h8000_0000), .UART_CLOCKS_PER_BIT(8)) system (
         .core_clk(clk), .mig_clk(mig_clk), .rst_n(rst_n), .mig_calib_complete(mig_calib_complete),
-        .cpu_run(1'b1), .manual_halt(manual_halt), .dump_button(dump_button), .uart_rx(1'b1), .dma_irq(1'b0), .debug_uart_tx(), .uart_tx(uart_tx),
+        .cpu_run(1'b1), .manual_halt(manual_halt), .dump_button(dump_button), .uart_rx(1'b1), .dma_irq(1'b0), .debug_uart_tx(), .uart_tx(uart_tx), .uart_tx_idle(),
         .masters_ready(masters_ready), .atomic_lock(atomic_lock),
         .loader_req('0), .loader_rsp(), .dma_req('0), .dma_rsp(),
         .mig_req(mig_req), .mig_rsp(mig_rsp),

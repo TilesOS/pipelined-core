@@ -7,7 +7,7 @@ module checkpoint10_mmio #(
 ) (
     input logic clk, rst_n, uart_rx, dma_irq,
     output logic [63:0] time_value,
-    output logic uart_tx, msip_irq, mtip_irq, meip_irq, seip_irq,
+    output logic uart_tx, uart_tx_idle, msip_irq, mtip_irq, meip_irq, seip_irq,
     input axi128_pkg::axi_req_t axi_req,
     output axi128_pkg::axi_rsp_t axi_rsp
 );
@@ -75,7 +75,7 @@ module checkpoint10_mmio #(
         .bus_rsp_rdata(device_rdata[1]), .bus_rsp_error(device_error[1])
     );
     uart16550 #(.DEFAULT_DIVISOR(UART_DEFAULT_DIVISOR)) device_2 (
-        .clk(clk), .rst_n(rst_n), .uart_rx(uart_rx), .uart_tx(uart_tx), .irq(uart_irq),
+        .clk(clk), .rst_n(rst_n), .uart_rx(uart_rx), .uart_tx(uart_tx), .uart_tx_idle(uart_tx_idle), .irq(uart_irq),
         .bus_req_valid(device_req_valid[2]), .bus_req_ready(device_req_ready[2]),
         .bus_req_write(req_write), .bus_req_addr(req_addr), .bus_req_size(req_size),
         .bus_req_wdata(req_wdata), .bus_req_wstrb(req_wstrb),

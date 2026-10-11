@@ -80,6 +80,8 @@ jobs:
         run: bash scripts/run_checkpoint10.sh
       - name: Run pinned generic OpenSBI and S-mode timer/PMP payload
         run: bash scripts/run_checkpoint10_opensbi.sh
+      - name: Run board image loader, serial receive/PLIC, reset and shared UART simulations
+        run: bash scripts/run_checkpoint10_board.sh
 
   board-smoke:
     runs-on: ubuntu-latest

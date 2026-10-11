@@ -67,16 +67,21 @@ in the checkpoint record). Build products remain ignored under `build/`.
 
 ## Next work
 
-1. Checkpoint 9 board bring-up is complete. Prepare checkpoint 10 board
-   integration from this combined branch; retain the measured checkpoint 9
-   project and bitstream as the reference. Remeasure the CPU/cache area overage
-   together with privilege and peripherals.
+1. Checkpoint 9 board bring-up is complete. Checkpoint 10's separate Nexys
+   target, readback-verified test-image loader, shared console/trace UART and
+   physical RX/PLIC payload are prepared. Follow
+   [the board procedure](../checkpoints/10-board-bringup.md); physical evidence
+   remains pending. The operator controls Vivado locally on the Ubuntu PC and
+   wants a new `/home/tyler/checkpoint10_board` project copied from the accepted
+   `/home/tyler/checkpoint9_board`. Retain the original project/bitstream.
+   Remeasure the CPU/cache area overage with privilege and peripherals.
 2. Checkpoint 11: Sv32 TLBs/walker, Svade A/D faults, translated PMP/physical
    cacheability, SATP and SFENCE.VMA semantics, paging and stale-TLB tests.
    Keep the DTB Bare-only until those gates pass.
-3. Later board integration must arbitrate console/debug TX onto the physical
-   UART pin; checkpoint10_top exposes separate console and debug TX outputs.
-   Measure actual FPGA timing, resources/BRAM inference, and serial execution.
+3. The board UART owner halts on BTNC, drains console TX, then retains trace
+   ownership until CPU RESET. `checkpoint10_top` still exposes separate TX
+   outputs for other integrations. Measure actual FPGA timing, resources/BRAM
+   inference, repeatable serial execution and a complete trace dump.
 4. Production loader/image addresses and Linux boot are later gates. This
    checkpoint proves bounded generic firmware execution, not Linux boot or
    architectural certification.

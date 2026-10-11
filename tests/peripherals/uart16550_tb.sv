@@ -8,7 +8,7 @@ module uart16550_tb;
     logic [1:0] req_size = 0;
     logic [3:0] req_wstrb = 1;
     uart16550 #(.DEFAULT_DIVISOR(1)) dut (
-        .clk(clk), .rst_n(rst_n), .uart_rx(uart_rx), .uart_tx(uart_tx), .irq(irq),
+        .clk(clk), .rst_n(rst_n), .uart_rx(uart_rx), .uart_tx(uart_tx), .uart_tx_idle(), .irq(irq),
         .bus_req_valid(req_valid), .bus_req_ready(req_ready), .bus_req_write(req_write),
         .bus_req_addr(req_addr), .bus_req_size(req_size), .bus_req_wdata(req_wdata), .bus_req_wstrb(req_wstrb),
         .bus_rsp_valid(rsp_valid), .bus_rsp_ready(rsp_ready), .bus_rsp_rdata(rsp_rdata), .bus_rsp_error(rsp_error)

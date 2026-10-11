@@ -108,3 +108,21 @@ The firmware simulation is bounded at 100 million core cycles; `BOOT_DIAGNOSTICS
 prints optional probe traps and progress. Earlier first-trap Spike fixtures keep
 privilege disabled. See the [checkpoint 10 record](checkpoints/10-privilege-peripherals.md)
 for tested scope and the board/paging gates that remain.
+
+## Checkpoint 10 board integration simulation
+
+```sh
+bash scripts/build_checkpoint10_board_image.sh
+bash scripts/run_checkpoint10_board.sh
+```
+
+The gate verifies ROM-to-DDR copy/readback errors and timeout blocking, UART
+ownership, board top lint, then runs the actual board execution boundary on
+initially nonzero DDR with two unrelated core/MIG clock ratios and backpressure.
+It interrupts the loader with calibration loss, runs OpenSBI and the S-mode
+timer/PMP payload, injects a 115200-baud RX byte through the serial pin, checks
+S PLIC claim/complete and the success LED, resets and reruns, then captures a
+complete shared-pin diagnostic packet. Firmware uses the same pinned source
+and toolchain as the existing OpenSBI gate. The firmware watchdog is 100 million
+core cycles; these are simulation results, not Vivado or physical evidence.
+See [the board procedure](checkpoints/10-board-bringup.md) for hardware gates.

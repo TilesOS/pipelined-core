@@ -6,7 +6,7 @@ module uart16550 #(
     parameter logic [15:0] DEFAULT_DIVISOR = 16'd27
 ) (
     input logic clk, rst_n, uart_rx,
-    output logic uart_tx, irq,
+    output logic uart_tx, uart_tx_idle, irq,
     input logic bus_req_valid, bus_req_write,
     output logic bus_req_ready,
     input logic [31:0] bus_req_addr, bus_req_wdata,
@@ -56,6 +56,7 @@ module uart16550 #(
                            fcr[7:6] == 1 ? 5'd4 : fcr[7:6] == 2 ? 5'd8 : 5'd14;
     assign serial_tx = lcr[6] ? 1'b0 : tx_busy ? tx_frame[0] : 1'b1;
     assign uart_tx = mcr[4] ? 1'b1 : serial_tx; // isolate external TX in loopback
+    assign uart_tx_idle = !tx_busy && tx_count == 0 && !lcr[6];
     assign serial_rx = mcr[4] ? serial_tx : rx_sync;
     // External modem pins are absent: CTS/DSR/DCD are asserted, RI is low.
     assign modem_level = mcr[4] ? {mcr[3], mcr[2], mcr[0], mcr[1]} : 4'b1011;

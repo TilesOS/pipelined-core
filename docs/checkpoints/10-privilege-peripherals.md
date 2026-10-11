@@ -1,8 +1,9 @@
 # Checkpoint 10: privilege, standard peripherals, and OpenSBI
 
 Status: complete in RTL simulation on 2026-10-05. No FPGA timing, BRAM/resource,
-physical UART, or Linux boot result is claimed. Boot ROM/loader implementation
-also remains a later gate; the simulation starts directly in DDR firmware.
+physical UART, or Linux boot result is claimed. Production QSPI loading and
+UART recovery remain later gates; the original simulation starts directly in
+DDR firmware, while the board proof copies a test-image ROM into DDR.
 The initial implementation did not use checkpoint 9's board checkout.
 Approved main and the final checkpoint 9 FPGA fixes were integrated and
 retested on 2026-10-10, as recorded below; checkpoint 10 physical testing
@@ -120,8 +121,10 @@ AXI, zero-wait CPU and M/A/CSR gates pass. Saved compact output is in
 
 ## Remaining gates
 
-Board UART pin arbitration, FPGA synthesis/timing/resources, and physical
-execution remain board integration work. Linux boot requires Sv32 at checkpoint
+The [checkpoint 10 board target](10-board-bringup.md) now provides UART pin
+ownership, a readback-verified DDR test-image loader and a serial RX/PLIC
+payload. FPGA synthesis/timing/resources and physical execution remain
+pending operator measurements. Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.
 
