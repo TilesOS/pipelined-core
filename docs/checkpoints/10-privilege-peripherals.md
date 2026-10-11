@@ -137,7 +137,7 @@ recovery. A complete 256-record S-mode trace and the reported LED on-set
 0/1/3 complete the functional board gate; see
 [physical evidence](evidence/10-board-acceptance/review.txt).
 CPU/cache area remains 4,710 sites against 3,000; retain that review for Sv32
-and accelerator growth. The unchanged RTL retains its simulation evidence.
+and accelerator growth. The recorded board build retains its simulation evidence.
 Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.
@@ -161,6 +161,26 @@ the fixture, and the full privilege gate passes with a fresh Verilator 5.020
 build. See [compatibility evidence](evidence/10-ci-pmp-scheduling.txt).
 This testbench-only correction changes no RTL, firmware, Vivado constraint or
 workflow, so the recorded physical board build remains applicable.
+
+## UART full-FIFO pop/write review fix, 2026-10-11
+
+A THR write accepted while a full TX FIFO pops into the idle serializer used
+to return success while discarding the new byte. `tx_push` now allows either
+available capacity or a simultaneous `tx_pop`. The existing simultaneous
+count/head/tail updates preserve the queued byte order, including the full
+16-byte FIFO's shared head/tail slot.
+
+The directed UART regression fills the queue behind an active serializer,
+aligns a THR write with its next pop, and checks the successful held response,
+unchanged full occupancy, every serial byte in order, and THRE assertion and
+acknowledgement after draining. It covers FIFO depth 16 and the disabled
+FIFO's depth 1. Both cases fail against the preceding RTL. The full peripheral/
+MMIO gate passes with Verilator 5.032; fresh UART and MMIO builds also pass
+with CI's Verilator 5.020. All of these builds have no default warnings.
+
+This changes UART RTL. The archived FPGA timing and board acceptance remain
+evidence for implementation `5b74119` and its recorded bitstream; a physical
+build containing this fix needs fresh implementation and board evidence.
 
 ## Integration with approved main, 2026-10-10
 

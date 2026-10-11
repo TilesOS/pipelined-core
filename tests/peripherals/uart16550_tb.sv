@@ -49,6 +49,39 @@ module uart16550_tb;
         for (int i = 0; i < 8; i++) begin value[i] = uart_tx; repeat (16) @(negedge clk); end
         if (value != expected || !uart_tx) $fatal(1, "UART serial TX value=%h", value);
     endtask
+    task automatic full_tx_pop_write(input bit fifo_enabled);
+        int fifo_depth;
+        fifo_depth = fifo_enabled ? 16 : 1;
+        access(1, 4, 0, 0); // external serial TX
+        access(1, 3, 3, 0); // 8N1, divisor one
+        access(1, 2, fifo_enabled ? 8'h07 : 8'h00, 0);
+        access(1, 1, 2, 0); // THRE interrupt
+        fork
+            begin
+                receive_tx(8'ha6);
+                for (int i = 0; i < fifo_depth; i++) receive_tx(8'h40 + 8'(i));
+                receive_tx(8'hee);
+            end
+            begin
+                access(1, 0, 8'ha6, 0); // keep the serializer busy while filling
+                for (int i = 0; i < fifo_depth; i++) access(1, 0, 8'h40 + 8'(i), 0);
+                if (!dut.tx_busy || dut.tx_count != 5'(fifo_depth))
+                    $fatal(1, "UART TX FIFO was not full before simultaneous pop/write");
+                // Busy drops after a rising edge. Present THR at the next falling
+                // edge so its accepted write coincides with the next FIFO pop.
+                wait (!dut.tx_busy);
+                access(1, 0, 8'hee, 0);
+                if (dut.tx_count != 5'(fifo_depth) || irq)
+                    $fatal(1, "UART full TX pop/write lost a byte or asserted THRE: depth=%0d count=%0d irq=%b",
+                        fifo_depth, dut.tx_count, irq);
+            end
+        join
+        wait (!dut.tx_busy && dut.tx_count == 0);
+        access(0, 5, 0, 8'h60);
+        access(0, 2, 0, fifo_enabled ? 8'hc2 : 8'h02);
+        if (irq) $fatal(1, "UART full TX pop/write THRE acknowledgement");
+        $display("PASS: UART full TX pop/write preserves byte order and THRE, depth=%0d", fifo_depth);
+    endtask
     initial begin
         repeat (4) @(negedge clk); rst_n = 1;
         access(0, 5, 0, 8'h60); access(0, 2, 0, 1);
@@ -101,6 +134,8 @@ module uart16550_tb;
         wait (!dut.tx_busy && dut.tx_count == 0);
         repeat (20) @(negedge clk);
         access(0, 0, 0, 8'h1f); access(0, 5, 0, 8'h60);
+        full_tx_pop_write(0);
+        full_tx_pop_write(1);
         $display("PASS: UART divisor, serial TX/RX, FIFOs, timeout, IRQ priority/ack, parity/break/overrun, loopback and held responses");
         $finish;
     end

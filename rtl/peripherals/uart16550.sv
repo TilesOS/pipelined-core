@@ -101,7 +101,7 @@ module uart16550 #(
         (bus_req_wdata[1] || bus_req_wdata[0] != fcr[0]);
     assign clear_tx = wr && bus_req_addr[2:0] == 2 &&
         (bus_req_wdata[2] || bus_req_wdata[0] != fcr[0]);
-    assign tx_push = wr && bus_req_addr[2:0] == 0 && !lcr[7] && tx_count < depth;
+    assign tx_push = wr && bus_req_addr[2:0] == 0 && !lcr[7] && (tx_count < depth || tx_pop);
     assign tx_pop = !tx_busy && tx_count != 0 && !clear_tx;
     assign rx_push = rx_state == RX_STOP && rx_timer == 0;
     assign rx_pop = rd && bus_req_addr[2:0] == 0 && !lcr[7] && rx_count != 0;

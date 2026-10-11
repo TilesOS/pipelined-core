@@ -66,8 +66,14 @@ PMP interval fixture now clocks and resets a halted core so Verilator 5.020
 reevaluates derived masks after hierarchical stimulus writes, matching 5.032;
 all 106,808 checks and the fresh 5.020 privilege gate pass. See
 [CI compatibility evidence](../checkpoints/evidence/10-ci-pmp-scheduling.txt).
-This fixture-only correction preserves the physical RTL/image evidence. The
-firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
+This fixture-only correction preserves the physical RTL/image evidence.
+PR #3's UART follow-up also accepts a THR write when a full TX FIFO pops on
+the same cycle. The directed regression covers depths 1/16, serial ordering,
+held successful responses and THRE behavior; see the
+[UART review fix](../checkpoints/10-privilege-peripherals.md#uart-full-fifo-popwrite-review-fix-2026-10-11).
+That follow-up changes RTL, so the archived physical acceptance stays scoped
+to the recorded build; a physical build with the UART fix needs fresh evidence.
+The firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
 `gcc-riscv64-linux-gnu`. The bare-metal Debian linker rejects PIE, so the cloud
 uses its GCC code generator with a local Linux BFD linker wrapper (documented
 in the checkpoint record). Build products remain ignored under `build/`.
