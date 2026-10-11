@@ -1,7 +1,8 @@
 # Checkpoint 10: privilege, standard peripherals, and OpenSBI
 
-Status: complete in RTL simulation on 2026-10-05. No FPGA timing, BRAM/resource,
-physical UART, or Linux boot result is claimed. Production QSPI loading and
+Status: complete in RTL simulation on 2026-10-05. Source-specific FPGA timing
+and resource measurements are recorded in the board procedure; physical UART
+and Linux boot remain pending. Production QSPI loading and
 UART recovery remain later gates; the original simulation starts directly in
 DDR firmware, while the board proof copies a test-image ROM into DDR.
 The initial implementation did not use checkpoint 9's board checkout.
@@ -123,11 +124,11 @@ AXI, zero-wait CPU and M/A/CSR gates pass. Saved compact output is in
 
 The [checkpoint 10 board target](10-board-bringup.md) now provides UART pin
 ownership, a readback-verified DDR test-image loader and a serial RX/PLIC
-payload. The second route at `704f4a8` fits at 84/135 BRAM tiles, passes
-50 MHz timing and clears trace RAM control warnings. Registered CPU release
-addresses a newly reported loader-decode reset warning and requires fresh
-routing. CPU/cache area is 4,749 sites against 3,000; physical execution
-remains pending.
+payload. The third route at `0805859` fits at 84/135 BRAM tiles, passes
+50 MHz timing (+0.392 ns setup) and clears the loader-decode reset warning.
+Two new I-cache tag RAM warnings require clocked CPU reset assertion as well
+as release; the tested follow-up needs fresh routing. CPU/cache area is 4,813
+sites against 3,000; physical execution remains pending.
 Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.

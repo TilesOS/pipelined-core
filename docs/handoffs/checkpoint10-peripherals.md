@@ -89,9 +89,19 @@ in the checkpoint record). Build products remain ignored under `build/`.
    legacy checkpoint 9's default behavior remains unchanged. Directed pulse/
    link-loss tests, privilege/PMP, legacy board and both full checkpoint 10
    board clock ratios pass; see [reset evidence](../checkpoints/evidence/10-cpu-reset-simulation.txt).
-   The Vivado checkers now require registered CPU-reset primitives. Rerun synthesis/
-   routing and review timing/CDC/DRC before a bitstream. Physical execution
-   remains pending.
+   The third route at clean `0805859` passes setup/hold/pulse timing
+   (+0.392/+0.030/+0.206 ns), confirms one FDCE CPU reset primitive and clears
+   the custom loader LUTAR-1. Two new REQP-1840 warnings identify that FDCE
+   driving I-cache tag RAM enables. CPU reset assertion/release now use only
+   the core clock; transport still aborts asynchronously on link loss. The
+   pulse/master-loss unit and privilege/legacy/full board gates pass; see
+   [clocked-reset evidence](../checkpoints/evidence/10-clocked-reset-simulation.txt).
+   CPU/cache area is now 4,813 sites (1,813 above allocation). All 55 assigned
+   user pins and timing exceptions match the preceding route; CDC rule totals
+   and source families are retained. Both Vivado checkers now require FDRE
+   CPU-reset primitives and reject stale FDCE runs. Rerun synthesis/routing
+   and review RAM controls, timing/CDC/DRC before a bitstream. Physical
+   execution remains pending.
    The operator
    controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted

@@ -1,11 +1,12 @@
 # Checkpoint 10 board bring-up
 
-Status: the second route at `704f4a8` passes 50 MHz setup/hold/pulse timing
-and removes trace RAM control warnings, at 84/135 block RAM tiles. It exposes
-a loader-state decode driving CPU/cache asynchronous reset (LUTAR-1).
-Registered CPU release requires fresh synthesis/routing before bitstream
-generation. CPU/cache area exceeds its allocation; physical serial execution
-remains pending.
+Status: the third route at `0805859` passes 50 MHz setup/hold/pulse timing
+and clears the loader-driven LUTAR-1, at 84/135 block RAM tiles. It exposes
+two I-cache tag RAM enable warnings (REQP-1840) driven by the asynchronous
+CPU reset register. CPU reset assertion/release now use only the core clock;
+fresh synthesis/routing must confirm an FDRE and clear these warnings before
+bitstream generation. CPU/cache area is 4,813/3,000 sites; physical serial
+execution remains pending.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -82,7 +83,9 @@ header separately describes the stored words and full DDR image words.
 Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
 These results establish the prepared target in simulation. Physical synthesis
-resource checks now pass; routed timing and physical execution remain pending.
+resource checks and later routes pass timing as recorded below; the latest
+RAM-control remediation still needs fresh routing, and physical execution
+remains pending.
 
 ## First physical synthesis and ROM capacity fix
 
@@ -191,7 +194,7 @@ original CPU/cache allocation remains exceeded. Keep the area review open
 for privilege/TLB integration and before adding accelerator lanes; these
 measurements do not establish capacity for unimplemented features.
 
-All 56 assigned port pins/directions/standards match the previous route,
+All 55 assigned user port pins/directions/standards match the previous route,
 including the scoped MIG DDR standards and E3 board clock. Timing coverage
 still has no missing clocks, unconstrained internal endpoints or loops;
 the asynchronous reset/button/RX and LED/TX port contracts are unchanged.
@@ -229,6 +232,60 @@ the `cpu_reset_n_reg` primitives and reject a netlist without them, guarding
 against accidentally reopening the previous implemented design. The separate generated MIG
 LUTAR-1 endpoint remains part of the preserved IP reset inventory. The timing
 pass at `704f4a8` does not establish timing for the registered-release change.
+
+## Third route and clocked reset assertion
+
+The operator's `checkpoint10_reports_resetfix.tar` identifies clean source
+`08058590064e4925fa65265aa5ab7a197904f3fb`. Image hashes match the preceding
+routes. Routed setup WNS is **+0.392 ns**, hold WHS **+0.030 ns**, and pulse
+width slack **+0.206 ns**, with no failing endpoints or negative slack totals.
+The worst setup path is execute instruction bit 0 to I-cache state bit 3:
+19.275 ns data delay and 26 logic levels. Total use is 22,635 LUTs, 12,147
+registers, 7,244 occupied slices, 84 BRAM tiles and five DSPs. ROM/cache/trace
+mapping is retained: 64 ROM RAMB36s, eight RAMB36s plus two RAMB18s per cache,
+and two trace RAMB36s. The CPU still uses four DSPs within its allocation.
+Unique CPU/cache use is **4,813 sites**, **1,813 (60.4%) above allocation**.
+The area review remains open. See [third-route evidence](evidence/10-third-route/summary.txt).
+
+Both synthesis and route inventories confirm
+`board/system/system/registered_cpu_reset.cpu_reset_n_reg FDCE`. The custom
+loader LUTAR-1 has disappeared; the sole remaining LUTAR-1 is generated MIG.
+However, two new **REQP-1840** warnings identify that FDCE driving
+`icache/tags0_reg/ENARDEN` and `icache/tags1_reg/ENARDEN` through inferred
+`cooolgate_en` nets. Vivado reports that asynchronous assertion can corrupt
+RAM contents/read values outside the normal timing analysis. A passing timing
+summary does not resolve those warnings; this route is not ready for programming.
+
+The follow-up changes only checkpoint 10's opt-in reset stage to
+`always_ff @(posedge core_clk) cpu_reset_n <= masters_ready && cpu_run`.
+Both assertion and release are clocked; no asynchronous set/reset remains on
+the register that Vivado can use for RAM enables. The PLL core clock is
+independent of DDR calibration. Fabric/FIFO reset still aborts transport
+asynchronously on link loss. The master-ready release chain holds low across
+core edges, so CPU reset is sampled low before recovery; cache metadata is
+discarded before image reload and CPU restart. Legacy checkpoint 9 retains
+its default reset path. The directed test now checks between-edge master loss
+as well as loader decode pulses and real calibration recovery. An `0805859`
+negative control fails this new check, demonstrating the asynchronous reset
+change at the actual CPU boundary. Full board and privilege/legacy gates are
+recorded in [clocked-reset simulation evidence](evidence/10-clocked-reset-simulation.txt).
+
+The complete CDC inventory retains the same rule totals and source families:
+CDC-1 Critical 1,418 (35 B/1,059 R/324 W FIFO payloads), CDC-15 Warning 381,
+CDC-6 Warning 10, CDC-11 Critical 6, and generated MIG CDC-3 Info 3/CDC-8
+Warning 2. Payload endpoint allocation shifts between B and R with synthesis,
+but no new source family appears. The existing ownership/Gray-pointer/reset
+review applies with severities preserved. All 55 user pin assignments and
+reported timing exceptions match the second route. Missing port delays remain
+the asynchronous input and LED/UART output contracts; there are no missing
+clocks, unconstrained internal endpoints or loops. Other DRC/methodology
+inventory is unchanged; trace REQP-1839 remains absent.
+
+Both Vivado checkers now require the CPU reset register to be **FDRE** and
+reject the previous FDCE netlist. Rerun synthesis and routing, then review the
+fresh reports for no custom RAM asynchronous-control warnings, continued
+timing/BRAM mapping, and unchanged I/O/CDC contracts. The measured timing at
+`0805859` applies to that source, not this subsequent clocked-assertion change.
 
 ## Separate source and Vivado projects
 

@@ -1,0 +1,26 @@
+Checkpoint 10 third physical route review, 2026-10-11
+Uploaded archive: checkpoint10_reports_resetfix.tar (6123520 bytes)
+Archive SHA-256: 1325d127865bd4e50d29b482440247452c793a87888580846dbdb528290f3691
+Source: clean 08058590064e4925fa65265aa5ab7a197904f3fb (image manifest).
+Vivado 2026.1 / Ubuntu 24.04.5 / xc7a100tcsg324-1 / routed.
+Image and ROM hashes match the preceding 704f4a8 route.
+
+PASS: setup +0.392 ns, hold +0.030 ns, pulse +0.206 ns; no failing endpoints.
+PASS: no missing clocks, unconstrained internal endpoints or loops.
+PASS: all 55 assigned user pins/directions/standards match the preceding route.
+PASS: reported timing exception content matches the preceding route.
+PASS: ROM/cache/trace BRAM retained (84/135 tiles); CPU uses four DSPs.
+PASS: registered CPU reset found in synthesis and route (one FDCE).
+PASS: custom loader LUTAR-1 cleared; remaining LUTAR-1 is generated MIG.
+PASS: trace REQP-1839 absent; complete CDC rule totals and source families retained.
+OPEN: CPU/cache 4813 sites vs 3000; overage 1813 (60.4%). Full device fits.
+BLOCKER: two new REQP-1840 warnings on I-cache tags0/tags1 ENARDEN,
+         driven by asynchronous-reset CPU FDCE via inferred cooolgate enable nets.
+         Passing timing does not cover asynchronous RAM-control assertion.
+
+Next source clocks both CPU reset assertion and release; synthesis/route checkers
+require FDRE and reject the previous FDCE netlist. Preserve FIFO/MIG reset handling,
+constraints and diagnostic severities. Verify fresh route before programming.
+Physical serial execution/reset/retest and complete trace capture remain pending.
+Full uploaded timing/CDC/I/O reports remain in the raw archive; compact rule/source
+inventory and worst setup path are saved here with unmodified severities.

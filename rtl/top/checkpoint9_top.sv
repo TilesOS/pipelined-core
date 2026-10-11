@@ -42,12 +42,12 @@ module checkpoint9_top #(
     logic [31:0] external_write_addr [2];
     logic cpu_reset_n;
     if (REGISTER_CPU_RESET) begin : registered_cpu_reset
-        // cpu_run is synchronous to core_clk. Sample its loader-state decode
-        // before it reaches asynchronous reset pins; reset loss still asserts
-        // immediately through the locally synchronized master-release chain.
-        always_ff @(posedge core_clk or negedge masters_ready) begin
-            if (!masters_ready) cpu_reset_n <= 1'b0;
-            else cpu_reset_n <= cpu_run;
+        // Clock both assertion and release. Vivado can use this register to
+        // gate cache tag RAM enables, so it must have no asynchronous control.
+        // Link loss still aborts fabric/FIFOs asynchronously; core_release
+        // holds masters_ready low across core edges before allowing recovery.
+        always_ff @(posedge core_clk) begin
+            cpu_reset_n <= masters_ready && cpu_run;
         end
     end else begin : legacy_cpu_reset
         assign cpu_reset_n = masters_ready && cpu_run;

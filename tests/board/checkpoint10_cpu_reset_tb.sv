@@ -77,15 +77,27 @@ module checkpoint10_cpu_reset_tb;
         @(posedge core_clk); #1; check_reset(0);
         @(negedge core_clk); cpu_run = 1;
         @(posedge core_clk); #1; check_reset(1);
-        // Calibration loss resets the CPU immediately when masters_ready
-        // falls, and CPU release must wait for local master recovery.
+        // Even master loss between edges must leave RAM-related CPU reset
+        // stable until the next clock. Hold loss across an edge, as the real
+        // asynchronous-assert/two-stage-release link reset does.
+        @(negedge core_clk); #1;
+        force dut.masters_ready = 1'b0;
+        #1; check_reset(1);
+        @(posedge core_clk); #1; check_reset(0);
+        @(negedge core_clk); #1;
+        release dut.masters_ready;
+        #1; check_reset(0);
+        @(posedge core_clk); #1; check_reset(1);
+        // Real calibration loss aborts transport immediately. CPU reset is
+        // sampled on the next core edge and held until local master recovery.
         @(negedge core_clk); #1; calibrated = 0;
-        wait (!masters_ready); #1; check_reset(0);
+        wait (!masters_ready);
+        @(posedge core_clk); #1; check_reset(0);
         repeat (3) begin @(posedge core_clk); #1; check_reset(0); end
         calibrated = 1;
         wait (masters_ready); #1; check_reset(0);
         @(posedge core_clk); #1; check_reset(1);
-        $display("PASS: CPU reset rejects loader decode pulses, samples run changes and asserts on link loss");
+        $display("PASS: CPU reset rejects decode pulses, clocks assertion/release and recovers from link loss");
         $finish;
     end
     initial begin #10000; $fatal(1, "CPU reset test watchdog"); end

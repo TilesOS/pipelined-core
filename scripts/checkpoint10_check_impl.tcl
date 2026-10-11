@@ -13,6 +13,11 @@ foreach cell $cpu_reset_regs {puts $reset_report "$cell [get_property REF_NAME $
 close $reset_report
 puts "Registered CPU reset primitives: [llength $cpu_reset_regs]"
 if {[llength $cpu_reset_regs] == 0} {error "registered CPU reset is missing; verify fresh checkpoint 10 implementation"}
+foreach cell $cpu_reset_regs {
+    if {[get_property REF_NAME $cell] ne "FDRE"} {
+        error "CPU reset must use a clocked FDRE without asynchronous control; verify fresh checkpoint 10 implementation"
+    }
+}
 report_methodology -file [file join $report_dir methodology.rpt]
 report_timing_summary -delay_type min_max -max_paths 20 -file [file join $report_dir timing_summary.rpt]
 report_clocks -file [file join $report_dir clocks.rpt]

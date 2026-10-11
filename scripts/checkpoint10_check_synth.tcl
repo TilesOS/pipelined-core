@@ -27,6 +27,11 @@ foreach cell $cpu_reset_regs {puts $reset_report "$cell [get_property REF_NAME $
 close $reset_report
 puts "Registered CPU reset primitives: [llength $cpu_reset_regs]"
 if {[llength $cpu_reset_regs] == 0} {error "registered CPU reset is missing; verify fresh checkpoint 10 synthesis"}
+foreach cell $cpu_reset_regs {
+    if {[get_property REF_NAME $cell] ne "FDRE"} {
+        error "CPU reset must use a clocked FDRE without asynchronous control; verify fresh checkpoint 10 synthesis"
+    }
+}
 foreach cache {icache dcache} {
     set cache_ram [get_cells -hier -quiet -filter "REF_NAME =~ RAMB* && NAME =~ board/system/system/cpu/$cache/*"]
     puts "$cache block RAM primitives: [llength $cache_ram]"
