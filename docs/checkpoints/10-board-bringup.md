@@ -3,7 +3,7 @@
 Status: checkpoint 10's functional board gate is complete on 2026-10-11.
 First boot, CPU RESET retest, complete S-mode trace and post-trace reset recovery
 pass; the operator reports LEDs 0, 1 and 3 on. See
-[physical acceptance](#physical-board-acceptance-2026-10-11).
+[latest UART-fix acceptance](#uart-fix-physical-board-acceptance-2026-10-11).
 The fifth route at clean implementation source `5b74119`, retaining
 `74d26b9` synthesis/image, passes 50 MHz setup/hold/pulse timing
 (+0.308/+0.017/+0.206 ns). The targeted tag-RAM power-gating exclusion clears
@@ -14,9 +14,10 @@ The UART full-FIFO pop/write fix has a fresh route at clean `5e0fb45`:
 setup/hold/pulse +0.932/+0.024/+0.206 ns, 84/135 BRAM tiles and 4,513 CPU/cache
 sites. Image hashes, pin/clock/exception and CDC source-family review are
 retained; see [UART-fix route review](evidence/10-uart-fix-route/review.txt).
-Bitstream generation and physical functional validation of this updated RTL
-remain pending. Keep its current synthesized/routed design for programming;
-the documentation/evidence follow-up requires no rebuild.
+Physical boot/reset, UART/PLIC, complete trace and post-trace recovery also
+pass on this updated RTL. All reports/image identity match the reviewed route,
+and the operator confirms LEDs 0/1/3 on and 2 off. The documentation/evidence
+follow-up requires no rebuild.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -449,6 +450,31 @@ CPU/cache allocation remains exceeded by 1,710 slice sites (57.0%); retain that
 area review for Sv32 and accelerator growth. Checkpoint 9's proven project and
 bitstream remain separate. Sv32, production QSPI loading and Linux boot are
 later checkpoints.
+
+## UART-fix physical board acceptance, 2026-10-11
+
+The operator supplied `checkpoint10_uartfix_board_evidence.tar` after programming
+the UART full-FIFO pop/write fix. The clean implementation/image source is
+`5e0fb45`; all 20 reports and the image manifest byte-match the reviewed
+[UART-fix route](evidence/10-uart-fix-route/review.txt). The recorded bitstream
+SHA-256 is
+`cb7097546110f510456e53b436bc8a4467868c604f58183ee025b5ad42840155`.
+The archive contains the hash record, not the bitstream binary.
+
+First boot, CPU RESET retest and post-trace reset recovery each pass the ordered
+OpenSBI/S timer/PMP/UART RX/PLIC milestones. The three raw 2,598-byte captures
+are identical to each other and the earlier accepted console. The exact
+4,358-byte trace contains 256 S-mode retirement records in the same post-success
+loop, with zero cause/tval. Its instruction matches the hash-identical payload.
+The operator reports "LEDs match", confirming 0/1/3 on and 2 off. See
+[raw evidence and acceptance review](evidence/10-uart-fix-board-acceptance/review.txt).
+
+Functional board acceptance of the UART-fix build is complete. The exact FIFO
+collision has depth-1/depth-16 simulation coverage; the physical payload confirms
+the complete UART/PLIC/trace/reset paths through the updated build. Timing is
++0.932/+0.024/+0.206 ns, BRAM 84/135 and CPU/cache 4,513/3,000 sites; retain the
+area review. This evidence-only follow-up requires no new rebuild/reroute.
+The older source-specific physical evidence and checkpoint 9 project are retained.
 
 ## Separate source and Vivado projects
 

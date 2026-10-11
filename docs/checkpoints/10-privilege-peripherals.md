@@ -3,7 +3,8 @@
 Status: complete in RTL simulation on 2026-10-05 and on the Nexys A7-100T
 on 2026-10-11. Source-specific FPGA timing/resource review, physical OpenSBI,
 S-mode timer/PMP, UART RX/PLIC, CPU RESET retest, complete trace and post-trace
-reset recovery pass; see [board acceptance](10-board-bringup.md#physical-board-acceptance-2026-10-11).
+reset recovery pass, including the UART full-FIFO fix at `5e0fb45`; see
+[latest board acceptance](10-board-bringup.md#uart-fix-physical-board-acceptance-2026-10-11).
 The CPU/cache area review remains open. Sv32, Linux boot, production QSPI loading and
 UART recovery remain later gates; the original simulation starts directly in
 DDR firmware, while the board proof copies a test-image ROM into DDR.
@@ -188,11 +189,15 @@ and DRC rule counts are retained. CPU/cache area is 4,513/3,000 slices, with
 6,874 total device slices and 84/135 BRAM tiles. Both exact-source CI workflows
 pass. See [UART-fix route review](evidence/10-uart-fix-route/review.txt).
 
-This changes UART RTL. Bitstream generation and repeatable physical boot/reset,
-UART/PLIC, trace and recovery validation for `5e0fb45` remain pending. The
-archived physical acceptance remains scoped to implementation `5b74119` and
-its recorded bitstream. This evidence update changes no RTL or constraints;
-retain the current UART-fix synthesis, routed design and image for programming.
+Physical boot/reset, UART/PLIC, complete S-mode trace and post-trace recovery
+for `5e0fb45` now pass. All three boot captures are identical to the earlier
+accepted console sequence; the operator confirms LEDs 0/1/3 on and 2 off.
+Reports/image identity match the reviewed UART-fix route. The recorded new
+bitstream SHA-256 is
+`cb7097546110f510456e53b436bc8a4467868c604f58183ee025b5ad42840155`.
+See [UART-fix physical acceptance](evidence/10-uart-fix-board-acceptance/review.txt).
+Older physical acceptance remains scoped to its recorded source and bitstream.
+This evidence update changes no RTL or constraints and requires no rebuild.
 
 ## Integration with approved main, 2026-10-10
 

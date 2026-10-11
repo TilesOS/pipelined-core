@@ -45,6 +45,7 @@ Push CI: https://github.com/TilesOS/pipelined-core/actions/runs/38170452592
 Review permits bitstream generation and functional validation of this route.
 CPU/cache area review remains open. No RTL/firmware/constraint changes in this
 evidence update; retain the current synthesized/routed design and image.
-First boot, CPU RESET retest, complete S-mode trace, post-trace reset recovery,
-LED state and generated bitstream SHA-256 for this UART-fix build remain pending.
+At route review, first boot/reset/trace/recovery, LEDs and bitstream identity
+were pending. Subsequent physical validation now passes; see
+../10-uart-fix-board-acceptance/review.txt.
 The preceding physical board acceptance remains scoped to its older bitstream.

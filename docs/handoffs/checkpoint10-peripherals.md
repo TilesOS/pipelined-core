@@ -77,10 +77,15 @@ and retains image/pin/clock/exception and CDC source-family review. CPU/cache
 uses 4,513 sites (1,513 over allocation); total device use is 6,874 slices.
 Both exact-source CI workflows pass. See
 [route review](../checkpoints/evidence/10-uart-fix-route/review.txt).
-Bitstream generation and physical boot/reset/trace/recovery remain pending
-for this changed RTL; older physical acceptance stays scoped to its bitstream.
-Retain the current `5e0fb45` synthesis/routing/image; this evidence-only update
-requires no new rebuild or reroute.
+The UART-fix physical boot/reset/trace/recovery gate now passes too. All three
+2,598-byte boot captures are identical; the complete trace has 256 S-mode
+retires in the success loop. Operator confirms LEDs 0/1/3 on and 2 off. The
+recorded bitstream hash is
+`cb7097546110f510456e53b436bc8a4467868c604f58183ee025b5ad42840155`.
+Reports and image manifest byte-match the reviewed `5e0fb45` route; see
+[latest acceptance](../checkpoints/evidence/10-uart-fix-board-acceptance/review.txt).
+Older physical acceptance stays scoped to its bitstream. This evidence-only
+update requires no new rebuild or reroute; the checkpoint 9 project stays free.
 The firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
 `gcc-riscv64-linux-gnu`. The bare-metal Debian linker rejects PIE, so the cloud
 uses its GCC code generator with a local Linux BFD linker wrapper (documented
