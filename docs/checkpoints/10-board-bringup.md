@@ -1,12 +1,12 @@
 # Checkpoint 10 board bring-up
 
-Status: the fourth route at `74d26b9` passes 50 MHz setup/hold/pulse timing
-and confirms the clocked FDRE CPU reset, at 84/135 block RAM tiles. Two
-I-cache tag RAM enable warnings (REQP-1840) remain: implementation introduces
-power gating from the asynchronous master-release register. A targeted
-power-gating exclusion for these two RAMs needs a fresh implementation run
-before bitstream generation. RTL and firmware are unchanged. CPU/cache area
-is 4,507/3,000 sites; physical serial execution remains pending.
+Status: the fifth route at clean implementation source `5b74119`, retaining
+`74d26b9` synthesis/image, passes 50 MHz setup/hold/pulse timing
+(+0.308/+0.017/+0.206 ns). The targeted tag-RAM power-gating exclusion clears
+REQP-1839/1840; both tag enables now have only their registered RTL startpoint.
+FDRE CPU reset and 84/135 block RAM tiles are retained. The physical report
+review permits bitstream generation and functional board validation.
+CPU/cache area is 4,710/3,000 sites; that review and physical execution remain open.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -83,9 +83,8 @@ header separately describes the stored words and full DDR image words.
 Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
 These results establish the prepared target in simulation. Physical synthesis
-resource checks and later routes pass timing as recorded below; the latest
-RAM-control remediation still needs fresh routing, and physical execution
-remains pending.
+resource checks and the fifth route pass timing and RAM-control review as
+recorded below; physical execution remains pending.
 
 ## First physical synthesis and ROM capacity fix
 
@@ -354,6 +353,52 @@ already reads this Tcl constraint file as implementation-only/LATE before
 optimization, as confirmed by the operator's synthesis inspection transcript.
 Review new timing, the tag-enable fan-in, and DRC before generating a bitstream.
 
+## Fifth route: RAM controls cleared
+
+The operator's `checkpoint10_reports_tagpower.tar` records clean implementation
+source `5b74119793ba0520a208ee115d8fa0bf0820006e`. The retained synthesis reports
+and `74d26b9` image manifest match the fourth route exactly. The constraint-only
+reroute passes setup **+0.308 ns**, hold **+0.017 ns**, and pulse width
+**+0.206 ns**, with zero failing endpoints or negative totals. The worst setup
+path runs from execute instruction bit 0 to I-cache state bit 0: 19.360 ns
+data delay, 26 logic levels and eight CARRY4s. See the
+[fifth-route review](evidence/10-fifth-route/review.txt) and
+[summary](evidence/10-fifth-route/summary.txt).
+
+Both I-cache tag ENARDEN pins now have only
+`icache/ram_read_enable_q_reg/C` as their fan-in startpoint. The power report
+lists the two RAMs under user-gated BRAMs with the registered RTL read/write
+controls. **REQP-1839/1840 are absent**, and CPU reset remains FDRE. The targeted
+exclusion resolves the implementation-added asynchronous gating. Other
+optimizations remain active; no timing or severity waiver was introduced.
+Retained [tag controls](evidence/10-fifth-route/tag_ram_controls.txt),
+[BRAM power-report excerpt](evidence/10-fifth-route/power-opt-bram.txt) and
+[DRC](evidence/10-fifth-route/drc.rpt) document the result.
+
+Routed use is 22,667 LUTs, 12,147 registers, **7,334 total occupied slices**,
+84 BRAM tiles and five DSPs. ROM/cache/trace mapping remains unchanged, with
+four CPU DSPs. Unique CPU/cache use is **4,710 sites**, **1,710 (57.0%) above
+the unchanged 3,000 allocation**. The device fits; keep the area review open
+for Sv32 integration and before adding accelerator lanes.
+
+All 55 assigned user pins/directions/standards and timing exceptions match
+the fourth route. Timing coverage has no missing clocks, unconstrained internal
+endpoints or loops. The complete CDC inventory retains the same totals and
+source families: CDC-1 Critical 1,418 (111 B/983 R/324 W FIFO payload sources),
+CDC-15 Warning 381 (26 AR/26 AW/322 R/7 W), CDC-6 Warning 10 (Gray pointers),
+CDC-11 Critical 6 (registered link reset), and generated MIG CDC-3 Info 3/
+CDC-8 Warning 2. No additional source family appears. The existing stable
+payload/ownership, synchronized-pointer, 12 ns bounds and local reset-release
+review applies; severities are preserved. Asynchronous external port contracts
+and remaining DSP/MIG/methodology diagnostics are unchanged. The sole LUTAR-1
+remains generated MIG reset logic.
+
+This review permits generating a bitstream from the existing routed design.
+Keep the operator's current source/image/synthesis/implementation together;
+the evidence-only follow-up commit requires no rebuild or reroute. Physical
+UART/LED/reset/trace acceptance below is still pending. The unchanged RTL
+retains the privilege, legacy board and two-ratio full board simulation evidence.
+
 ## Separate source and Vivado projects
 
 In an Ubuntu terminal, create a dedicated source checkout. The clone command
@@ -432,11 +477,14 @@ report summarizer can inventory this directory when passed its explicit path.
 After route review, generate the bitstream and program FPGA SRAM over JTAG:
 
 ```tcl
+catch {close_design}
 launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
 ```
 
-Use Hardware Manager to program `checkpoint10_board_top.bit`. Find the same
+Use Hardware Manager to program
+`/home/tyler/checkpoint10_board/checkpoint10_board.runs/impl_1/checkpoint10_board_top.bit`.
+Find the same
 USB serial device used for checkpoint 9, close competing terminal programs,
 then start capture **before** pressing/releasing CPU RESET:
 
@@ -462,8 +510,23 @@ python3 scripts/decode_trace.py build/checkpoint10-board/trace.dat
 ```
 
 Press BTNC after the capture starts. A full oldest-first trace packet must
-decode, including S-mode retirement, and CPU RESET must restore console boot.
-Record the exact source commit, image manifest and bitstream SHA-256 with the
-synthesis/routed reports and both captures. The physical board gate remains
+decode, including S-mode retirement. Then capture CPU RESET recovery from
+diagnostic ownership and record the generated bitstream hash:
+
+```sh
+python3 scripts/capture_checkpoint10.py /dev/ttyUSB1 \
+    --output build/checkpoint10-board/uart-after-trace.dat
+sha256sum /home/tyler/checkpoint10_board/checkpoint10_board.runs/impl_1/checkpoint10_board_top.bit \
+    > build/checkpoint10-board/bitstream.sha256
+tar -czf /home/tyler/checkpoint10_board_evidence.tar.gz \
+    -C /home/tyler/checkpoint10_src/build/checkpoint10-board \
+    uart-first.dat uart-reset.dat trace.dat uart-after-trace.dat \
+    bitstream.sha256 image-manifest.json vivado-reports
+```
+
+Press/release CPU RESET when the post-trace capture says it is ready; it must
+report PASS again. Record the LED state and bitstream-generation console output.
+Retain implementation source identity, image manifest and bitstream SHA-256 with
+the synthesis/routed reports and all raw captures. The physical board gate remains
 pending until those measurements and repeatable serial results are reviewed.
 Sv32, Linux boot and production QSPI loading remain later checkpoints.

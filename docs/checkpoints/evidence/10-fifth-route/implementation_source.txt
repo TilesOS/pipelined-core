@@ -1,0 +1,3 @@
+Implementation source commit: 5b74119793ba0520a208ee115d8fa0bf0820006e
+Implementation source dirty: 0
+Image/synthesis source identity: see the retained image-manifest.json

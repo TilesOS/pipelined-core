@@ -124,12 +124,13 @@ AXI, zero-wait CPU and M/A/CSR gates pass. Saved compact output is in
 
 The [checkpoint 10 board target](10-board-bringup.md) now provides UART pin
 ownership, a readback-verified DDR test-image loader and a serial RX/PLIC
-payload. The fourth route at `74d26b9` fits at 84/135 BRAM tiles, passes
-50 MHz timing (+0.127 ns setup) and confirms FDRE CPU reset. Two I-cache
-tag RAM warnings remain because implementation adds asynchronous master-release
-power gating. A targeted per-cell exclusion needs fresh implementation;
-RTL is unchanged. CPU/cache area is 4,507 sites against 3,000; physical
-execution remains pending.
+payload. The fifth route at implementation `5b74119`, retaining `74d26b9`
+synthesis/image, fits at 84/135 BRAM tiles, passes 50 MHz timing
+(+0.308/+0.017/+0.206 ns) and confirms FDRE CPU reset. The targeted per-cell
+power-gating exclusion clears the RAM warnings; both tag enables use only
+their registered RTL startpoint. Pin/exception and CDC inventory review passes.
+RTL is unchanged. CPU/cache area is 4,710 sites against 3,000; bitstream and
+physical UART/LED/reset/trace execution remain pending.
 Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.

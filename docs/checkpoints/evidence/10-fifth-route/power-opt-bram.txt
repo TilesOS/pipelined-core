@@ -1,0 +1,176 @@
+Excerpt of power_opt.rpt through BRAM enable rows; complete report retained in uploaded archive.
+
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version     : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date             : Sun Oct 11 03:41:08 2026
+| Host             : B850M-Riptide-WiFi running 64-bit Ubuntu 24.04.5 LTS
+| Command          : report_power_opt -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/power_opt.rpt
+| Design           : checkpoint10_board_top
+| Device           : xc7a100tcsg324-1
+| Design State     : Routed
+| Grade            : commercial
+| Process          : typical
+| Characterization : Production
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Power optimization report
+
+Table of Contents
+-----------------
+1. Summary
+2. Recommendations
+3. Hierarchical Information
+3.1 BRAMs
+3.1.1 User Gated BRAMs
+3.1.2 Tool Gated BRAMs
+3.1.3 BRAM WRITE_MODE Optimizations
+3.2 SRLs
+3.2.1 User Gated SRLs
+3.2.2 Tool Gated SRLs
+3.3 Slice Registers
+3.3.1 User Gated Slice Registers
+3.3.2 Tool Gated Slice Registers
+3.4 XPM URAMs
+
+1. Summary
+----------
+
++---------------------------+-------+------------+------------+----------------+
+| Elements                  | TOTAL | USER GATED | TOOL GATED | % GATED(Total) |
++---------------------------+-------+------------+------------+----------------+
+| Number of BRAMs           | 86    | 76         | 10         | 100.000        |
+| Number of SRLs            | 175   | 159        | 0          | 90.857         |
+| Number of Slice Registers | 12135 | 7416       | 0          | 61.112         |
+| Number of XPM URAMs       | 0     | 0          | 0          | 0.000          |
+| BRAM write mode changes   | 172   | 0          | 0          | 0.000          |
++---------------------------+-------+------------+------------+----------------+
+
+
+2. Recommendations
+------------------
+
+No specific recommendations for this design.
+
+3. Hierarchical Information
+---------------------------
+
+3.1 BRAMs
+---------
+
+3.1.1 User Gated BRAMs
+----------------------
+
++--------------------------------------------+---------+--------------------------------------------------+
+| Cell Name                                  | CE Port | CE Net Name                                      |
++--------------------------------------------+---------+--------------------------------------------------+
+| board/loader/rom_word_reg_0                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_1                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_2                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_3                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_4                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_5                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_6                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_7                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_8                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_9                | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_10               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_11               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_12               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_13               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_14               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_15               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_16               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_17               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_18               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_19               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_20               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_21               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_22               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_23               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_24               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_25               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_26               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_27               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_28               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_29               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_30               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_31               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_32               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_33               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_34               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_35               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_36               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_37               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_38               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_39               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_40               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_41               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_42               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_43               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_44               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_45               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_46               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_47               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_48               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_49               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_50               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_51               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_52               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_53               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_54               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_55               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_56               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_57               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_58               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_59               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_60               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_61               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_62               | ENBWREN | board/loader/<const0>                            |
+| board/loader/rom_word_reg_63               | ENBWREN | board/loader/<const0>                            |
+| board/system/system/cpu/dcache/data0_reg_0 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data0_reg_1 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data0_reg_2 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data0_reg_3 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data1_reg_0 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data1_reg_1 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data1_reg_2 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/data1_reg_3 | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/tags0_reg   | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/tags0_reg   | ENBWREN | board/system/system/cpu/dcache/ram_write_way_q   |
+| board/system/system/cpu/dcache/tags1_reg   | ENARDEN | board/system/system/cpu/dcache/ram_read_enable_q |
+| board/system/system/cpu/dcache/tags1_reg   | ENBWREN | board/system/system/cpu/dcache/ram_write_way_q   |
+| board/system/system/cpu/icache/tags0_reg   | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q |
+| board/system/system/cpu/icache/tags0_reg   | ENBWREN | board/system/system/cpu/icache/ram_write_way_q   |
+| board/system/system/cpu/icache/tags1_reg   | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q |
+| board/system/system/cpu/icache/tags1_reg   | ENBWREN | board/system/system/cpu/icache/ram_write_way_q   |
++--------------------------------------------+---------+--------------------------------------------------+
+
+
+3.1.2 Tool Gated BRAMs
+----------------------
+
++---------------------------------------------+---------+-----------------------------------------------------------------------+
+| Cell Name                                   | CE Port | CE Net Name                                                           |
++---------------------------------------------+---------+-----------------------------------------------------------------------+
+| board/system/system/cpu/icache/data0_reg_0  | ENBWREN | board/system/system/cpu/icache/data0_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data0_reg_0  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data0_reg_1  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data0_reg_1  | ENBWREN | board/system/system/cpu/icache/data0_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data0_reg_2  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data0_reg_2  | ENBWREN | board/system/system/cpu/icache/data0_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data0_reg_3  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data0_reg_3  | ENBWREN | board/system/system/cpu/icache/data0_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data1_reg_0  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data1_reg_0  | ENBWREN | board/system/system/cpu/icache/data1_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data1_reg_1  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data1_reg_1  | ENBWREN | board/system/system/cpu/icache/data1_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data1_reg_2  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data1_reg_2  | ENBWREN | board/system/system/cpu/icache/data1_reg_0_i_1_n_0                    |
+| board/system/system/cpu/icache/data1_reg_3  | ENARDEN | board/system/system/cpu/icache/ram_read_enable_q                      |
+| board/system/system/cpu/icache/data1_reg_3  | ENBWREN | board/system/system/cpu/icache/data1_reg_3_ENBWREN_cooolgate_en_sig_1 |
+| board/system/system/cpu/trace/entries_reg_0 | ENARDEN | board/system/system/cpu/trace/ram_read_enable_q                       |
+| board/system/system/cpu/trace/entries_reg_0 | ENBWREN | board/system/system/cpu/trace/ram_write_enable_q                      |
+| board/system/system/cpu/trace/entries_reg_1 | ENARDEN | board/system/system/cpu/trace/ram_read_enable_q                       |
+| board/system/system/cpu/trace/entries_reg_1 | ENBWREN | board/system/system/cpu/trace/ram_write_enable_q                      |
++---------------------------------------------+---------+-----------------------------------------------------------------------+

@@ -110,9 +110,19 @@ in the checkpoint record). Build products remain ignored under `build/`.
    DRC guards pass; see [power-gating evidence](../checkpoints/evidence/10-tag-ram-power-gating.txt).
    The checker saves tag-enable fan-in/power reports and rejects remaining
    REQP-1839/1840. CPU/cache area is 4,507 sites (1,507 over allocation).
-   Keep current synthesis and rerun only implementation for this update,
-   then review timing/RAM/CDC/DRC before a bitstream. Physical execution
-   remains pending.
+   The fifth route at clean implementation `5b74119`, retaining `74d26b9`
+   synthesis/image, passes timing (+0.308/+0.017/+0.206 ns). Both tag enables
+   now have only the registered RTL read-enable startpoint; REQP-1839/1840
+   are absent. All 55 pins, timing exceptions, image and synthesis reports
+   match the fourth route. CDC totals/source families and remaining DSP/MIG
+   diagnostics are retained; no new crossing family. CPU/cache now uses
+   4,710 sites (1,710 over allocation); total device use is 7,334 slices.
+   See [fifth-route review](../checkpoints/evidence/10-fifth-route/review.txt).
+   Generate the bitstream from this existing routed design, program only
+   the checkpoint 10 project, then capture first boot, CPU RESET retest,
+   full S-mode trace and post-trace CPU RESET recovery with LED state and
+   bitstream hash. The evidence-only follow-up requires no rebuild/reroute.
+   Physical execution remains pending; keep the area review open.
    The operator
    controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted

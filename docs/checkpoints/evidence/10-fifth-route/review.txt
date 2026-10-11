@@ -1,0 +1,37 @@
+Checkpoint 10 fifth physical route review, 2026-10-11
+Uploaded archive: checkpoint10_reports_tagpower.tar (10362880 bytes)
+Archive SHA-256: db45b6c1e45ce9281ee11288756a7318575dd94e8a644a2f0d0f5f6e73a84dce
+Implementation source: clean 5b74119793ba0520a208ee115d8fa0bf0820006e.
+Retained synthesis/image source: clean 74d26b9a0e0abac3d3b7931a72393bc289b9bfdc.
+Vivado 2026.1 / Ubuntu 24.04.5 / xc7a100tcsg324-1 / fully routed.
+Firmware/payload/image/ROM hashes and retained synthesis reports match fourth route.
+
+PASS: setup +0.308 ns, hold +0.017 ns, pulse +0.206 ns; zero failing endpoints/negative totals.
+PASS: both tag RAM ENARDEN fan-ins contain only icache/ram_read_enable_q_reg/C.
+PASS: power report lists both tag RAMs as user gated, read/write by registered RTL controls.
+PASS: REQP-1839/1840 absent; no DRC errors or custom loader LUTAR-1.
+PASS: CPU reset register remains FDRE. Remaining LUTAR-1 is generated MIG reset logic.
+PASS: all 55 assigned pins/directions/standards and timing exceptions match fourth route.
+PASS: no missing clocks, unconstrained internal endpoints or loops.
+PASS: ROM/cache/trace mapping retained; 84/135 BRAM tiles; CPU four DSPs.
+PASS: complete CDC totals/source families retained; no OTHER or incomplete inventory.
+      CDC-1 Critical 1418 = B 111 / R 983 / W 324 payload sources.
+      CDC-15 Warning 381 = AR 26 / AW 26 / R 322 / W 7 payload sources.
+      CDC-6 Warning 10 = both Gray-pointer directions across five FIFOs.
+      CDC-11 Critical 6 = registered link-reset fanout; CDC-3 Info 3 / CDC-8 Warning 2 = MIG.
+      Reviewed checkpoint 9 stable-payload ownership, two-flop Gray synchronizers,
+      12 ns bounds and local reset/release contract still apply; severities preserved.
+      Asynchronous physical RX/button/reset and LED/TX port contracts unchanged.
+      Other DRC/methodology inventory matches fourth route; no new rule family.
+OPEN: CPU/cache 4710 sites vs 3000; overage 1710 (57.0%). Device 7334/15850 slices.
+      LUT 22667, registers 12147, RAMB36 82 + RAMB18 4, DSP 5 (CPU 4 + UART 1).
+Worst setup: execute instruction bit 0 -> I-cache state bit 0;
+             data delay 19.360 ns, 26 logic levels (8 CARRY4).
+
+Physical timing/RAM-control review permits bitstream generation and functional
+board validation with the area review retained. No RTL/firmware changes in this
+update: existing clocked-reset privilege/legacy/two-ratio board simulations apply.
+No timing relaxation, diagnostic suppression or checkpoint 9 project change.
+Physical bitstream generation, OpenSBI/S timer/PMP/UART RX/PLIC, CPU RESET retest,
+LED state, complete S-mode trace and post-trace console recovery remain pending.
+Save bitstream SHA-256 with these source identities and raw physical captures.
