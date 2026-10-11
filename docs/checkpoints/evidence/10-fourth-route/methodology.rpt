@@ -1,0 +1,693 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct 11 03:19:45 2026
+| Host         : B850M-Riptide-WiFi running 64-bit Ubuntu 24.04.5 LTS
+| Command      : report_methodology -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/methodology.rpt
+| Design       : checkpoint10_board_top
+| Device       : xc7a100tcsg324-1
+| Speed File   : -1
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Methodology
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 126
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| Rule      | Severity | Description                                                                                           | Checks |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+| DPIR-1    | Warning  | Asynchronous driver check                                                                             | 1      |
+| LUTAR-1   | Warning  | LUT drives async reset alert                                                                          | 1      |
+| PDRC-190  | Warning  | Suboptimally placed synchronized register chain                                                       | 12     |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal                                                            | 86     |
+| SYNTH-10  | Warning  | Wide multiplier                                                                                       | 4      |
+| TIMING-9  | Warning  | Unknown CDC Logic                                                                                     | 1      |
+| TIMING-47 | Warning  | False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks | 2      |
+| XDCB-5    | Warning  | Runtime inefficient way to find pin objects                                                           | 1      |
+| XDCC-1    | Warning  | Scoped Clock constraint overwritten with the same name                                                | 1      |
+| XDCC-7    | Warning  | Scoped Clock constraint overwritten on the same source                                                | 1      |
+| REQP-1959 | Advisory | connects_SERDES_RST_driver_not_FF                                                                     | 16     |
++-----------+----------+-------------------------------------------------------------------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+DPIR-1#1 Warning
+Asynchronous driver check
+DSP board/system/mmio/device_2/timeout_cycles0 input pin board/system/mmio/device_2/timeout_cycles0/A[19] is connected to registers with an asynchronous reset. This is preventing the possibility of merging these registers in to the DSP Block since the DSP block registers only possess synchronous reset capability.  It is suggested to recode or change these registers to remove the reset or use a synchronous reset to get the best optimization for performance, power and area.
+Related violations: <none>
+
+LUTAR-1#1 Warning
+LUT drives async reset alert
+LUT cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_iodelay_ctrl/rstdiv2_sync_r[11]_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__0/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__1/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__10/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__11/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__12/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__13/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__14/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__2/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__3/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__4/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__5/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__6/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__7/PRE,
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/rstdiv0_sync_r1_reg_rep__8/PRE
+ (the first 15 of 28 listed). The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+PDRC-190#1 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[0] in site SLICE_X34Y118 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[0] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#2 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[10] in site SLICE_X33Y118 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[10] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#3 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[11] in site SLICE_X34Y121 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[11] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#4 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[1] in site SLICE_X33Y126 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[1] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#5 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[2] in site SLICE_X35Y119 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[2] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#6 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[3] in site SLICE_X37Y120 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[3] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#7 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[4] in site SLICE_X35Y121 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[4] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#8 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[5] in site SLICE_X36Y118 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[5] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#9 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[6] in site SLICE_X33Y120 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[6] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#10 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[7] in site SLICE_X32Y119 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[7] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#11 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[8] in site SLICE_X30Y119 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[8] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+PDRC-190#12 Warning
+Suboptimally placed synchronized register chain
+The FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_sync_r5_reg[9] in site SLICE_X36Y123 is part of a synchronized register chain that is suboptimally placed as the load FDRE cell mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/temp_mon_enabled.u_tempmon/device_temp_r_reg[9] is not placed in the same (SLICE) site.
+Related violations: <none>
+
+SYNTH-6#1 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#2 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#3 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_10, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#4 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_11, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#5 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_12, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#6 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_13, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#7 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_14, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#8 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_15, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#9 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_16, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#10 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_17, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#11 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_18, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#12 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_19, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#13 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#14 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_20, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#15 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_21, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#16 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_22, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#17 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_23, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#18 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_24, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#19 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_25, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#20 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_26, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#21 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_27, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#22 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_28, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#23 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_29, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#24 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#25 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_30, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#26 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_31, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#27 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_32, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#28 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_33, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#29 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_34, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#30 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_35, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#31 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_36, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#32 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_37, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#33 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_38, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#34 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_39, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#35 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_4, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#36 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_40, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#37 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_41, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#38 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_42, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#39 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_43, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#40 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_44, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#41 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_45, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#42 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_46, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#43 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_47, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#44 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_48, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#45 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_49, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#46 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_5, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#47 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_50, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#48 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_51, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#49 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_52, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#50 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_53, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#51 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_54, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#52 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_55, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#53 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_56, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#54 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_57, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#55 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_58, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#56 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_59, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#57 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_6, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#58 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_60, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#59 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_61, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#60 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_62, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#61 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_63, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#62 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_7, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#63 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_8, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#64 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/loader/rom_word_reg_9, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#65 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data0_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#66 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data0_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#67 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data0_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#68 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data0_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#69 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data1_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#70 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data1_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#71 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data1_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#72 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/data1_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#73 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/tags0_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#74 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/dcache/tags1_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#75 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data0_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#76 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data0_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#77 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data0_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#78 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data0_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#79 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data1_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#80 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data1_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#81 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data1_reg_2, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#82 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/data1_reg_3, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#83 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/tags0_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#84 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/icache/tags1_reg, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#85 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/trace/entries_reg_0, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-6#86 Warning
+Timing of a RAM block might be sub-optimal
+The timing for the instance board/system/system/cpu/trace/entries_reg_1, implemented as a RAM block, might be sub-optimal as no output register was merged into the block.
+Related violations: <none>
+
+SYNTH-10#1 Warning
+Wide multiplier
+Detected multiplier at board/system/system/cpu/core/mul_uu of size 16x18, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#2 Warning
+Wide multiplier
+Detected multiplier at board/system/system/cpu/core/mul_uu__0 of size 16x16, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#3 Warning
+Wide multiplier
+Detected multiplier at board/system/system/cpu/core/mul_uu__1 of size 18x18, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+SYNTH-10#4 Warning
+Wide multiplier
+Detected multiplier at board/system/system/cpu/core/mul_uu__2 of size 18x16, it is decomposed from a wide multipler into 4 DSP blocks.
+Related violations: <none>
+
+TIMING-9#1 Warning
+Unknown CDC Logic
+One or more asynchronous Clock Domain Crossing has been detected between 2 clock domains through a set_false_path or a set_clock_groups or set_max_delay -datapath_only constraint but no double-registers logic synchronizer has been found on the side of the capture clock. It is recommended to run report_cdc for a complete and detailed CDC coverage. Please consider using XPM_CDC to avoid Critical severities
+Related violations: <none>
+
+TIMING-47#1 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks
+A Max Delay Datapath Only timing constraint is set between synchronous clocks clk50_unbuffered and clk_pll_i (see constraint position 13 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+
+TIMING-47#2 Warning
+False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks
+A Max Delay Datapath Only timing constraint is set between synchronous clocks clk_pll_i and clk50_unbuffered (see constraint position 14 in the Timing Constraint window in Vivado IDE). Masking entire synchronous clock domains via  set_false_path, set_clock_groups or set_max_delay -datapath_only may result in failure in hardware.
+Related violations: <none>
+
+XDCB-5#1 Warning
+Runtime inefficient way to find pin objects
+The option '-to : [get_pins -hier -include_replicated_objects -filter {NAME =~ *temp_mon_enabled.u_tempmon/device_temp_sync_r1_reg[*]/D}]' of constraint 'set_max_delay' uses inefficient query to find pin objects (see constraint position '7' in the Timing Constraint window in Vivado IDE). To reduce runtime, it is recommended to get the pins through the cell objects. Please refer to Using Constraints Guide (Constraints Efficiency). An example of optimal query is: get_pins -filter {REF_PIN_NAME=~yy*} -of_objects [get_cells -hierarchical xx*].
+Current XDC: /home/tyler/checkpoint10_board/checkpoint10_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc (Line: 361)
+Related violations: <none>
+
+XDCC-1#1 Warning
+Scoped Clock constraint overwritten with the same name
+A new clock constraint create_generated_clock overrides a previous scoped clock constraint with the same name. It is not recommended to override a scoped (typically an IP) clock constraint and could result in unexpected behaviors.
+New: create_generated_clock -name mig/ddr_probe_i/mig_7series_0/sys_clk_i -source [get_ports sys_clk_i] -combinational [get_pins -quiet mig/ddr_probe_i/mig_7series_0/sys_clk_i] (Source: /home/tyler/checkpoint10_src/constraints/checkpoint10_cdc.xdc (Line: 9))
+Previous: create_clock -period 10.000 [get_ports -scoped_to_current_instance sys_clk_i] (Source: /home/tyler/checkpoint10_board/checkpoint10_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc (Line: 30))
+Related violations: <none>
+
+XDCC-7#1 Warning
+Scoped Clock constraint overwritten on the same source
+A new clock constraint create_generated_clock overrides a previous scoped clock constraint defined on the same source. It is not recommended to override a scoped (typically an IP) clock constraint and could result in unexpected behaviors.
+New: create_generated_clock -name mig/ddr_probe_i/mig_7series_0/sys_clk_i -source [get_ports sys_clk_i] -combinational [get_pins -quiet mig/ddr_probe_i/mig_7series_0/sys_clk_i] (Source: /home/tyler/checkpoint10_src/constraints/checkpoint10_cdc.xdc (Line: 9))
+Previous: create_clock -period 10.000 [get_ports -scoped_to_current_instance sys_clk_i] (Source: /home/tyler/checkpoint10_board/checkpoint10_board.gen/sources_1/bd/ddr_probe/ip/ddr_probe_mig_7series_0_0/ddr_probe_mig_7series_0_0/user_design/constraints/ddr_probe_mig_7series_0_0.xdc (Line: 30))
+Related violations: <none>
+
+REQP-1959#1 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[1].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#2 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[3].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#3 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[4].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#4 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[5].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#5 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[6].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#6 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[7].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#7 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[8].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#8 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/ddr_byte_group_io/input_[9].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#9 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[0].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#10 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[1].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#11 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[2].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#12 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[4].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#13 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[5].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#14 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[6].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#15 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[7].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>
+
+REQP-1959#16 Advisory
+connects_SERDES_RST_driver_not_FF
+mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/ddr_byte_group_io/input_[8].iserdes_dq_.iserdesdq: The RST pin should only be driven by a Flip-flop.
+Related violations: <none>

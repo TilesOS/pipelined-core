@@ -1,0 +1,1 @@
+board/system/system/registered_cpu_reset.cpu_reset_n_reg FDRE

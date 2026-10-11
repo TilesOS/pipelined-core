@@ -1,6 +1,11 @@
 set repo_root [file normalize [file join [file dirname [info script]] ..]]
 set report_dir [file join $repo_root build checkpoint10-board vivado-reports]
 file mkdir $report_dir
+set source_state [open [file join $report_dir implementation_source.txt] w]
+puts $source_state "Implementation source commit: [exec git -C $repo_root rev-parse HEAD]"
+puts $source_state "Implementation source dirty: [expr {[string trim [exec git -C $repo_root status --porcelain]] ne {}}]"
+puts $source_state "Image/synthesis source identity: see the retained image-manifest.json"
+close $source_state
 open_run impl_1
 report_io -file [file join $report_dir io.rpt]
 if {[get_property PACKAGE_PIN [get_ports sys_clk_i]] ne "E3" ||
@@ -34,6 +39,28 @@ puts "CPU/cache occupied slice sites: [llength $cpu_slice_sites] (budget 3000)"
 report_exceptions -file [file join $report_dir exceptions.rpt]
 report_cdc -details -file [file join $report_dir cdc.rpt]
 report_drc -file [file join $report_dir drc.rpt]
+if {[catch {report_power_opt -file [file join $report_dir power_opt.rpt]} power_report_error]} {
+    set power_report [open [file join $report_dir power_opt.rpt] w]
+    puts $power_report "Power optimization report unavailable: $power_report_error"
+    close $power_report
+}
+set tag_controls [open [file join $report_dir tag_ram_controls.txt] w]
+set tag_enable_pins [get_pins -hier -quiet -filter {NAME =~ board/system/system/cpu/icache/tags*_reg/ENARDEN}]
+if {[llength $tag_enable_pins] != 2} {
+    close $tag_controls
+    error "checkpoint 10 expects two I-cache tag RAM enable pins for control review"
+}
+foreach pin $tag_enable_pins {
+    puts $tag_controls $pin
+    puts $tag_controls "STARTPOINTS: [all_fanin -flat -startpoints_only -to $pin]"
+}
+close $tag_controls
 puts "Checkpoint 10 implementation reports: $report_dir"
 check_timing -verbose -file [file join $report_dir check_timing.rpt]
 puts "Review new UART/button crossings and the loader ROM controls with the preserved FIFO/MIG diagnostics."
+set drc_file [open [file join $report_dir drc.rpt] r]
+set drc_text [read $drc_file]
+close $drc_file
+if {[regexp -line {^REQP-18(39|40)#[0-9]+\s} $drc_text]} {
+    error "RAM asynchronous-control warnings remain; review drc.rpt and tag_ram_controls.txt before a bitstream"
+}

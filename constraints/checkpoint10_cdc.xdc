@@ -22,3 +22,13 @@ if {[llength $checkpoint10_core_clk] != 1 || [llength $checkpoint10_ui_clk] != 1
 }
 set_max_delay 12.000 -datapath_only -from $checkpoint10_core_clk -to $checkpoint10_ui_clk
 set_max_delay 12.000 -datapath_only -from $checkpoint10_ui_clk -to $checkpoint10_core_clk
+
+# opt_design's BRAM power gating can use the asynchronously asserted master
+# release to gate these tag RAMs, bypassing their reset-free RTL enable stage
+# (REQP-1840). Preserve the inferred clocked enables by excluding only the
+# two affected primitives from power gating. Other optimizations still run.
+set checkpoint10_tag_rams [get_cells -hier -quiet -filter {REF_NAME =~ RAMB18* && NAME =~ board/system/system/cpu/icache/tags*_reg}]
+if {[llength $checkpoint10_tag_rams] != 2} {
+    error "checkpoint 10 expects two I-cache tag RAM primitives for power-gating exclusion"
+}
+set_power_opt -exclude_cells $checkpoint10_tag_rams

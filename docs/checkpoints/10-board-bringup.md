@@ -1,12 +1,12 @@
 # Checkpoint 10 board bring-up
 
-Status: the third route at `0805859` passes 50 MHz setup/hold/pulse timing
-and clears the loader-driven LUTAR-1, at 84/135 block RAM tiles. It exposes
-two I-cache tag RAM enable warnings (REQP-1840) driven by the asynchronous
-CPU reset register. CPU reset assertion/release now use only the core clock;
-fresh synthesis/routing must confirm an FDRE and clear these warnings before
-bitstream generation. CPU/cache area is 4,813/3,000 sites; physical serial
-execution remains pending.
+Status: the fourth route at `74d26b9` passes 50 MHz setup/hold/pulse timing
+and confirms the clocked FDRE CPU reset, at 84/135 block RAM tiles. Two
+I-cache tag RAM enable warnings (REQP-1840) remain: implementation introduces
+power gating from the asynchronous master-release register. A targeted
+power-gating exclusion for these two RAMs needs a fresh implementation run
+before bitstream generation. RTL and firmware are unchanged. CPU/cache area
+is 4,507/3,000 sites; physical serial execution remains pending.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -286,6 +286,73 @@ reject the previous FDCE netlist. Rerun synthesis and routing, then review the
 fresh reports for no custom RAM asynchronous-control warnings, continued
 timing/BRAM mapping, and unchanged I/O/CDC contracts. The measured timing at
 `0805859` applies to that source, not this subsequent clocked-assertion change.
+
+## Fourth route and tag RAM power-gating exclusion
+
+The operator's `checkpoint10_reports_clockreset.tar` identifies clean source
+`74d26b9a0e0abac3d3b7931a72393bc289b9bfdc`. Firmware/payload/ROM/image hashes
+match all preceding routes. Setup WNS is **+0.127 ns**, hold WHS **+0.021 ns**,
+and pulse-width slack **+0.206 ns**, with no failing endpoints. Worst setup
+is execute instruction bit 1 to I-cache state bit 3, with 19.608 ns data delay
+and 25 logic levels. Total use is 22,634 LUTs, 12,147 registers, **6,878 slices**,
+84 BRAM tiles and five DSPs. ROM/cache/trace mapping and four CPU DSPs are
+retained. CPU/cache occupies **4,507 sites**, **1,507 (50.2%) above allocation**;
+the area review remains open. See [fourth-route evidence](evidence/10-fourth-route/summary.txt).
+
+Both synthesis and route inventories now report one FDRE CPU reset register.
+The loader LUTAR-1 remains cleared; the sole LUTAR-1 is generated MIG. However,
+the two I-cache tag ENARDEN REQP-1840 warnings now identify
+`board/system/system/bus/core_release_reg[1]` as their asynchronous driver.
+The clocked CPU reset fix did not clear the RAM control issue.
+
+The operator compared `all_fanin -flat -startpoints_only` for both tag RAM
+ENARDEN pins in synthesis and implementation. Synthesis has only
+`icache/ram_read_enable_q_reg/C`, the intended reset-free clocked enable.
+Implementation adds loader state, I-cache state, CPU reset, and asynchronous
+master-release startpoints through `cooolgate_en` nets. This confirms the
+unsafe extra gating is introduced after synthesis. Retained
+[fan-in comparison](evidence/10-fourth-route/tag-enable-fanin.txt) records the
+reported endpoint lists. The fabric's asynchronous abort/release chain must
+remain intact; further upstream reset changes would not address this gating.
+
+The implementation-only `checkpoint10_cdc.xdc` now selects exactly
+`icache/tags0_reg` and `icache/tags1_reg` RAMB18 primitives and applies
+`set_power_opt -exclude_cells` to them. This command excludes selected BRAMs
+from the intelligent enable gating performed by default `opt_design` as well
+as `power_opt_design`; other cell optimizations continue. The selector rejects
+a missing/partial pair. Clock roots, both 12 ns CDC bounds, pins, reset RTL,
+firmware, and diagnostic severities are unchanged. Vivado command help
+documents this per-cell exclusion; see the pinned
+[opt_design](https://github.com/Gladtbam/vivado-completion/blob/1224c83da6ad637d162188741cea26070bab4581/data/commands/opt_design/en.md)
+and [set_power_opt](https://github.com/Gladtbam/vivado-completion/blob/1224c83da6ad637d162188741cea26070bab4581/data/commands/set_power_opt/en.md)
+help snapshots. Actual effect still requires new Vivado evidence.
+
+The implementation checker now saves the current Git source identity in
+`implementation_source.txt`, plus `power_opt.rpt` and `tag_ram_controls.txt`;
+it rejects any remaining REQP-1839/1840 detail findings
+after writing timing/CDC/DRC reports. Tcl fixture checks select only the two
+I-cache RAMs, reject zero/one match, preserve both 12 ns bounds, accept the
+second-route DRC inventory, and reject the first/fourth-route RAM warnings.
+The previous two-ratio board and privilege/legacy simulation results apply
+to the unchanged RTL. See [constraint/guard validation](evidence/10-tag-ram-power-gating.txt).
+
+All 55 user pin assignments and reported timing exceptions match the third
+route. The complete CDC inventory has unchanged totals and source families:
+CDC-1 Critical 1,418 (175 B/919 R/324 W FIFO payloads), CDC-15 Warning 381,
+CDC-6 Warning 10, CDC-11 Critical 6, and generated MIG CDC-3 Info 3/CDC-8
+Warning 2. Inherited methodology/DSP/MIG guidance and asynchronous external
+port contracts are retained. There are no missing clocks, unconstrained
+internal endpoints or loops. No constraint or severity waiver is added.
+
+For this constraint-only update, pull the branch and retain the existing
+firmware/ROM and `image-manifest.json`. The image manifest records the
+unchanged `74d26b9` synthesis/image source, while `implementation_source.txt`
+records the new constraint/checker commit and dirty status. Keep the existing
+`synth_1` result, close the open design, reset **only `impl_1`**, rerun through
+`route_design`, and source the implementation checker. The existing project
+already reads this Tcl constraint file as implementation-only/LATE before
+optimization, as confirmed by the operator's synthesis inspection transcript.
+Review new timing, the tag-enable fan-in, and DRC before generating a bitstream.
 
 ## Separate source and Vivado projects
 

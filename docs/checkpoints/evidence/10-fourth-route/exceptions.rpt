@@ -1,0 +1,37 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct 11 03:19:49 2026
+| Host         : B850M-Riptide-WiFi running 64-bit Ubuntu 24.04.5 LTS
+| Command      : report_exceptions -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/exceptions.rpt
+| Design       : checkpoint10_board_top
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Exceptions Report
+
+Position  From                                                                              Through                                                                           To                                                                                Setup            Hold             Status
+--------  --------------------------------------------------------------------------------  --------------------------------------------------------------------------------  --------------------------------------------------------------------------------  ---------------  ---------------  -----------------
+2         [get_cells -hier -filter {NAME =~ */mc0/mc_read_idle_r_reg}]                      *                                                                                 [get_cells -hier -filter {NAME =~ */input_[?].iserdes_dq_.iserdesdq}]             cycles=6         -
+3         [get_cells -hier -filter {NAME =~ */mc0/mc_read_idle_r_reg}]                      *                                                                                 [get_cells -hier -filter {NAME =~ */input_[?].iserdes_dq_.iserdesdq}]             -                cycles=5
+4         *                                                                                 [get_pins -filter {NAME =~ */DQSFOUND} -of [get_cells -hier -filter {REF_NAME ==  *                                                                                 false            false
+                                                                                             PHASER_IN_PHY}]]
+5         *                                                                                 [get_pins -filter {NAME =~ */OSERDESRST} -of [get_cells -hier -filter {REF_NAME   *                                                                                 cycles=2(start)  -
+                                                                                            == PHASER_OUT_PHY}]]
+6         *                                                                                 [get_pins -filter {NAME =~ */OSERDESRST} -of [get_cells -hier -filter {REF_NAME   *                                                                                 -                cycles=1(start)
+                                                                                            == PHASER_OUT_PHY}]]
+7         *                                                                                 *                                                                                 [get_pins -hier -include_replicated_objects -filter {NAME =~ *temp_mon_enabled.u  max=20           -
+                                                                                                                                                                              _tempmon/device_temp_sync_r1_reg[*]/D}]
+8         [get_cells -hier *rstdiv0_sync_r1_reg*]                                           *                                                                                 [get_pins -filter {NAME =~ */RESET} -of [get_cells -hier -filter {REF_NAME == PH  max_dpo=5        -
+                                                                                                                                                                              Y_CONTROL}]]
+9         *                                                                                 [get_nets -hier -filter {NAME =~ */u_iodelay_ctrl/sys_rst_i}]                     *                                                                                 false            false
+10        [get_cells -hier -filter {NAME =~ *ddr2_infrastructure/rstdiv0_sync_r1_reg*}]     *                                                                                 [get_cells -hier -filter {NAME =~ *temp_mon_enabled.u_tempmon/xadc_supplied_temp  max_dpo=20       -
+                                                                                                                                                                              erature.rst_r1*}]
+13        [get_clocks -quiet -of_objects [get_pins clocks/pll/CLKOUT0]]                     *                                                                                 [get_clocks -quiet -of_objects [get_pins mig/ddr_probe_i/mig_7series_0/u_ddr_pro  max_dpo=12       -
+                                                                                                                                                                              be_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT
+                                                                                                                                                                              ]]
+14        [get_clocks -quiet -of_objects [get_pins mig/ddr_probe_i/mig_7series_0/u_ddr_pro  *                                                                                 [get_clocks -quiet -of_objects [get_pins clocks/pll/CLKOUT0]]                     max_dpo=12       -
+          be_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT
+          ]]

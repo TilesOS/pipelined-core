@@ -99,9 +99,20 @@ in the checkpoint record). Build products remain ignored under `build/`.
    CPU/cache area is now 4,813 sites (1,813 above allocation). All 55 assigned
    user pins and timing exceptions match the preceding route; CDC rule totals
    and source families are retained. Both Vivado checkers now require FDRE
-   CPU-reset primitives and reject stale FDCE runs. Rerun synthesis/routing
-   and review RAM controls, timing/CDC/DRC before a bitstream. Physical
-   execution remains pending.
+   CPU-reset primitives and reject stale FDCE runs. The fourth route at clean
+   `74d26b9` confirms FDRE and passes setup/hold/pulse timing
+   (+0.127/+0.021/+0.206 ns), but two REQP-1840 warnings remain, now driven
+   by asynchronous `core_release_reg[1]`. Operator fan-in inspection proves
+   synthesis uses only the reset-free read-enable register; implementation
+   adds loader/cache/reset/release gating. An implementation-only
+   `set_power_opt -exclude_cells` now excludes exactly the two I-cache tag
+   RAMs, with no RTL/firmware or clock/CDC-bound changes. Tcl scope/count and
+   DRC guards pass; see [power-gating evidence](../checkpoints/evidence/10-tag-ram-power-gating.txt).
+   The checker saves tag-enable fan-in/power reports and rejects remaining
+   REQP-1839/1840. CPU/cache area is 4,507 sites (1,507 over allocation).
+   Keep current synthesis and rerun only implementation for this update,
+   then review timing/RAM/CDC/DRC before a bitstream. Physical execution
+   remains pending.
    The operator
    controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted

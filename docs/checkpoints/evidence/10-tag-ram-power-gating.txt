@@ -1,0 +1,39 @@
+Checkpoint 10 tag RAM power-gating constraint/guard validation, 2026-10-11
+Based on clean 74d26b9 RTL; changes are implementation-only constraint/helper/docs.
+No RTL, firmware configuration, source-list or image changes. Previous 74d26b9
+privilege/PMP, legacy board, reset unit and both full checkpoint 10 board simulations
+apply to the same source hashes (10-clocked-reset-simulation.txt).
+
+Tcl collection/report fixtures execute the actual constraint and entire implementation
+helper using tclsh; they do not emulate Vivado optimization or establish physical closure.
+PASS: power exclusion selects exactly two I-cache tag RAMs; 0 matching primitives guard
+PASS: power exclusion selects exactly two I-cache tag RAMs; 1 matching primitives guard
+PASS: power exclusion selects exactly two I-cache tag RAMs; 2 matching primitives guard
+PASS: full implementation helper / 10-second-route / expected RAM guard failure=False / power-report fallback=False
+PASS: full implementation helper / 10-fourth-route / expected RAM guard failure=True / power-report fallback=False
+PASS: full implementation helper / 10-first-route / expected RAM guard failure=True / power-report fallback=False
+PASS: full implementation helper / 10-second-route / expected RAM guard failure=False / power-report fallback=True
+PASS: complete Tcl syntax: constraints/checkpoint10_cdc.xdc
+PASS: complete Tcl syntax: scripts/checkpoint10_check_impl.tcl
+
+PASS: exact selection excludes only icache/tags0_reg and icache/tags1_reg RAMB18s;
+      unrelated D-cache and MIG cells remain outside the exclusion.
+PASS: zero/one target count fails before applying an exclusion.
+PASS: both original 12.000 ns datapath-only CDC bounds and common-root clock retained.
+PASS: actual saved first/fourth-route DRC fixtures reject REQP-1839/1840;
+      second-route inherited DSP/MIG warning inventory is accepted by this RAM guard.
+PASS: tag-enable fan-in output and optional power-report failure recording complete.
+PASS: implementation source commit/dirty-status recording with read-only Git queries.
+PASS: no RTL/config/source-list differences from tested 74d26b9.
+
+Changed file SHA-256:
+12d753c8345fa36f17ad6788dc1b49bd62e179ce1e4e65f9e9c5edb1b46eff32  constraints/checkpoint10_cdc.xdc
+5192f3964931fe7e6ab493bf4016c6ce13cba7aa28757cd6fb06b8a06afd6ce9  scripts/checkpoint10_check_impl.tcl
+
+Operator fan-in evidence proves safe enables at synthesis and extra gating after synthesis.
+Vivado opt_design / set_power_opt command help documents per-cell power-gating exclusion.
+The targeted exclusion is not yet measured in Vivado. Fresh implementation must confirm
+no tag RAM async-control warnings and continued timing/CDC/DRC/I/O/resource coverage.
+Retain the 74d26b9 synthesis/image manifest and record the new implementation source
+separately; regenerating unchanged ROM/header files is unnecessary for this update.
+Physical execution/reset/retest and complete trace capture remain pending; area review open.
