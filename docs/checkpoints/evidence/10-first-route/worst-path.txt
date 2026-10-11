@@ -1,0 +1,177 @@
+Slack (VIOLATED) :        -9.369ns  (required time - arrival time)
+  Source:                 board/system/system/cpu/core/pmpaddr_reg[4][31]/C
+                            (rising edge-triggered cell FDRE clocked by clk50_unbuffered  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            board/system/system/cpu/core/mem_stage_reg[tval][3]/D
+                            (rising edge-triggered cell FDRE clocked by clk50_unbuffered  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk50_unbuffered
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk50_unbuffered rise@20.000ns - clk50_unbuffered rise@0.000ns)
+  Data Path Delay:        29.195ns  (logic 9.781ns (33.503%)  route 19.414ns (66.497%))
+  Logic Levels:           49  (CARRY4=20 LUT2=2 LUT3=3 LUT4=5 LUT5=7 LUT6=12)
+  Clock Path Skew:        -0.122ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    5.739ns = ( 25.739 - 20.000 )
+    Source Clock Delay      (SCD):    6.085ns
+    Clock Pessimism Removal (CPR):    0.224ns
+  Clock Uncertainty:      0.082ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.147ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk50_unbuffered rise edge)
+                                                      0.000     0.000 r  <hidden>
+    E3                                                0.000     0.000 r  sys_clk_i
+                         net (fo=0)                   0.000     0.000    sys_clk_i
+    E3                   IBUF (Prop_ibuf_I_O)         1.482     1.482 r  sys_clk_i_IBUF_inst/O
+                         net (fo=2, routed)           1.093     2.575    clocks/sys_clk_i
+    PLLE2_ADV_X1Y2       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.088     2.663 r  clocks/pll/CLKOUT0
+                         net (fo=1, routed)           1.713     4.376    clocks/clk50_unbuffered
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.096     4.472 r  clocks/core_clock_buffer/O
+                         net (fo=7686, routed)        1.612     6.085    board/system/system/cpu/core/clk
+    SLICE_X51Y74         FDRE                                         r  board/system/system/cpu/core/pmpaddr_reg[4][31]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X51Y74         FDRE (Prop_fdre_C_Q)         0.456     6.541 r  board/system/system/cpu/core/pmpaddr_reg[4][31]/Q
+                         net (fo=12, routed)          0.872     7.413    board/system/system/cpu/core/p_0_in7_in[33]
+    SLICE_X51Y74         LUT6 (Prop_lut6_I3_O)        0.124     7.537 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_3167/O
+                         net (fo=1, routed)           0.363     7.900    board/system/system/cpu/core/imem_protection_fault_INST_0_i_3167_n_0
+    SLICE_X51Y74         LUT6 (Prop_lut6_I2_O)        0.124     8.024 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_3160/O
+                         net (fo=1, routed)           0.430     8.454    board/system/system/cpu/core/imem_protection_fault_INST_0_i_3160_n_0
+    SLICE_X48Y74         LUT6 (Prop_lut6_I1_O)        0.124     8.578 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_3106/O
+                         net (fo=1, routed)           0.161     8.740    board/system/system/cpu/core/imem_protection_fault_INST_0_i_3106_n_0
+    SLICE_X48Y74         LUT5 (Prop_lut5_I0_O)        0.124     8.864 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2950/O
+                         net (fo=1, routed)           0.280     9.143    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2950_n_0
+    SLICE_X48Y74         LUT5 (Prop_lut5_I0_O)        0.124     9.267 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2623/O
+                         net (fo=1, routed)           0.426     9.693    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2623_n_0
+    SLICE_X48Y74         LUT6 (Prop_lut6_I2_O)        0.124     9.817 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2087/O
+                         net (fo=10, routed)          0.666    10.484    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2087_n_0
+    SLICE_X50Y75         LUT3 (Prop_lut3_I1_O)        0.124    10.608 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2083/O
+                         net (fo=7, routed)           0.646    11.254    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2083_n_0
+    SLICE_X51Y75         LUT3 (Prop_lut3_I2_O)        0.124    11.378 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2918/O
+                         net (fo=4, routed)           0.505    11.883    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2918_n_0
+    SLICE_X50Y77         CARRY4 (Prop_carry4_CYINIT_CO[3])
+                                                      0.595    12.478 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2917/CO[3]
+                         net (fo=1, routed)           0.000    12.478    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2917_n_0
+    SLICE_X50Y78         CARRY4 (Prop_carry4_CI_O[0])
+                                                      0.219    12.697 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2584/O[0]
+                         net (fo=3, routed)           0.330    13.027    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2584_n_7
+    SLICE_X51Y77         LUT2 (Prop_lut2_I1_O)        0.295    13.322 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2940/O
+                         net (fo=1, routed)           0.761    14.083    board/system/system/cpu/core/high_addr28_out[8]
+    SLICE_X48Y78         CARRY4 (Prop_carry4_DI[1]_CO[3])
+                                                      0.507    14.590 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2604/CO[3]
+                         net (fo=1, routed)           0.000    14.590    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2604_n_0
+    SLICE_X48Y79         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    14.704 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2602/CO[3]
+                         net (fo=1, routed)           0.000    14.704    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2602_n_0
+    SLICE_X48Y80         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    14.818 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2071/CO[3]
+                         net (fo=1, routed)           0.000    14.818    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2071_n_0
+    SLICE_X48Y81         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    14.932 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_2069/CO[3]
+                         net (fo=1, routed)           0.000    14.932    board/system/system/cpu/core/imem_protection_fault_INST_0_i_2069_n_0
+    SLICE_X48Y82         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.334    15.266 f  board/system/system/cpu/core/imem_protection_fault_INST_0_i_1455/O[1]
+                         net (fo=1, routed)           0.754    16.020    board/system/system/cpu/core/imem_protection_fault_INST_0_i_1455_n_6
+    SLICE_X50Y86         LUT6 (Prop_lut6_I3_O)        0.303    16.323 r  board/system/system/cpu/core/imem_protection_fault_INST_0_i_1447/O
+                         net (fo=12, routed)          0.925    17.248    board/system/system/cpu/core/imem_protection_fault_INST_0_i_1447_n_0
+    SLICE_X46Y86         LUT4 (Prop_lut4_I2_O)        0.124    17.372 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_1045/O
+                         net (fo=1, routed)           0.000    17.372    board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_1045_n_0
+    SLICE_X46Y86         CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.376    17.748 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_738/CO[3]
+                         net (fo=1, routed)           0.000    17.748    board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_738_n_0
+    SLICE_X46Y87         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.117    17.865 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_467/CO[3]
+                         net (fo=1, routed)           0.000    17.865    board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_467_n_0
+    SLICE_X46Y88         CARRY4 (Prop_carry4_CI_CO[0])
+                                                      0.254    18.119 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_225/CO[0]
+                         net (fo=1, routed)           0.481    18.600    board/system/system/cpu/core/allowed2909_in
+    SLICE_X40Y89         LUT6 (Prop_lut6_I0_O)        0.367    18.967 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_95/O
+                         net (fo=1, routed)           0.926    19.892    board/system/system/cpu/core/allowed0912_out
+    SLICE_X44Y92         LUT6 (Prop_lut6_I1_O)        0.124    20.016 r  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_42/O
+                         net (fo=4, routed)           0.680    20.697    board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_42_n_0
+    SLICE_X45Y92         LUT6 (Prop_lut6_I3_O)        0.124    20.821 f  board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_18/O
+                         net (fo=5, routed)           0.447    21.268    board/system/system/cpu/core/ila_pipeline[1]_INST_0_i_18_n_0
+    SLICE_X45Y92         LUT6 (Prop_lut6_I0_O)        0.124    21.392 r  board/system/system/cpu/core/mem_stage[result][31]_i_3/O
+                         net (fo=53, routed)          0.425    21.817    board/system/system/cpu/core/p_72_in
+    SLICE_X49Y92         LUT2 (Prop_lut2_I0_O)        0.124    21.941 r  board/system/system/cpu/core/mem_stage[addr][31]_i_5/O
+                         net (fo=44, routed)          0.791    22.732    board/system/system/cpu/core/mem_stage[addr][31]_i_5_n_0
+    SLICE_X52Y89         LUT4 (Prop_lut4_I0_O)        0.124    22.856 r  board/system/system/cpu/core/mem_stage[addr][1]_i_1/O
+                         net (fo=9, routed)           0.478    23.334    board/system/system/cpu/core/mem_stage[addr][1]_i_1_n_0
+    SLICE_X52Y91         LUT4 (Prop_lut4_I1_O)        0.124    23.458 r  board/system/system/cpu/core/mem_stage[cause][0]_i_1365/O
+                         net (fo=1, routed)           0.000    23.458    board/system/system/cpu/core/mem_stage[cause][0]_i_1365_n_0
+    SLICE_X52Y91         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.550    24.008 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_1174/CO[3]
+                         net (fo=1, routed)           0.000    24.008    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_1174_n_0
+    SLICE_X52Y92         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.122 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_1173/CO[3]
+                         net (fo=1, routed)           0.000    24.122    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_1173_n_0
+    SLICE_X52Y93         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.236 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_896/CO[3]
+                         net (fo=1, routed)           0.000    24.236    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_896_n_0
+    SLICE_X52Y94         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.350 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_895/CO[3]
+                         net (fo=1, routed)           0.000    24.350    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_895_n_0
+    SLICE_X52Y95         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.464 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_603/CO[3]
+                         net (fo=1, routed)           0.000    24.464    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_603_n_0
+    SLICE_X52Y96         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.578 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_602/CO[3]
+                         net (fo=1, routed)           0.000    24.578    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_602_n_0
+    SLICE_X52Y97         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.114    24.692 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_308/CO[3]
+                         net (fo=1, routed)           0.000    24.692    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_308_n_0
+    SLICE_X52Y98         CARRY4 (Prop_carry4_CI_O[2])
+                                                      0.239    24.931 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_172/O[2]
+                         net (fo=32, routed)          1.315    26.246    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_172_n_5
+    SLICE_X54Y89         LUT4 (Prop_lut4_I2_O)        0.302    26.548 r  board/system/system/cpu/core/mem_stage[cause][0]_i_399/O
+                         net (fo=1, routed)           0.000    26.548    board/system/system/cpu/core/mem_stage[cause][0]_i_399_n_0
+    SLICE_X54Y89         CARRY4 (Prop_carry4_S[3]_CO[3])
+                                                      0.376    26.924 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_217/CO[3]
+                         net (fo=1, routed)           0.000    26.924    board/system/system/cpu/core/mem_stage_reg[cause][0]_i_217_n_0
+    SLICE_X54Y90         CARRY4 (Prop_carry4_CI_CO[1])
+                                                      0.157    27.081 r  board/system/system/cpu/core/mem_stage_reg[cause][0]_i_101/CO[1]
+                         net (fo=2, routed)           0.830    27.911    board/system/system/cpu/core/matched6
+    SLICE_X56Y99         LUT4 (Prop_lut4_I3_O)        0.332    28.243 r  board/system/system/cpu/core/mem_stage[cause][0]_i_107/O
+                         net (fo=2, routed)           0.173    28.416    board/system/system/cpu/core/mem_stage[cause][0]_i_107_n_0
+    SLICE_X56Y99         LUT5 (Prop_lut5_I0_O)        0.124    28.540 f  board/system/system/cpu/core/mem_stage[cause][0]_i_106/O
+                         net (fo=3, routed)           0.561    29.101    board/system/system/cpu/core/mem_stage[cause][0]_i_106_n_0
+    SLICE_X57Y102        LUT5 (Prop_lut5_I4_O)        0.124    29.225 r  board/system/system/cpu/core/mem_stage[cause][0]_i_85/O
+                         net (fo=6, routed)           0.569    29.794    board/system/system/cpu/core/mem_stage[cause][0]_i_85_n_0
+    SLICE_X59Y107        LUT5 (Prop_lut5_I1_O)        0.124    29.918 f  board/system/system/cpu/core/mem_stage[cause][0]_i_34/O
+                         net (fo=2, routed)           0.575    30.493    board/system/system/cpu/core/mem_stage[cause][0]_i_34_n_0
+    SLICE_X60Y106        LUT3 (Prop_lut3_I0_O)        0.124    30.617 r  board/system/system/cpu/core/mem_stage[cause][0]_i_12/O
+                         net (fo=1, routed)           0.664    31.280    board/system/system/cpu/core/mem_stage[cause][0]_i_12_n_0
+    SLICE_X60Y108        LUT6 (Prop_lut6_I5_O)        0.124    31.404 r  board/system/system/cpu/core/mem_stage[cause][0]_i_3/O
+                         net (fo=19, routed)          0.683    32.087    board/system/system/cpu/core/mem_stage[cause][0]_i_3_n_0
+    SLICE_X61Y104        LUT5 (Prop_lut5_I2_O)        0.124    32.211 r  board/system/system/cpu/core/mem_stage[tval][20]_i_2/O
+                         net (fo=2, routed)           0.927    33.138    board/system/system/cpu/core/mem_stage[tval][20]_i_2_n_0
+    SLICE_X61Y107        LUT6 (Prop_lut6_I3_O)        0.124    33.262 r  board/system/system/cpu/core/mem_stage[tval][30]_i_9/O
+                         net (fo=5, routed)           0.914    34.176    board/system/system/cpu/core/mem_stage[tval][30]_i_9_n_0
+    SLICE_X60Y108        LUT6 (Prop_lut6_I3_O)        0.124    34.300 r  board/system/system/cpu/core/mem_stage[tval][30]_i_4/O
+                         net (fo=23, routed)          0.855    35.155    board/system/system/cpu/core/mem_stage[tval][30]_i_4_n_0
+    SLICE_X61Y110        LUT5 (Prop_lut5_I4_O)        0.124    35.279 r  board/system/system/cpu/core/mem_stage[tval][3]_i_1/O
+                         net (fo=1, routed)           0.000    35.279    board/system/system/cpu/core/mem_stage[tval][3]_i_1_n_0
+    SLICE_X61Y110        FDRE                                         r  board/system/system/cpu/core/mem_stage_reg[tval][3]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk50_unbuffered rise edge)
+                                                     20.000    20.000 r  <hidden>
+    E3                                                0.000    20.000 r  sys_clk_i
+                         net (fo=0)                   0.000    20.000    sys_clk_i
+    E3                   IBUF (Prop_ibuf_I_O)         1.411    21.411 r  sys_clk_i_IBUF_inst/O
+                         net (fo=2, routed)           1.029    22.440    clocks/sys_clk_i
+    PLLE2_ADV_X1Y2       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.083    22.523 r  clocks/pll/CLKOUT0
+                         net (fo=1, routed)           1.634    24.157    clocks/clk50_unbuffered
+    BUFGCTRL_X0Y17       BUFG (Prop_bufg_I_O)         0.091    24.248 r  clocks/core_clock_buffer/O
+                         net (fo=7686, routed)        1.491    25.739    board/system/system/cpu/core/clk
+    SLICE_X61Y110        FDRE                                         r  board/system/system/cpu/core/mem_stage_reg[tval][3]/C
+                         clock pessimism              0.224    25.963    <hidden>
+                         clock uncertainty           -0.082    25.881    <hidden>
+    SLICE_X61Y110        FDRE (Setup_fdre_C_D)        0.029    25.910    board/system/system/cpu/core/mem_stage_reg[tval][3]
+  -------------------------------------------------------------------
+                         required time                         25.910    <hidden>
+                         arrival time                         -35.279    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -9.369    <hidden>

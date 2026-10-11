@@ -13,6 +13,13 @@ report_clocks -file [file join $report_dir clocks.rpt]
 report_clock_interaction -file [file join $report_dir clock_interaction.rpt]
 report_utilization -file [file join $report_dir utilization.rpt]
 report_utilization -hierarchical -file [file join $report_dir hierarchy.rpt]
+set cpu_primitives [get_cells -quiet -hierarchical -filter {IS_PRIMITIVE == 1 && NAME =~ board/system/system/cpu/*}]
+set cpu_slice_sites [lsort -unique [get_sites -quiet -of_objects $cpu_primitives -filter {SITE_TYPE =~ SLICE*}]]
+set area_report [open [file join $report_dir cpu_cache_area.txt] w]
+puts $area_report "CPU/cache occupied slice sites: [llength $cpu_slice_sites]"
+puts $area_report "Budget: 3000 slice sites; overage: [expr {max(0, [llength $cpu_slice_sites] - 3000)}]"
+close $area_report
+puts "CPU/cache occupied slice sites: [llength $cpu_slice_sites] (budget 3000)"
 report_exceptions -file [file join $report_dir exceptions.rpt]
 report_cdc -details -file [file join $report_dir cdc.rpt]
 report_drc -file [file join $report_dir drc.rpt]

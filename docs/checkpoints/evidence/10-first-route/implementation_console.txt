@@ -1,0 +1,85 @@
+source /home/tyler/checkpoint10_src/scripts/checkpoint10_check_impl.tcl
+# set repo_root [file normalize [file join [file dirname [info script]] ..]]
+# set report_dir [file join $repo_root build checkpoint10-board vivado-reports]
+# file mkdir $report_dir
+# open_run impl_1
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.06 . Memory (MB): peak = 11840.711 ; gain = 0.000 ; free physical = 18000 ; free virtual = 32058
+INFO: [Netlist 29-17] Analyzing 2127 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'mig/ddr_probe_i/mig_7series_0/sys_clk_i' is not directly connected to top level port. 'IBUF_LOW_PWR' is ignored for synthesis but preserved for implementation.
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 11840.711 ; gain = 0.000 ; free physical = 17928 ; free virtual = 31986
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 11967.137 ; gain = 0.000 ; free physical = 17808 ; free virtual = 31866
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 11967.137 ; gain = 0.000 ; free physical = 17808 ; free virtual = 31866
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 11967.137 ; gain = 0.000 ; free physical = 17808 ; free virtual = 31866
+Read placeStorage: Time (s): cpu = 00:00:00.32 ; elapsed = 00:00:00.32 . Memory (MB): peak = 12009.754 ; gain = 42.617 ; free physical = 17788 ; free virtual = 31846
+Read PulsedLatchDB: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 12009.754 ; gain = 0.000 ; free physical = 17788 ; free virtual = 31846
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00.32 ; elapsed = 00:00:00.11 . Memory (MB): peak = 12009.754 ; gain = 0.000 ; free physical = 17772 ; free virtual = 31830
+Read Physdb Files: Time (s): cpu = 00:00:00.67 ; elapsed = 00:00:00.45 . Memory (MB): peak = 12009.754 ; gain = 42.617 ; free physical = 17772 ; free virtual = 31830
+Restored from archive | CPU: 0.680000 secs | Memory: 32.166504 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.67 ; elapsed = 00:00:00.46 . Memory (MB): peak = 12009.754 ; gain = 42.617 ; free physical = 17772 ; free virtual = 31830
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 12012.754 ; gain = 0.000 ; free physical = 17764 ; free virtual = 31823
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 186 instances were transformed.
+  IBUFDS_INTERMDISABLE => IBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2)): 2 instances
+  IOBUFDS_INTERMDISABLE => IOBUFDS_INTERMDISABLE (IBUFDS_INTERMDISABLE_INT(x2), INV, OBUFTDS(x2)): 2 instances
+  IOBUF_INTERMDISABLE => IOBUF_INTERMDISABLE (IBUF_INTERMDISABLE, OBUFT): 16 instances
+  LUT6_2 => LUT6_2 (LUT5, LUT6): 15 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 144 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 3 instances
+  SRLC32E => SRL16E: 1 instance
+
+# report_io -file [file join $report_dir io.rpt]
+report_io: Time (s): cpu = 00:00:00.21 ; elapsed = 00:00:00.08 . Memory (MB): peak = 12215.934 ; gain = 0.000 ; free physical = 17545 ; free virtual = 31607
+# if {[get_property PACKAGE_PIN [get_ports sys_clk_i]] ne "E3" ||
+#     [get_property IOSTANDARD [get_ports sys_clk_i]] ne "LVCMOS33"} {
+#     error "routed board clock must use E3/LVCMOS33"
+# }
+# report_methodology -file [file join $report_dir methodology.rpt]
+Command: report_methodology -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/methodology.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [DRC 23-133] Running Methodology with 8 threads
+INFO: [Vivado_Tcl 2-1520] The results of Report Methodology are in file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/methodology.rpt.
+report_methodology completed successfully
+# report_timing_summary -delay_type min_max -max_paths 20 -file [file join $report_dir timing_summary.rpt]
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+# report_clocks -file [file join $report_dir clocks.rpt]
+# report_clock_interaction -file [file join $report_dir clock_interaction.rpt]
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+# report_utilization -file [file join $report_dir utilization.rpt]
+# report_utilization -hierarchical -file [file join $report_dir hierarchy.rpt]
+# report_exceptions -file [file join $report_dir exceptions.rpt]
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+# report_cdc -details -file [file join $report_dir cdc.rpt]
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# report_drc -file [file join $report_dir drc.rpt]
+Command: report_drc -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/drc.rpt
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/drc.rpt.
+report_drc completed successfully
+# puts "Checkpoint 10 implementation reports: $report_dir"
+Checkpoint 10 implementation reports: /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports
+# check_timing -verbose -file [file join $report_dir check_timing.rpt]
+# puts "Review new UART/button crossings and the loader ROM controls with the preserved FIFO/MIG diagnostics."
+Review new UART/button crossings and the loader ROM controls with the preserved FIFO/MIG diagnostics.

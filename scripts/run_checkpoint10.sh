@@ -4,6 +4,10 @@ repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$repo_root"
 build_dir="$repo_root/build/privilege"
 mkdir -p "$build_dir"
+verilator --binary --timing --timescale 1ns/1ps --top-module checkpoint10_pmp_tb \
+    --Mdir "$build_dir/pmp_checker_obj" "$repo_root/rtl/core/rv32_slice.sv" \
+    "$repo_root/tests/privilege/checkpoint10_pmp_tb.sv" \
+    > "$build_dir/pmp_checker_build.log" 2>&1 || { tail -80 "$build_dir/pmp_checker_build.log"; exit 1; }
 sources=(rtl/bus/axi128_pkg.sv rtl/cache/physical_memory_pkg.sv rtl/bus/axi_width_bridge.sv
     rtl/cache/l1_cache.sv rtl/core/rv32_slice.sv rtl/debug/uart_tx_byte.sv rtl/debug/trace_ring_uart.sv
     rtl/top/rv32_cached_core.sv rtl/bus/async_fifo.sv rtl/bus/axi_cdc.sv rtl/bus/axi_fabric.sv
@@ -17,6 +21,7 @@ verilator --cc --exe --build --top-module privileged_core_sim --Mdir "$build_dir
     "${absolute_sources[@]}" "$repo_root/tests/privilege/privileged_core_main.cpp" \
     > "$build_dir/build.log" 2>&1 || { tail -80 "$build_dir/build.log"; exit 1; }
 [[ ${1:-} != --build-only ]] || exit 0
+"$build_dir/pmp_checker_obj/Vcheckpoint10_pmp_tb"
 for test in privilege pmp mmio_faults; do
     riscv64-unknown-elf-gcc -march=rv32ima_zicsr_zifencei -mabi=ilp32 -nostdlib -Wl,--no-relax \
         -T tests/privilege/privilege.ld "tests/privilege/$test.S" -o "$build_dir/$test.elf"

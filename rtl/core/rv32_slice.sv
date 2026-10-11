@@ -145,50 +145,86 @@ module rv32_slice #(
     logic [31:0] trap_pc, trap_cause, trap_value, trap_vector;
     logic [7:0] pmpcfg [8];
     logic [31:0] pmpaddr [8];
+    logic [34:0] pmp_napot_mask [8];
     logic [1:0] data_privilege;
     logic data_protection_fault;
+    logic [31:0] ex_memory_addr;
+    logic [1:0] ex_memory_size;
+    logic ex_memory_read, ex_memory_write;
     integer register_index;
+
+    for (genvar entry = 0; entry < 8; entry++) begin : pmp_masks
+        assign pmp_napot_mask[entry][2:0] = 3'b111;
+        assign pmp_napot_mask[entry][34] = 1'b0;
+        for (genvar bit_no = 0; bit_no < 31; bit_no++) begin : prefix_bits
+            assign pmp_napot_mask[entry][bit_no+3] = &pmpaddr[entry][bit_no:0];
+        end
+    end
 
     // PMP is checked before cache lookup and before any device request.
     // The first entry overlapping any byte wins, including partial matches.
     function automatic logic pmp_allow(input logic [31:0] addr,
         input logic [1:0] size, input logic [1:0] mode,
         input logic read_access, write_access, execute_access);
-        logic matched, allowed, full_match;
+        logic full_match, start_matches, end_matches;
+        logic [7:0] overlaps, grants, selected;
         logic [34:0] low_addr, high_addr, first_byte, last_byte, mask;
-        int trailing;
-        matched = 0; allowed = mode == 3;
+        overlaps = 0; grants = 0; selected = 0;
         first_byte = {3'b0, addr}; last_byte = first_byte + (35'd1 << size) - 1;
         for (int i = 0; i < 8; i++) begin
-            low_addr = 0; high_addr = 0; mask = 0; trailing = 0;
+            low_addr = 0; high_addr = 0; mask = 0;
+            full_match = 0; start_matches = 0; end_matches = 0;
             case (pmpcfg[i][4:3])
                 1: begin
                     low_addr = i == 0 ? 35'b0 : {1'b0, pmpaddr[i-1], 2'b0};
                     high_addr = {1'b0, pmpaddr[i], 2'b0};
+                    overlaps[i] = low_addr < high_addr && first_byte < high_addr && last_byte >= low_addr;
+                    full_match = first_byte >= low_addr && last_byte < high_addr;
                 end
-                2: begin low_addr = {1'b0, pmpaddr[i], 2'b0}; high_addr = low_addr + 4; end
+                2: begin
+                    // NA4 spans exactly one aligned word, including an access
+                    // that straddles it with neither endpoint inside it.
+                    overlaps[i] = first_byte[34:2] <= {1'b0, pmpaddr[i]} &&
+                                  last_byte[34:2] >= {1'b0, pmpaddr[i]};
+                    full_match = first_byte[34:2] == {1'b0, pmpaddr[i]} &&
+                                 last_byte[34:2] == {1'b0, pmpaddr[i]};
+                end
                 3: begin
-                    for (int b = 0; b < 32; b++)
-                        if (trailing == b && pmpaddr[i][b]) trailing++;
-                    mask = (35'd1 << (trailing + 3)) - 1;
+                    // Constant-position prefix bits replace the serial
+                    // trailing-one counter, variable shift and range adder.
+                    mask = pmp_napot_mask[i];
                     low_addr = {1'b0, pmpaddr[i], 2'b0} & ~mask;
-                    high_addr = low_addr + mask + 1;
-                    if (trailing >= 31) begin low_addr = 0; high_addr = 35'd1 << 34; end
+                    start_matches = (first_byte & ~mask) == low_addr;
+                    end_matches = (last_byte & ~mask) == low_addr;
+                    // NAPOT regions are at least eight bytes; every supported
+                    // access is at most eight, so overlap hits an endpoint.
+                    overlaps[i] = start_matches || end_matches;
+                    full_match = start_matches && end_matches;
                 end
                 default: ;
             endcase
-            if (!matched && pmpcfg[i][4:3] != 0 && first_byte < high_addr && last_byte >= low_addr) begin
-                matched = 1;
-                full_match = first_byte >= low_addr && last_byte < high_addr;
-                allowed = full_match && ((mode == 3 && !pmpcfg[i][7]) ||
-                    ((!read_access || pmpcfg[i][0]) && (!write_access || pmpcfg[i][1]) &&
-                     (!execute_access || pmpcfg[i][2])));
-            end
+            grants[i] = full_match && ((mode == 3 && !pmpcfg[i][7]) ||
+                ((!read_access || pmpcfg[i][0]) && (!write_access || pmpcfg[i][1]) &&
+                 (!execute_access || pmpcfg[i][2])));
         end
-        return !ENABLE_PRIVILEGE || allowed;
+        for (int i = 0; i < 8; i++)
+            selected[i] = overlaps[i] && (overlaps & 8'((1 << i)-1)) == 0;
+        return !ENABLE_PRIVILEGE || (mode == 3 && overlaps == 0) || |(selected & grants);
     endfunction
     assign data_privilege = privilege == 3 && csr_mstatus[17] ? csr_mstatus[12:11] : privilege;
     assign imem_protection_fault = !pmp_allow(fetch_pc, 2'd2, privilege, 0, 0, 1);
+    // Decode the data-check inputs independently of the instruction check.
+    // Gating the address with instruction permission serialized two PMP
+    // networks on the execute-to-memory path. Fault priority stays in EX.
+    assign ex_memory_addr = ex_stage.rs1_value +
+        (ex_stage.insn[6:0] == 7'h03 ? imm_i : ex_stage.insn[6:0] == 7'h23 ? imm_s : 32'b0);
+    assign ex_memory_size = ex_stage.insn[6:0] == 7'h2f ? 2'd2 : ex_stage.insn[13:12];
+    assign ex_memory_read = ex_stage.insn[6:0] == 7'h03 ||
+        (ex_stage.insn[6:0] == 7'h2f && ex_stage.insn[31:27] != 5'b00011);
+    assign ex_memory_write = ex_stage.insn[6:0] == 7'h23 ||
+        (ex_stage.insn[6:0] == 7'h2f && ex_stage.insn[31:27] != 5'b00010);
+    assign data_protection_fault = !pmp_allow(ex_memory_addr, ex_memory_size,
+        data_privilege, ex_memory_read, ex_memory_write, 0);
 
     assign pending_irqs = csr_mip_sw | (msip_irq ? 32'h8 : 0) |
         (mtip_irq ? 32'h80 : 0) | (meip_irq ? 32'h800 : 0) | (seip_irq ? 32'h200 : 0);
@@ -430,7 +466,6 @@ module rv32_slice #(
     end
 
     always_comb begin
-        data_protection_fault = 0;
         ex_result = '0;
         ex_result.valid = ex_stage.valid;
         ex_result.pc = ex_stage.pc;
@@ -503,8 +538,7 @@ module rv32_slice #(
                     else ex_result.trap = 1;
                 end
                 7'h03, 7'h23: begin // loads and stores
-                    ex_result.addr = ex_stage.rs1_value +
-                        (ex_stage.insn[6:0] == 7'h03 ? imm_i : imm_s);
+                    ex_result.addr = ex_memory_addr;
                     case (ex_stage.insn[14:12])
                         3'b000, 3'b100: ex_result.mem_mask = 4'b0001 << ex_result.addr[1:0];
                         3'b001, 3'b101: ex_result.mem_mask = 4'b0011 << ex_result.addr[1:0];
@@ -636,9 +670,6 @@ module rv32_slice #(
                 ex_result.tval = redirect_pc;
             end
             if (!ex_result.trap && (ex_result.load || ex_result.store || ex_result.atomic_kind != 0)) begin
-                data_protection_fault = !pmp_allow(ex_result.addr,
-                    ex_result.atomic_kind != 0 ? 2'd2 : ex_stage.insn[13:12], data_privilege,
-                    ex_result.load, ex_result.store || ex_result.atomic_kind inside {2,3}, 0);
                 if (data_protection_fault) begin
                     ex_result.trap = 1;
                     ex_result.cause = ex_result.store || ex_result.atomic_kind inside {2,3} ? 7 : 5;

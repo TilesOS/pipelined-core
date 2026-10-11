@@ -1,7 +1,9 @@
 # Checkpoint 10 board bring-up
 
-Status: compact-ROM physical synthesis passes resource checks at 84/135 block
-RAM tiles. Routing, timing/CDC/DRC review and serial execution are pending.
+Status: the first compact-ROM route fits at 84/135 block RAM tiles but fails
+50 MHz setup timing (WNS -9.369 ns) and exposes trace RAM asynchronous-control
+warnings. PMP/trace RTL fixes require fresh synthesis and routing before
+bitstream generation. Physical serial execution remains pending.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -106,12 +108,64 @@ primitives; both caches infer block RAM (ten primitives each). Total use is
 82 RAMB36s plus four RAMB18s, 22,485 LUTs (35.47%), 12,268 registers (9.68%)
 and five DSPs; the CPU still uses four DSPs within its eight-DSP allocation.
 The clock pin check passes E3/LVCMOS33. The two scoped MIG Netlist 29-160
-warnings remain and require routed I/O review. The source/image manifest has
-not yet been supplied. See the saved
+warnings remain and require routed I/O review. The later implementation archive
+supplies the clean `c444cb6` source/image manifest for this build. See the saved
 [utilization](evidence/10-compact-synthesis/synthesis_utilization.rpt) and
 [checker console](evidence/10-compact-synthesis/synthesis_console.txt).
 These resource checks permit proceeding to implementation; timing, actual
 occupied slices, CDC/DRC and board execution still require new evidence.
+
+## First routed implementation and PMP/trace fixes
+
+The operator's 2026-10-11 archive records clean source
+`c444cb69287f3291fe1f7fa7391896e271e735f7`, Vivado 2026.1 and the pinned
+OpenSBI revision above. The Ubuntu image contains 133,892 firmware bytes,
+672 payload bytes and 262,816 logical DDR bytes; its compact ROM stores
+134,576 bytes / 8,411 words. Compiler-dependent firmware size differs from
+the cloud simulation image. Exact hashes are retained in the
+[image manifest](evidence/10-first-route/image-manifest.json).
+
+The fully routed design uses 21,497 LUTs, 11,932 registers, 7,089 total
+occupied slices, 84 BRAM tiles and five DSPs. Setup fails with **WNS -9.369 ns,
+TNS -6215.763 ns and 834 failing endpoints**. Hold (WHS +0.024 ns) and pulse
+width (WPWS +0.206 ns) pass. The worst path runs from PMP address entry 4
+to the memory-stage trap value: 29.195 ns data delay, 49 logic levels and
+20 CARRY4s. The trace RAM additionally produces REQP-1839 warnings for
+asynchronous reset-driven controls; the report is capped at 20 violations.
+These are blockers, despite routing completing successfully.
+
+The PMP fix derives each NAPOT mask with constant-position prefix reductions,
+matches addresses with masked equality, and selects the first overlapping
+entry from parallel results. It removes the serial trailing-one counter,
+variable shift and upper-bound addition. Data-check inputs now decode
+independently of instruction permission, removing two permission networks
+in series while retaining instruction-fault priority in execute. Empty or
+reversed TOR regions have no overlap. An independent numeric interval model
+tests the real checker across NAPOT sizes, boundaries, priority and M/S/U modes.
+
+The trace fix registers RAM write/read enables and addresses without reset,
+leaves RAM contents/read output reset-free, and adds one read wait cycle.
+Reset invalidates the trace metadata. The packet format and oldest-first
+record order are unchanged. The final privilege/PMP gate passes 106,808
+interval-reference checks and all three clock ratios, including precise
+LR/SC/AMO protection faults. CPU/Spike and trace-wrap checks pass. The full
+board gate passes both clock ratios, calibration-loss restart, OpenSBI/S
+timer/PMP, UART/PLIC, CPU reset/reload and complete 256-record trace dumps.
+See [remediation simulation evidence](evidence/10-timing-fix-simulation.txt).
+Fresh Vivado reports must demonstrate improved
+setup timing, continued BRAM inference and no trace REQP-1839 warnings;
+simulation cannot establish those physical results.
+
+The supplied I/O report maps the board clock/reset/UART/button/LED pins as
+specified. Timing coverage reports no missing clocks, unconstrained internal
+endpoints or loops; absent port delays are the asynchronous reset/button/RX
+inputs and LED/TX outputs. CDC detail rows classify the FIFO payload storage,
+Gray pointers, registered link reset and generated MIG endpoints in the
+preserved checkpoint 9 inventory. The new route still needs complete
+timing/CDC/DRC review and a CPU/cache occupied-site query. Retained
+[summary](evidence/10-first-route/summary.txt),
+[worst path](evidence/10-first-route/worst-path.txt), utilization, hierarchy,
+DRC, timing-coverage and console reports document this failed route.
 
 ## Separate source and Vivado projects
 
@@ -166,7 +220,9 @@ measure total usage including UART/PLIC/PMP and the temporary image ROM.
 Checkpoint 9's CPU/cache slice overage remains an area review item. Its
 previous resource/timing result does not establish this new target's result.
 The script's hierarchy is `board/system/system/cpu`, with loader ROM under
-`board/loader`. Never reopen a copied old run and treat it as a new build.
+`board/loader`. The implementation checker writes `cpu_cache_area.txt` with
+unique CPU/cache occupied slice sites and the overage against 3,000 sites.
+Never reopen a copied old run and treat it as a new build.
 
 After synthesis review:
 

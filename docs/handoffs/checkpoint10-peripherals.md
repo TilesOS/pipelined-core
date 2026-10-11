@@ -75,8 +75,15 @@ in the checkpoint record). Build products remain ignored under `build/`.
    synthesis used 144/135 BRAM tiles (128 in the padded ROM). The ROM now stores
    firmware/payload compactly; the loader generates and verifies the DDR zero
    gap. Fresh synthesis passes at 84/135 BRAM tiles, with 64 ROM primitives
-   and four CPU DSPs. Routing, timing/CDC/DRC review and physical execution
-   remain pending. The operator
+   and four CPU DSPs. The first route at clean `c444cb6` fits but fails setup
+   with WNS -9.369 ns and shows trace RAM REQP-1839 warnings. PMP decoding
+   now uses prefix masks and parallel selection with independent instruction/
+   data checks; trace RAM controls are registered without reset. The privilege,
+   interval-reference PMP, core/trace and two-ratio full board regressions pass;
+   see [remediation evidence](../checkpoints/evidence/10-timing-fix-simulation.txt). Rerun
+   synthesis/routing, review timing/CDC/DRC and remeasure CPU/cache occupied
+   sites before generating a bitstream. Physical execution remains pending.
+   The operator
    controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted
    `/home/tyler/checkpoint9_board`. Retain the original project/bitstream.

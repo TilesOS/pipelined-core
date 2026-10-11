@@ -1,0 +1,85 @@
+TIMING (full details retained in timing_summary.rpt)
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------
+     -9.369    -6215.763                    834                36719        0.024        0.000                      0                36675        0.206        0.000                       0                 13576
+
+
+Timing constraints are not met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+
+ROUTED RESOURCES
+| Slice LUTs                 | 21497 |     0 |          0 |     63400 | 33.91 |
+| Slice Registers            | 11932 |     2 |          0 |    126800 |  9.41 |
+| Slice                                      |  7089 |     0 |          0 |     15850 | 44.73 |
+| Slice Registers                            | 11932 |     0 |          0 |    126800 |  9.41 |
+| Block RAM Tile    |   84 |     0 |          0 |       135 | 62.22 |
+|   RAMB36/FIFO*    |   82 |     0 |          0 |       135 | 60.74 |
+|   RAMB18          |    4 |     0 |          0 |       270 |  1.48 |
+| DSPs           |    5 |     0 |          0 |       240 |  2.08 |
+| DSP48E1                  |     5 |    Block Arithmetic |
+
+CLOCK PERIODS
+board_clk_100: 10.000 ns
+clk200_unbuffered: 5.000 ns
+clk50_unbuffered: 20.000 ns
+clk_pll_i: 12.308 ns
+
+methodology.rpt RULE COUNTS (original severities)
+| DPIR-1    | Warning  | Asynchronous driver check                                                                             | 1      |
+| LUTAR-1   | Warning  | LUT drives async reset alert                                                                          | 1      |
+| PDRC-190  | Warning  | Suboptimally placed synchronized register chain                                                       | 12     |
+| SYNTH-6   | Warning  | Timing of a RAM block might be sub-optimal                                                            | 86     |
+| SYNTH-10  | Warning  | Wide multiplier                                                                                       | 4      |
+| TIMING-9  | Warning  | Unknown CDC Logic                                                                                     | 1      |
+| TIMING-16 | Warning  | Large setup violation                                                                                 | 762    |
+| TIMING-47 | Warning  | False path, asynchronous clock group or max delay datapath only constraint between synchronous clocks | 2      |
+| XDCB-5    | Warning  | Runtime inefficient way to find pin objects                                                           | 1      |
+| XDCC-1    | Warning  | Scoped Clock constraint overwritten with the same name                                                | 1      |
+| XDCC-7    | Warning  | Scoped Clock constraint overwritten on the same source                                                | 1      |
+| REQP-1959 | Advisory | connects_SERDES_RST_driver_not_FF                                                                     | 16     |
+
+drc.rpt RULE COUNTS (original severities)
+| CHECK-3   | Warning  | Report rule limit reached  | 1      |
+| DPIP-1    | Warning  | Input pipelining           | 2      |
+| DPOP-1    | Warning  | PREG Output pipelining     | 5      |
+| DPOP-2    | Warning  | MREG Output pipelining     | 5      |
+| REQP-1709 | Warning  | Clock output buffering     | 1      |
+| REQP-1839 | Warning  | RAMB36 async control check | 20     |
+
+CDC RULE COUNTS (original severities)
+CDC-1   Critical   1418  1-bit unknown CDC circuitry
+CDC-3   Info          3  1-bit synchronized with ASYNC_REG property
+CDC-6   Warning      10  Multi-bit synchronized with ASYNC_REG property
+CDC-8   Warning       2  Asynchronous reset synchronized with missing ASYNC_REG property
+CDC-11  Critical      6  Fan-out from launch flop to destination clock
+CDC-15  Warning     381  Clock enable controlled CDC structure detected
+
+CDC SOURCE GROUPS (available detail rows)
+CDC-1: 49 b_fifo payload storage
+CDC-1: 1045 r_fifo payload storage
+CDC-1: 324 w_fifo payload storage
+CDC-11: 6 registered link reset
+CDC-15: 26 ar_fifo payload storage
+CDC-15: 26 aw_fifo payload storage
+CDC-15: 322 r_fifo payload storage
+CDC-15: 7 w_fifo payload storage
+CDC-3: 3 generated MIG endpoints (review separately)
+CDC-6: 2 ar_fifo Gray pointer
+CDC-6: 2 aw_fifo Gray pointer
+CDC-6: 2 b_fifo Gray pointer
+CDC-6: 2 r_fifo Gray pointer
+CDC-6: 2 w_fifo Gray pointer
+CDC-8: 2 generated MIG endpoints (review separately)
+
+CDC EXAMPLE ENDPOINTS
+CDC-11 registered link reset: board/system/system/bus/link_rst_n_reg/C -> board/system/system/bus/core_release_reg[0]/CLR
+
+Review full reports for path details and constraint coverage before signoff.
