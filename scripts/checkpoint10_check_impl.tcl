@@ -7,6 +7,12 @@ if {[get_property PACKAGE_PIN [get_ports sys_clk_i]] ne "E3" ||
     [get_property IOSTANDARD [get_ports sys_clk_i]] ne "LVCMOS33"} {
     error "routed board clock must use E3/LVCMOS33"
 }
+set cpu_reset_regs [get_cells -hier -quiet -filter {REF_NAME =~ FD* && NAME =~ board/system/system/*cpu_reset_n_reg*}]
+set reset_report [open [file join $report_dir cpu_reset_cells.txt] w]
+foreach cell $cpu_reset_regs {puts $reset_report "$cell [get_property REF_NAME $cell]"}
+close $reset_report
+puts "Registered CPU reset primitives: [llength $cpu_reset_regs]"
+if {[llength $cpu_reset_regs] == 0} {error "registered CPU reset is missing; verify fresh checkpoint 10 implementation"}
 report_methodology -file [file join $report_dir methodology.rpt]
 report_timing_summary -delay_type min_max -max_paths 20 -file [file join $report_dir timing_summary.rpt]
 report_clocks -file [file join $report_dir clocks.rpt]

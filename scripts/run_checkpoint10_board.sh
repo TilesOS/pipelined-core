@@ -19,6 +19,10 @@ for unit in loader loader_compact uart_owner; do
     "$board_dir/${unit}_obj/Vcheckpoint10_${block}_tb"
 done
 mapfile -t sources < scripts/checkpoint10_sources.txt
+verilator --binary --timing -I"$board_dir" --top-module checkpoint10_cpu_reset_tb \
+    --Mdir "$board_dir/cpu_reset_obj" "${sources[@]}" tests/board/checkpoint10_cpu_reset_tb.sv \
+    > "$board_dir/cpu-reset-build.log" 2>&1 || { tail -80 "$board_dir/cpu-reset-build.log"; exit 1; }
+"$board_dir/cpu_reset_obj/Vcheckpoint10_cpu_reset_tb"
 verilator --lint-only -I"$board_dir" --top-module checkpoint10_board_top \
     "${sources[@]}" tests/board/checkpoint8_vendor_stubs.sv
 verilator --cc --exe --build -I"$board_dir" --top-module checkpoint10_board_sim \

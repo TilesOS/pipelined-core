@@ -123,9 +123,11 @@ AXI, zero-wait CPU and M/A/CSR gates pass. Saved compact output is in
 
 The [checkpoint 10 board target](10-board-bringup.md) now provides UART pin
 ownership, a readback-verified DDR test-image loader and a serial RX/PLIC
-payload. Compact-ROM synthesis/route fit at 84/135 BRAM tiles, but the first
-route fails setup (WNS -9.369 ns) and reports trace RAM control warnings.
-PMP/trace RTL fixes require fresh routing; physical execution remains pending.
+payload. The second route at `704f4a8` fits at 84/135 BRAM tiles, passes
+50 MHz timing and clears trace RAM control warnings. Registered CPU release
+addresses a newly reported loader-decode reset warning and requires fresh
+routing. CPU/cache area is 4,749 sites against 3,000; physical execution
+remains pending.
 Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.

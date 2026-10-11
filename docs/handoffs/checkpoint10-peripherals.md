@@ -80,9 +80,18 @@ in the checkpoint record). Build products remain ignored under `build/`.
    now uses prefix masks and parallel selection with independent instruction/
    data checks; trace RAM controls are registered without reset. The privilege,
    interval-reference PMP, core/trace and two-ratio full board regressions pass;
-   see [remediation evidence](../checkpoints/evidence/10-timing-fix-simulation.txt). Rerun
-   synthesis/routing, review timing/CDC/DRC and remeasure CPU/cache occupied
-   sites before generating a bitstream. Physical execution remains pending.
+   see [remediation evidence](../checkpoints/evidence/10-timing-fix-simulation.txt).
+   The second route at clean `704f4a8` passes setup/hold/pulse timing
+   (+0.368/+0.016/+0.206 ns) and clears trace RAM warnings. CPU/cache use is
+   4,749 slice sites, 1,749 above allocation; keep the area review open.
+   A newly reported LUTAR-1 identifies loader-state decoding on asynchronous
+   CPU/cache reset pins. Checkpoint 10 now enables registered CPU release;
+   legacy checkpoint 9's default behavior remains unchanged. Directed pulse/
+   link-loss tests, privilege/PMP, legacy board and both full checkpoint 10
+   board clock ratios pass; see [reset evidence](../checkpoints/evidence/10-cpu-reset-simulation.txt).
+   The Vivado checkers now require registered CPU-reset primitives. Rerun synthesis/
+   routing and review timing/CDC/DRC before a bitstream. Physical execution
+   remains pending.
    The operator
    controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted

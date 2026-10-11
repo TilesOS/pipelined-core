@@ -37,7 +37,8 @@ module checkpoint10_top #(
         .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq), .time_value(time_value),
         .axi_req(peripheral_req), .axi_rsp(peripheral_rsp)
     );
-    checkpoint9_top #(.ENABLE_PRIVILEGE(1), .RESET_PC(RESET_PC), .UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT)) system (
+    checkpoint9_top #(.ENABLE_PRIVILEGE(1), .REGISTER_CPU_RESET(1),
+        .RESET_PC(RESET_PC), .UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT)) system (
         .core_clk(core_clk), .mig_clk(mig_clk), .rst_n(rst_n), .mig_calib_complete(mig_calib_complete),
         .cpu_run(cpu_run), .manual_halt(manual_halt), .dump_button(dump_button),
         .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq), .time_value(time_value),

@@ -1,9 +1,11 @@
 # Checkpoint 10 board bring-up
 
-Status: the first compact-ROM route fits at 84/135 block RAM tiles but fails
-50 MHz setup timing (WNS -9.369 ns) and exposes trace RAM asynchronous-control
-warnings. PMP/trace RTL fixes require fresh synthesis and routing before
-bitstream generation. Physical serial execution remains pending.
+Status: the second route at `704f4a8` passes 50 MHz setup/hold/pulse timing
+and removes trace RAM control warnings, at 84/135 block RAM tiles. It exposes
+a loader-state decode driving CPU/cache asynchronous reset (LUTAR-1).
+Registered CPU release requires fresh synthesis/routing before bitstream
+generation. CPU/cache area exceeds its allocation; physical serial execution
+remains pending.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -166,6 +168,67 @@ timing/CDC/DRC review and a CPU/cache occupied-site query. Retained
 [summary](evidence/10-first-route/summary.txt),
 [worst path](evidence/10-first-route/worst-path.txt), utilization, hierarchy,
 DRC, timing-coverage and console reports document this failed route.
+
+## Second route and registered CPU release
+
+The operator's second archive identifies clean source
+`704f4a8f88ba94f4e8f09d255f95a000212c646f`. Its firmware/payload/ROM and DDR
+image hashes match the first route. Setup WNS is **+0.368 ns**, hold WHS
+**+0.016 ns**, and pulse-width slack **+0.206 ns**, with zero failing endpoints
+or negative slack totals. The worst setup path is now execute instruction
+bit 1 to the I-cache state: 19.445 ns data delay and 26 logic levels.
+REQP-1839/1840 and report-limit warnings are absent; trace still infers two
+RAMB36s. The image ROM uses 64 RAMB36s, each cache ten RAM primitives,
+and the CPU four DSPs. Retained reports are in
+[10-second-route](evidence/10-second-route/summary.txt).
+
+Total routed use is 22,646 LUTs, 12,146 registers, **7,261 occupied slices**,
+84 BRAM tiles (82 RAMB36 plus four RAMB18) and five DSPs. The unique CPU/cache
+site query reports **4,749 slices**, **1,749 above the 3,000 allocation (58.3%)**.
+This includes the trace hardware and is not additive with other hierarchy
+site counts. The full device fits, with 8,589 unused slice sites, but the
+original CPU/cache allocation remains exceeded. Keep the area review open
+for privilege/TLB integration and before adding accelerator lanes; these
+measurements do not establish capacity for unimplemented features.
+
+All 56 assigned port pins/directions/standards match the previous route,
+including the scoped MIG DDR standards and E3 board clock. Timing coverage
+still has no missing clocks, unconstrained internal endpoints or loops;
+the asynchronous reset/button/RX and LED/TX port contracts are unchanged.
+CDC source detail accounts for the complete summary: CDC-1 Critical 1,418
+(95 B/999 R/324 W FIFO payload sources), CDC-15 Warning 381 (26 AR/26 AW/
+322 R/7 W), CDC-6 Warning 10 (Gray pointers), CDC-11 Critical 6 (registered
+link reset), CDC-3 Info 3 and CDC-8 Warning 2 (generated MIG). The existing
+stable-payload/ownership, synchronized-pointer and local reset-release
+review applies; no severities are changed. New UART RX and physical button
+inputs use two ASYNC_REG stages; report_cdc skips ports without input delays.
+DRC retains optional CPU/UART DSP pipeline guidance and the generated MIG
+clock cascade warning. The UART timeout DSP has asynchronous register inputs
+(DPIR-1); RAM/DSP methodology guidance remains, with routed timing passing.
+
+The additional LUTAR-1 endpoint is `board/loader/cpu_i_1` driving the cache
+bypass bridge asynchronous reset pins. CPU release previously combined
+`masters_ready` with a combinational completion/error decode of loader state.
+Decode pulses must not release/reset CPU/cache state. The fix adds opt-in
+`REGISTER_CPU_RESET` to `checkpoint9_top`, enabled by `checkpoint10_top`:
+a core-clock flip-flop samples `cpu_run`, resets asynchronously when locally
+synchronized `masters_ready` falls, and drives CPU/cache reset directly.
+Normal release waits one core edge. Legacy checkpoint 9 keeps its previous
+default reset behavior and its proven checkout/bitstream remain available.
+
+A directed test injects subcycle completion/run pulses, checks actual CPU
+reset input stability, and verifies real withdrawal/calibration loss and
+recovery. A negative control using the old combinational path fails on the
+false completion pulse. The final privilege/PMP, legacy checkpoint 9 board,
+and both full checkpoint 10 board clock-ratio gates pass, including reset/
+reload and complete 256-record trace dumps. See
+[registered-release simulation evidence](evidence/10-cpu-reset-simulation.txt).
+Fresh routing must confirm that the loader-driven LUTAR-1 finding
+is removed and timing/BRAM inference still pass. Both Vivado checkers inventory
+the `cpu_reset_n_reg` primitives and reject a netlist without them, guarding
+against accidentally reopening the previous implemented design. The separate generated MIG
+LUTAR-1 endpoint remains part of the preserved IP reset inventory. The timing
+pass at `704f4a8` does not establish timing for the registered-release change.
 
 ## Separate source and Vivado projects
 

@@ -4,6 +4,7 @@
 // CPU is held reset. During execution, DMA uses the uncached pool exclusively.
 module checkpoint9_top #(
     parameter bit ENABLE_PRIVILEGE = 0,
+    parameter bit REGISTER_CPU_RESET = 0,
     parameter logic [31:0] RESET_PC = 32'h0000_0000,
     parameter integer UART_CLOCKS_PER_BIT = 434
 ) (
@@ -39,6 +40,18 @@ module checkpoint9_top #(
     logic [31:0] external_addr;
     logic [3:0] external_word_mask;
     logic [31:0] external_write_addr [2];
+    logic cpu_reset_n;
+    if (REGISTER_CPU_RESET) begin : registered_cpu_reset
+        // cpu_run is synchronous to core_clk. Sample its loader-state decode
+        // before it reaches asynchronous reset pins; reset loss still asserts
+        // immediately through the locally synchronized master-release chain.
+        always_ff @(posedge core_clk or negedge masters_ready) begin
+            if (!masters_ready) cpu_reset_n <= 1'b0;
+            else cpu_reset_n <= cpu_run;
+        end
+    end else begin : legacy_cpu_reset
+        assign cpu_reset_n = masters_ready && cpu_run;
+    end
     // Prevent new competing writes during an atomic interval. Drain already
     // granted transactions before the CPU starts the atomic read. W and B
     // remain connected so an older transaction cannot deadlock the lock.
@@ -70,7 +83,7 @@ module checkpoint9_top #(
         end
     end
     rv32_cached_core #(.ENABLE_PRIVILEGE(ENABLE_PRIVILEGE), .RESET_PC(RESET_PC), .UART_CLOCKS_PER_BIT(UART_CLOCKS_PER_BIT)) cpu (
-        .clk(core_clk), .rst_n(masters_ready && cpu_run), .manual_halt(manual_halt), .dump_button(dump_button),
+        .clk(core_clk), .rst_n(cpu_reset_n), .manual_halt(manual_halt), .dump_button(dump_button),
         .msip_irq(msip_irq), .mtip_irq(mtip_irq), .meip_irq(meip_irq), .seip_irq(seip_irq), .time_value(time_value),
         .external_store_valid(external_store), .external_store_addr(external_addr),
         .external_store_word_mask(external_word_mask),
