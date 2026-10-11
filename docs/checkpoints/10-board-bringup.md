@@ -6,7 +6,7 @@ signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
 bitstream; use a separate `/home/tyler/checkpoint10_board` project.
 
-The source branch is `codex/checkpoint10-peripherals`, including approved
+The source branch is `checkpoint10-peripherals`, including approved
 checkpoint 9 FPGA fixes through merge `f523289`. The new target is
 `checkpoint10_board_top`, using the same PLL, MIG wrapper, DDR pinout and
 late implementation-only CDC constraints. It enables the actual privilege,
@@ -69,7 +69,7 @@ execute real OpenSBI and the S timer/PMP plus physical-pin UART/PLIC path,
 reset/reload/retest, and receive a complete 256-record shared-pin trace packet.
 The existing privilege, peripheral/MMIO, generic OpenSBI and checkpoint 9
 board regressions pass. The final test image is 262,816 bytes: 133,884-byte
-firmware, padding to the 256 KiB reservation, a 670-byte payload and alignment
+firmware, padding to the 256 KiB reservation, a 672-byte payload and alignment
 padding. Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
 These results establish the prepared target in simulation; FPGA synthesis,
@@ -81,7 +81,7 @@ In an Ubuntu terminal, create a dedicated source checkout. The clone command
 refuses to overwrite an existing directory.
 
 ```sh
-git clone --branch codex/checkpoint10-peripherals --single-branch \
+git clone --branch checkpoint10-peripherals --single-branch \
     https://github.com/TilesOS/pipelined-core.git /home/tyler/checkpoint10_src
 cd /home/tyler/checkpoint10_src
 sudo apt-get update
@@ -96,6 +96,12 @@ an absolute-path include header, and `image-manifest.json` with source/firmware
 revisions, sizes and SHA-256 hashes. Rebuild the image after moving the checkout
 or changing firmware/payload; regenerate Vivado runs after changing the image.
 It is deliberately a build artifact, rather than a checked-in firmware blob.
+
+The payload uses explicit zero padding before its `fail` instruction label.
+Binutils 2.40 otherwise skips the required two-byte padding under `norvc`,
+producing the rejected address `0x8004026e`. With explicit padding, binutils
+2.40 and 2.44 both place `fail` at `0x80040270`, pass all instruction-label
+alignment checks, and produce identical payload bytes for both build variants.
 
 Open the proven checkpoint 9 project in Vivado and use **File → Project →
 Save As** to create `/home/tyler/checkpoint10_board/checkpoint10_board.xpr`.

@@ -145,7 +145,9 @@ print_string:
 rx_ready: .asciz "CHECKPOINT10 UART RX READY: send K\r\n"
 rx_pass: .asciz "CHECKPOINT10 UART RX/PLIC PASS\r\n"
 #endif
-    .balign 4
+    # Explicit zero fill also aligns code on older assemblers that cannot
+    # emit a two-byte NOP with .option norvc after the embedded strings.
+    .balign 4, 0
 fail:
     li x31, 0xbad
 5:  j 5b

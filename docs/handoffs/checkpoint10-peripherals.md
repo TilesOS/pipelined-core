@@ -1,7 +1,8 @@
 # Fresh-chat handoff: checkpoint 10 peripherals and privilege
 
-Branch: `codex/checkpoint10-peripherals`, originally based on checkpoint 9
-`ec59ced`. On 2026-10-10, integrated approved `main` at `142a347` (checkpoint 9
+Branch: `checkpoint10-peripherals` (renamed from
+`codex/checkpoint10-peripherals`), originally based on checkpoint 9 `ec59ced`.
+On 2026-10-10, integrated approved `main` at `142a347` (checkpoint 9
 PR #2) so this branch includes the final FPGA cache/multiplier/CDC fixes
 and checkpoint 9 board evidence. All eight combined regression gates pass;
 see the [integration record](../checkpoints/10-privilege-peripherals.md#integration-with-approved-main-2026-10-10)
