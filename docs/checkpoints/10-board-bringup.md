@@ -1,8 +1,8 @@
 # Checkpoint 10 board bring-up
 
-Status: first physical synthesis exceeded block RAM capacity (144/135 tiles).
-The image ROM now omits the reserved zero gap; fresh synthesis, routing and
-serial execution are pending. The operator confirmed checkpoint 9's board
+Status: compact-ROM physical synthesis passes resource checks at 84/135 block
+RAM tiles. Routing, timing/CDC/DRC review and serial execution are pending.
+The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
 bitstream; use a separate `/home/tyler/checkpoint10_board` project.
@@ -77,8 +77,8 @@ padding. The compact ROM stores 134,560 bytes / 8,410 words. Its generated
 header separately describes the stored words and full DDR image words.
 Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
-These results establish the prepared target in simulation; fresh FPGA synthesis,
-resource mapping, timing and physical execution remain pending.
+These results establish the prepared target in simulation. Physical synthesis
+resource checks now pass; routed timing and physical execution remain pending.
 
 ## First physical synthesis and ROM capacity fix
 
@@ -97,9 +97,21 @@ causes inefficient memory allocation. Compacting the stored image to
 8,410 words removes the large zero gap from ROM storage. The loader still
 writes and reads back every DDR word, including that gap, before releasing
 the CPU. Firmware/payload addresses and the DDR image contract are unchanged.
-The synchronous ROM read remains reset-free. Confirm the resulting BRAM
-allocation in fresh synthesis; simulation does not establish its physical fit.
+The synchronous ROM read remains reset-free.
 The synthesis checker now rejects total block RAM use above 135 tiles.
+
+The operator's fresh synthesis report and checker output on 2026-10-11 confirm
+**84/135 block RAM tiles (62.22%)**, down from 144. The ROM uses 64 RAM
+primitives; both caches infer block RAM (ten primitives each). Total use is
+82 RAMB36s plus four RAMB18s, 22,485 LUTs (35.47%), 12,268 registers (9.68%)
+and five DSPs; the CPU still uses four DSPs within its eight-DSP allocation.
+The clock pin check passes E3/LVCMOS33. The two scoped MIG Netlist 29-160
+warnings remain and require routed I/O review. The source/image manifest has
+not yet been supplied. See the saved
+[utilization](evidence/10-compact-synthesis/synthesis_utilization.rpt) and
+[checker console](evidence/10-compact-synthesis/synthesis_console.txt).
+These resource checks permit proceeding to implementation; timing, actual
+occupied slices, CDC/DRC and board execution still require new evidence.
 
 ## Separate source and Vivado projects
 
