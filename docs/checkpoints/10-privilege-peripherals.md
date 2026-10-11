@@ -142,6 +142,26 @@ Linux boot requires Sv32 at checkpoint
 11 and the later software/loader gates. This simulation gate is project-authored
 coverage and generic firmware execution, not RISC-V architectural certification.
 
+## PMP unit-test scheduling on CI, 2026-10-11
+
+The Ubuntu 24.04 CI `privilege` job at `3f3e75f` failed the PMP interval unit
+test under Verilator 5.020 at address `0x8000400f`, size 1 (two bytes), M mode,
+read/write permissions: expected denial, observed allowance. The same test
+passed under the local Verilator 5.032. Reproducing with Ubuntu's 5.020 package
+confirmed that the clock tied low in this isolated fixture caused generated
+NAPOT-mask logic to run only during initial settling; subsequent hierarchical
+CSR-bank writes left those masks stale.
+
+The fixture now clocks the core, performs a reset cycle, holds it halted and
+waits a full clock period after each test CSR update. This keeps the real
+checker combinational logic active while preventing instruction execution from
+overwriting the stimulus. The independent interval reference, seed, permission
+assertions and all 106,808 checks are unchanged. Both simulator versions pass
+the fixture, and the full privilege gate passes with a fresh Verilator 5.020
+build. See [compatibility evidence](evidence/10-ci-pmp-scheduling.txt).
+This testbench-only correction changes no RTL, firmware, Vivado constraint or
+workflow, so the recorded physical board build remains applicable.
+
 ## Integration with approved main, 2026-10-10
 
 Merged `main` at `142a34783f2ac167b09d3cb998e740e936f03f2d` (checkpoint 9

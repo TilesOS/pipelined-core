@@ -62,6 +62,11 @@ bash scripts/run_lockstep_smoke.sh --self-test
 
 New Verilator builds have no default warnings. The integrated programs run
 with three unrelated core/MIG clock ratios and seeded backpressure. The
+PMP interval fixture now clocks and resets a halted core so Verilator 5.020
+reevaluates derived masks after hierarchical stimulus writes, matching 5.032;
+all 106,808 checks and the fresh 5.020 privilege gate pass. See
+[CI compatibility evidence](../checkpoints/evidence/10-ci-pmp-scheduling.txt).
+This fixture-only correction preserves the physical RTL/image evidence. The
 firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
 `gcc-riscv64-linux-gnu`. The bare-metal Debian linker rejects PIE, so the cloud
 uses its GCC code generator with a local Linux BFD linker wrapper (documented

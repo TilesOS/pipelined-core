@@ -1,5 +1,10 @@
 // Exercise the real core checker against an independent numeric interval model.
 module checkpoint10_pmp_tb;
+    // Keep the CSR bank clocked even though this unit test writes it directly.
+    // With Verilator 5.020, derived masks are startup-only when clk is tied low.
+    logic clk = 0;
+    logic rst_n = 0;
+    always #1 clk = ~clk;
     int checks = 0;
     int seed = 32'h1cf0abcd;
     logic [31:0] address;
@@ -7,9 +12,9 @@ module checkpoint10_pmp_tb;
     logic [2:0] accesses;
     longint unsigned region_low, region_high, encoded;
     rv32_slice #(.ENABLE_PRIVILEGE(1)) dut (
-        .clk(1'b0),
-        .rst_n(1'b1),
-        .debug_halt(1'b0),
+        .clk(clk),
+        .rst_n(rst_n),
+        .debug_halt(1'b1),
         .msip_irq(1'b0),
         .mtip_irq(1'b0),
         .meip_irq(1'b0),
@@ -101,8 +106,9 @@ module checkpoint10_pmp_tb;
     task automatic check(input logic [31:0] addr, input logic [1:0] size,
         privilege_mode, input logic [2:0] permissions);
         logic expected, actual;
-        // Allow generated NAPOT mask wires to settle after test CSR updates.
-        #1;
+        // Cross a full clock period so generated NAPOT masks settle after CSR
+        // updates. The halted core cannot overwrite the test's PMP settings.
+        #2;
         expected = reference_allow(addr, size, privilege_mode, permissions);
         actual = dut.pmp_allow(addr, size, privilege_mode,
             permissions[0], permissions[1], permissions[2]);
@@ -117,6 +123,8 @@ module checkpoint10_pmp_tb;
         end
     endtask
     initial begin
+        @(negedge clk);
+        rst_n = 1;
         void'($urandom(seed));
         clear_entries();
         // Every NAPOT size, including 31/32 trailing ones and full RV32 space.

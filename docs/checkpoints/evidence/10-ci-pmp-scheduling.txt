@@ -1,0 +1,155 @@
+Checkpoint 10 PMP CI scheduling correction, 2026-10-11
+Base source: 3f3e75f78f2967b46ad8b52e98ef01ed7f8e9092 + fixture-only change.
+Fixture SHA-256: 27b8611b9b865a08b719c94cd71b9b0094d16e3ee50c598a6f268292c028bfc6
+Failed CI: https://github.com/TilesOS/pipelined-core/actions/runs/38124230177
+Failed job: privilege, Run M/S/U, interrupt and PMP simulations (exit 134).
+CI tools: Ubuntu 24.04.5, Verilator 5.020-1, bare-metal GCC 13.2/binutils 2.42.
+CI failure and local 5.020 baseline reproduction (same inputs/time):
+[2291000] PMP mismatch address=8000400f size=1 mode=3 permissions=3 expected=0 actual=1
+The original fixture passes unchanged on Verilator 5.032.
+
+Diagnosis: clk tied low prunes the CSR sequential process; Verilator 5.020
+places the NAPOT-mask calculations in initial settle code only. Later testbench
+writes to the CSR arrays do not update those masks. With a clock/reset cycle,
+the generated mask logic is in the active/NBA evaluation path.
+Fix: run a 2 ns clock, reset for one cycle, hold debug_halt high and wait
+2 ns per probe. The core cannot execute instructions/overwrite PMP stimulus.
+Reference algorithm, random seed, test cases and permission assertions unchanged.
+No RTL, firmware, image, constraint, workflow or board artifact changes.
+The accepted physical 5b74119 implementation / 74d26b9 image remain valid.
+
+Local validation: extracted Ubuntu Verilator 5.020-1 package under /tmp,
+Debian rootless toolchain activation supplies RISC-V tools and libraries.
+Freshly generated PMP and full privilege models use Verilator 5.020;
+prior full-system model moved aside to avoid --skip-identical cache reuse.
+Command (exit 0): bash scripts/run_checkpoint10.sh
+PASS: 106808 independent PMP interval checks.
+PASS: all nine integrated programs (privilege/pmp/mmio_faults, three ratios).
+PASS: failed FENCE.I writeback retains fail-stop under privilege.
+No default Verilator build warnings or errors.
+
+Additional fixture build/run with Verilator 5.032 (exit 0):
+verilator --binary --timing --timescale 1ns/1ps --top-module checkpoint10_pmp_tb \
+  --Mdir /tmp/checkpoint10-pmp-fixed-current rtl/core/rv32_slice.sv \
+  tests/privilege/checkpoint10_pmp_tb.sv
+/tmp/checkpoint10-pmp-fixed-current/Vcheckpoint10_pmp_tb
+
+5.032 fixture output:
+PASS: 106808 PMP interval-reference checks (all NAPOT sizes, overlap, boundaries, priority and modes)
+- tests/privilege/checkpoint10_pmp_tb.sv:178: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 214us; walltime 0.196 s; speed 1.089 ms/s
+- Verilator: cpu 0.196 s on 1 threads; alloced 17 MB
+
+Fresh 5.020 full privilege output:
+PASS: 106808 PMP interval-reference checks (all NAPOT sizes, overlap, boundaries, priority and modes)
+- /workspace/pipelined-core/tests/privilege/checkpoint10_pmp_tb.sv:178: Verilog $finish
+Running privilege with clocks 5/7, seed 44257
+trap priv=3 pc=80000090 cause=80000003 tval=00000000
+trap priv=3 pc=80000090 cause=80000007 tval=00000000
+trap priv=3 pc=80000110 cause=00000007 tval=80002000
+trap priv=1 pc=80000138 cause=00000009 tval=00000000
+trap priv=1 pc=8000013c cause=00000002 tval=340022f3
+trap priv=1 pc=80000154 cause=00000007 tval=80002000
+trap priv=1 pc=80002000 cause=00000001 tval=80002000
+trap priv=1 pc=8000019c cause=80000009 tval=00000000
+trap priv=0 pc=800001c0 cause=00000008 tval=00000000
+trap priv=0 pc=800001c4 cause=00000002 tval=140022f3
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 3/11, seed 137
+trap priv=3 pc=80000090 cause=80000003 tval=00000000
+trap priv=3 pc=80000090 cause=80000007 tval=00000000
+trap priv=3 pc=80000110 cause=00000007 tval=80002000
+trap priv=1 pc=80000138 cause=00000009 tval=00000000
+trap priv=1 pc=8000013c cause=00000002 tval=340022f3
+trap priv=1 pc=80000154 cause=00000007 tval=80002000
+trap priv=1 pc=80002000 cause=00000001 tval=80002000
+trap priv=1 pc=8000019c cause=80000009 tval=00000000
+trap priv=0 pc=800001c0 cause=00000008 tval=00000000
+trap priv=0 pc=800001c4 cause=00000002 tval=140022f3
+PASS: integrated privilege program reached success signature
+Running privilege with clocks 11/3, seed 31119
+trap priv=3 pc=80000090 cause=80000003 tval=00000000
+trap priv=3 pc=80000090 cause=80000007 tval=00000000
+trap priv=3 pc=80000110 cause=00000007 tval=80002000
+trap priv=1 pc=80000138 cause=00000009 tval=00000000
+trap priv=1 pc=8000013c cause=00000002 tval=340022f3
+trap priv=1 pc=80000154 cause=00000007 tval=80002000
+trap priv=1 pc=80002000 cause=00000001 tval=80002000
+trap priv=1 pc=8000019c cause=80000009 tval=00000000
+trap priv=0 pc=800001c0 cause=00000008 tval=00000000
+trap priv=0 pc=800001c4 cause=00000002 tval=140022f3
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 5/7, seed 44257
+trap priv=3 pc=80000088 cause=00000007 tval=80004000
+trap priv=3 pc=80000088 cause=00000007 tval=80004004
+trap priv=3 pc=80000090 cause=00000005 tval=80004004
+trap priv=3 pc=80000088 cause=00000007 tval=80004008
+trap priv=3 pc=80000088 cause=00000007 tval=8000400c
+trap priv=3 pc=80000090 cause=00000005 tval=8000400c
+trap priv=3 pc=80000088 cause=00000007 tval=80004010
+trap priv=3 pc=80000088 cause=00000007 tval=80004014
+trap priv=3 pc=80000090 cause=00000005 tval=80004014
+trap priv=3 pc=80000088 cause=00000007 tval=80004018
+trap priv=3 pc=80000088 cause=00000007 tval=8000401c
+trap priv=3 pc=80000090 cause=00000005 tval=8000401c
+trap priv=3 pc=800000b4 cause=00000007 tval=80004000
+trap priv=3 pc=800000b8 cause=00000007 tval=80004000
+trap priv=3 pc=800000c4 cause=00000005 tval=80004004
+trap priv=3 pc=80000118 cause=00000005 tval=80004020
+trap priv=3 pc=8000013c cause=0000000b tval=00000000
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 3/11, seed 137
+trap priv=3 pc=80000088 cause=00000007 tval=80004000
+trap priv=3 pc=80000088 cause=00000007 tval=80004004
+trap priv=3 pc=80000090 cause=00000005 tval=80004004
+trap priv=3 pc=80000088 cause=00000007 tval=80004008
+trap priv=3 pc=80000088 cause=00000007 tval=8000400c
+trap priv=3 pc=80000090 cause=00000005 tval=8000400c
+trap priv=3 pc=80000088 cause=00000007 tval=80004010
+trap priv=3 pc=80000088 cause=00000007 tval=80004014
+trap priv=3 pc=80000090 cause=00000005 tval=80004014
+trap priv=3 pc=80000088 cause=00000007 tval=80004018
+trap priv=3 pc=80000088 cause=00000007 tval=8000401c
+trap priv=3 pc=80000090 cause=00000005 tval=8000401c
+trap priv=3 pc=800000b4 cause=00000007 tval=80004000
+trap priv=3 pc=800000b8 cause=00000007 tval=80004000
+trap priv=3 pc=800000c4 cause=00000005 tval=80004004
+trap priv=3 pc=80000118 cause=00000005 tval=80004020
+trap priv=3 pc=8000013c cause=0000000b tval=00000000
+PASS: integrated privilege program reached success signature
+Running pmp with clocks 11/3, seed 31119
+trap priv=3 pc=80000088 cause=00000007 tval=80004000
+trap priv=3 pc=80000088 cause=00000007 tval=80004004
+trap priv=3 pc=80000090 cause=00000005 tval=80004004
+trap priv=3 pc=80000088 cause=00000007 tval=80004008
+trap priv=3 pc=80000088 cause=00000007 tval=8000400c
+trap priv=3 pc=80000090 cause=00000005 tval=8000400c
+trap priv=3 pc=80000088 cause=00000007 tval=80004010
+trap priv=3 pc=80000088 cause=00000007 tval=80004014
+trap priv=3 pc=80000090 cause=00000005 tval=80004014
+trap priv=3 pc=80000088 cause=00000007 tval=80004018
+trap priv=3 pc=80000088 cause=00000007 tval=8000401c
+trap priv=3 pc=80000090 cause=00000005 tval=8000401c
+trap priv=3 pc=800000b4 cause=00000007 tval=80004000
+trap priv=3 pc=800000b8 cause=00000007 tval=80004000
+trap priv=3 pc=800000c4 cause=00000005 tval=80004004
+trap priv=3 pc=80000118 cause=00000005 tval=80004020
+trap priv=3 pc=8000013c cause=0000000b tval=00000000
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 5/7, seed 44257
+trap priv=3 pc=8000001c cause=00000005 tval=10010000
+trap priv=3 pc=80000040 cause=00000007 tval=10000004
+trap priv=3 pc=8000006c cause=00000005 tval=02000000
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 3/11, seed 137
+trap priv=3 pc=8000001c cause=00000005 tval=10010000
+trap priv=3 pc=80000040 cause=00000007 tval=10000004
+trap priv=3 pc=8000006c cause=00000005 tval=02000000
+PASS: integrated privilege program reached success signature
+Running mmio_faults with clocks 11/3, seed 31119
+trap priv=3 pc=8000001c cause=00000005 tval=10010000
+trap priv=3 pc=80000040 cause=00000007 tval=10000004
+trap priv=3 pc=8000006c cause=00000005 tval=02000000
+PASS: integrated privilege program reached success signature
+PASS: failed FENCE.I writeback remains fail-stop with privilege enabled
