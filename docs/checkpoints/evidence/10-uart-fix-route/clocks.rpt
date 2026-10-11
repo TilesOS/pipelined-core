@@ -1,0 +1,204 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct 11 16:18:01 2026
+| Host         : B850M-Riptide-WiFi running 64-bit Ubuntu 24.04.5 LTS
+| Command      : report_clocks -file /home/tyler/checkpoint10_src/build/checkpoint10-board/vivado-reports/clocks.rpt
+| Design       : checkpoint10_board_top
+| Device       : 7a100t-csg324
+| Speed File   : -1  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Clock Report
+
+
+Attributes
+  P: Propagated
+  G: Generated
+  A: Auto-derived
+  R: Renamed
+  V: Virtual
+  I: Inverted
+  S: Pin phase-shifted with Latency mode
+
+Clock                                                                                                                                                      Period(ns)  Waveform(ns)    Attributes  Sources
+board_clk_100                                                                                                                                              10.000      {0.000 5.000}   P           {sys_clk_i}
+mig/ddr_probe_i/mig_7series_0/sys_clk_i                                                                                                                    10.000      {0.000 5.000}   P,G         {mig/ddr_probe_i/mig_7series_0/sys_clk_i}
+clk200_unbuffered                                                                                                                                          5.000       {0.000 2.500}   P,G,A       {clocks/pll/CLKOUT1}
+clk50_unbuffered                                                                                                                                           20.000      {0.000 10.000}  P,G,A       {clocks/pll/CLKOUT0}
+clk_pll_i                                                                                                                                                  12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT}
+feedback                                                                                                                                                   10.000      {0.000 5.000}   P,G,A       {clocks/pll/CLKFBOUT}
+freq_refclk                                                                                                                                                1.538       {0.000 0.769}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT0}
+iserdes_clkdiv                                                                                                                                             12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLKDIV}
+iserdes_clkdiv_1                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLKDIV}
+mem_refclk                                                                                                                                                 3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT1}
+oserdes_clk                                                                                                                                                3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLK}
+oserdes_clk_1                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLK}
+oserdes_clk_2                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLK}
+oserdes_clk_3                                                                                                                                              3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLK}
+oserdes_clkdiv                                                                                                                                             6.154       {0.000 3.077}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLKDIV}
+oserdes_clkdiv_1                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLKDIV}
+oserdes_clkdiv_2                                                                                                                                           6.154       {0.000 3.077}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLKDIV}
+oserdes_clkdiv_3                                                                                                                                           12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLKDIV}
+pll_clk3_out                                                                                                                                               12.308      {0.000 6.154}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT3}
+pll_clkfbout                                                                                                                                               10.000      {0.000 5.000}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKFBOUT}
+sync_pulse                                                                                                                                                 49.231      {1.346 4.423}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT2}
+u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/iserdes_clk  3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLK}
+u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/iserdes_clk  3.077       {0.000 1.538}   P,G,A       {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLK}
+
+
+====================================================
+Generated Clocks
+====================================================
+
+Generated Clock     : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Master Source       : sys_clk_i
+Master Clock        : board_clk_100
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/sys_clk_i}
+
+Generated Clock     : clk200_unbuffered
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Multiply By         : 2
+Generated Sources   : {clocks/pll/CLKOUT1}
+
+Generated Clock     : clk50_unbuffered
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 5.000 10.000}
+Generated Sources   : {clocks/pll/CLKOUT0}
+
+Generated Clock     : clk_pll_i
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKIN1
+Master Clock        : pll_clk3_out
+Multiply By         : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/gen_ui_extra_clocks.mmcm_i/CLKFBOUT}
+
+Generated Clock     : feedback
+Master Source       : clocks/pll/CLKIN1
+Master Clock        : board_clk_100
+Multiply By         : 1
+Generated Sources   : {clocks/pll/CLKFBOUT}
+
+Generated Clock     : freq_refclk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 -4.231 -8.462}
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT0}
+
+Generated Clock     : iserdes_clkdiv
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLK
+Master Clock        : u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/iserdes_clk
+Divide By           : 4
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLKDIV}
+
+Generated Clock     : iserdes_clkdiv_1
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLK
+Master Clock        : u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/iserdes_clk
+Divide By           : 4
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLKDIV}
+
+Generated Clock     : mem_refclk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 -3.462 -6.923}
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT1}
+
+Generated Clock     : oserdes_clk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/MEMREFCLK
+Master Clock        : mem_refclk
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLK}
+
+Generated Clock     : oserdes_clk_1
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/MEMREFCLK
+Master Clock        : mem_refclk
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLK}
+
+Generated Clock     : oserdes_clk_2
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/MEMREFCLK
+Master Clock        : mem_refclk
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLK}
+
+Generated Clock     : oserdes_clk_3
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/MEMREFCLK
+Master Clock        : mem_refclk
+Divide By           : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLK}
+
+Generated Clock     : oserdes_clkdiv
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLK
+Master Clock        : oserdes_clk
+Divide By           : 2
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_out/OCLKDIV}
+
+Generated Clock     : oserdes_clkdiv_1
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLK
+Master Clock        : oserdes_clk_1
+Divide By           : 4
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_B.ddr_byte_lane_B/phaser_out/OCLKDIV}
+
+Generated Clock     : oserdes_clkdiv_2
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLK
+Master Clock        : oserdes_clk_2
+Divide By           : 2
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_out/OCLKDIV}
+
+Generated Clock     : oserdes_clkdiv_3
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLK
+Master Clock        : oserdes_clk_3
+Divide By           : 4
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_D.ddr_byte_lane_D/phaser_out/OCLKDIV}
+
+Generated Clock     : pll_clk3_out
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {0.000 1.154 2.308}
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT3}
+
+Generated Clock     : pll_clkfbout
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Multiply By         : 1
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKFBOUT}
+
+Generated Clock     : sync_pulse
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKIN1
+Master Clock        : mig/ddr_probe_i/mig_7series_0/sys_clk_i
+Edges               : {1 2 3}
+Edge Shifts(ns)     : {1.346 -0.577 40.577}
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_ddr2_infrastructure/plle2_i/CLKOUT2}
+
+Generated Clock     : u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/iserdes_clk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/FREQREFCLK
+Master Clock        : freq_refclk
+Divide By           : 2
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_A.ddr_byte_lane_A/phaser_in_gen.phaser_in/ICLK}
+
+Generated Clock     : u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/iserdes_clk
+Master Source       : mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/FREQREFCLK
+Master Clock        : freq_refclk
+Divide By           : 2
+Generated Sources   : {mig/ddr_probe_i/mig_7series_0/u_ddr_probe_mig_7series_0_0_mig/u_memc_ui_top_axi/mem_intfc0/ddr_phy_top0/u_ddr_mc_phy_wrapper/u_ddr_mc_phy/ddr_phy_4lanes_0.u_ddr_phy_4lanes/ddr_byte_lane_C.ddr_byte_lane_C/phaser_in_gen.phaser_in/ICLK}
+
+
+
+====================================================
+User Uncertainty
+====================================================
+
+
+
+====================================================
+User Jitter
+====================================================
+
+

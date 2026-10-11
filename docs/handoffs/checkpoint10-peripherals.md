@@ -71,8 +71,16 @@ PR #3's UART follow-up also accepts a THR write when a full TX FIFO pops on
 the same cycle. The directed regression covers depths 1/16, serial ordering,
 held successful responses and THRE behavior; see the
 [UART review fix](../checkpoints/10-privilege-peripherals.md#uart-full-fifo-popwrite-review-fix-2026-10-11).
-That follow-up changes RTL, so the archived physical acceptance stays scoped
-to the recorded build; a physical build with the UART fix needs fresh evidence.
+Fresh UART-fix synthesis/routing at clean `5e0fb45` passes timing
+(+0.932/+0.024/+0.206 ns), preserves registered tag controls and FDRE reset,
+and retains image/pin/clock/exception and CDC source-family review. CPU/cache
+uses 4,513 sites (1,513 over allocation); total device use is 6,874 slices.
+Both exact-source CI workflows pass. See
+[route review](../checkpoints/evidence/10-uart-fix-route/review.txt).
+Bitstream generation and physical boot/reset/trace/recovery remain pending
+for this changed RTL; older physical acceptance stays scoped to its bitstream.
+Retain the current `5e0fb45` synthesis/routing/image; this evidence-only update
+requires no new rebuild or reroute.
 The firmware gate needs DTC and a PIE-capable RISC-V linker; CI installs
 `gcc-riscv64-linux-gnu`. The bare-metal Debian linker rejects PIE, so the cloud
 uses its GCC code generator with a local Linux BFD linker wrapper (documented

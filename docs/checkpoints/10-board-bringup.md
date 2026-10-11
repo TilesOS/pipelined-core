@@ -10,6 +10,13 @@ The fifth route at clean implementation source `5b74119`, retaining
 REQP-1839/1840; both tag enables now have only their registered RTL startpoint.
 FDRE CPU reset and 84/135 block RAM tiles are retained.
 CPU/cache area is 4,710/3,000 sites; that area review remains open.
+The UART full-FIFO pop/write fix has a fresh route at clean `5e0fb45`:
+setup/hold/pulse +0.932/+0.024/+0.206 ns, 84/135 BRAM tiles and 4,513 CPU/cache
+sites. Image hashes, pin/clock/exception and CDC source-family review are
+retained; see [UART-fix route review](evidence/10-uart-fix-route/review.txt).
+Bitstream generation and physical functional validation of this updated RTL
+remain pending. Keep its current synthesized/routed design for programming;
+the documentation/evidence follow-up requires no rebuild.
 The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted

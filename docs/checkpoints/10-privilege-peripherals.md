@@ -178,9 +178,21 @@ FIFO's depth 1. Both cases fail against the preceding RTL. The full peripheral/
 MMIO gate passes with Verilator 5.032; fresh UART and MMIO builds also pass
 with CI's Verilator 5.020. All of these builds have no default warnings.
 
-This changes UART RTL. The archived FPGA timing and board acceptance remain
-evidence for implementation `5b74119` and its recorded bitstream; a physical
-build containing this fix needs fresh implementation and board evidence.
+Fresh synthesis and routing at clean `5e0fb45` pass setup/hold/pulse timing
+(+0.932/+0.024/+0.206 ns), retain FDRE reset and the registered tag-RAM enables,
+and clear REQP-1839/1840. Image hashes, pin assignments, clock definitions and
+timing exceptions match the accepted fifth route. The complete CDC inventory
+has the same rule totals and source families. UART timeout DSP pipelining
+guidance increases to 15 DPIR-1 findings on the same DSP; other methodology
+and DRC rule counts are retained. CPU/cache area is 4,513/3,000 slices, with
+6,874 total device slices and 84/135 BRAM tiles. Both exact-source CI workflows
+pass. See [UART-fix route review](evidence/10-uart-fix-route/review.txt).
+
+This changes UART RTL. Bitstream generation and repeatable physical boot/reset,
+UART/PLIC, trace and recovery validation for `5e0fb45` remain pending. The
+archived physical acceptance remains scoped to implementation `5b74119` and
+its recorded bitstream. This evidence update changes no RTL or constraints;
+retain the current UART-fix synthesis, routed design and image for programming.
 
 ## Integration with approved main, 2026-10-10
 
