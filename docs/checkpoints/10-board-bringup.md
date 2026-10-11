@@ -1,6 +1,7 @@
 # Checkpoint 10 board bring-up
 
-Status: board integration prepared; physical synthesis, timing, resources and
+Status: first physical synthesis exceeded block RAM capacity (144/135 tiles).
+The image ROM now omits the reserved zero gap; fresh synthesis, routing and
 serial execution are pending. The operator confirmed checkpoint 9's board
 signoff and Nexys A7 cable availability on 2026-10-11. The Ubuntu PC runs
 Vivado 2026.1. Preserve `/home/tyler/checkpoint9_board` and its accepted
@@ -15,7 +16,9 @@ PMP, caches and standard devices; no simulation vendor model enters Vivado.
 ## Image and execution contract
 
 The board proof embeds a generated ROM with pinned OpenSBI v1.7 and a small
-S-mode payload. After calibration, master 2 writes each 128-bit image word
+S-mode payload. ROM storage contains firmware followed immediately by payload;
+the loader supplies zeroes for their reserved DDR gap. After calibration,
+master 2 writes each 128-bit image word
 to DDR and reads it back. The CPU and both caches stay reset until the entire
 image is verified. A failed AXI response, wrong response ID, missing RLAST,
 data mismatch or timeout blocks CPU release and lights LED 2. Reset or
@@ -70,10 +73,33 @@ reset/reload/retest, and receive a complete 256-record shared-pin trace packet.
 The existing privilege, peripheral/MMIO, generic OpenSBI and checkpoint 9
 board regressions pass. The final test image is 262,816 bytes: 133,884-byte
 firmware, padding to the 256 KiB reservation, a 672-byte payload and alignment
-padding. Host packing/capture and Tcl project-preservation guards also pass.
+padding. The compact ROM stores 134,560 bytes / 8,410 words. Its generated
+header separately describes the stored words and full DDR image words.
+Host packing/capture and Tcl project-preservation guards also pass.
 Saved compact results are in [10-board-simulation.txt](evidence/10-board-simulation.txt).
-These results establish the prepared target in simulation; FPGA synthesis,
-BRAM mapping, timing and physical execution remain pending.
+These results establish the prepared target in simulation; fresh FPGA synthesis,
+resource mapping, timing and physical execution remain pending.
+
+## First physical synthesis and ROM capacity fix
+
+The operator's Vivado 2026.1 reports for `checkpoint10_board_top` on
+`xc7a100tcsg324-1` show 22,624 LUTs (35.68%), 12,725 registers (10.04%),
+five total DSPs, and 144 RAMB36 tiles (106.67%). The CPU uses four DSPs;
+both caches use eight RAMB36s each. The original padded image ROM consumes
+128 RAMB36s, so this netlist cannot be placed on the 135-tile device.
+The exact source manifest was not supplied with the reports.
+The operator's original reports are preserved as
+[utilization](evidence/10-first-synthesis/synthesis_utilization.rpt) and
+[hierarchy](evidence/10-first-synthesis/synthesis_hierarchy.rpt).
+
+The 16,426-word DDR image slightly exceeds a 16,384-word ROM depth and
+causes inefficient memory allocation. Compacting the stored image to
+8,410 words removes the large zero gap from ROM storage. The loader still
+writes and reads back every DDR word, including that gap, before releasing
+the CPU. Firmware/payload addresses and the DDR image contract are unchanged.
+The synchronous ROM read remains reset-free. Confirm the resulting BRAM
+allocation in fresh synthesis; simulation does not establish its physical fit.
+The synthesis checker now rejects total block RAM use above 135 tiles.
 
 ## Separate source and Vivado projects
 
@@ -93,7 +119,7 @@ bash scripts/run_checkpoint10_board.sh
 
 The image builder writes `build/checkpoint10-board/checkpoint10_image.mem`,
 an absolute-path include header, and `image-manifest.json` with source/firmware
-revisions, sizes and SHA-256 hashes. Rebuild the image after moving the checkout
+revisions, compact-ROM/full-DDR sizes, layout and SHA-256 hashes. Rebuild the image after moving the checkout
 or changing firmware/payload; regenerate Vivado runs after changing the image.
 It is deliberately a build artifact, rather than a checked-in firmware blob.
 

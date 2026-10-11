@@ -3,16 +3,20 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$repo_root"
 board_dir="$repo_root/build/checkpoint10-board"
+python3 tests/board/checkpoint10_image_test.py
 bash scripts/build_checkpoint10_board_image.sh
-for block in loader uart_owner; do
+for unit in loader loader_compact uart_owner; do
+    block=${unit%_compact}
+    unit_flags=()
+    if [[ $unit == loader_compact ]]; then unit_flags=(-GCOMPACT=1); fi
     unit_sources=("rtl/top/checkpoint10_image_loader.sv" tests/cache/cache_test_memory.sv)
     if [[ $block == uart_owner ]]; then unit_sources=(rtl/debug/checkpoint10_uart_owner.sv); fi
     verilator --binary --timing --top-module "checkpoint10_${block}_tb" \
-        --Mdir "$board_dir/${block}_obj" rtl/bus/axi128_pkg.sv "${unit_sources[@]}" \
-        "tests/board/checkpoint10_${block}_tb.sv" > "$board_dir/$block-build.log" 2>&1 || {
-            tail -80 "$board_dir/$block-build.log"; exit 1;
+        --Mdir "$board_dir/${unit}_obj" "${unit_flags[@]}" rtl/bus/axi128_pkg.sv "${unit_sources[@]}" \
+        "tests/board/checkpoint10_${block}_tb.sv" > "$board_dir/$unit-build.log" 2>&1 || {
+            tail -80 "$board_dir/$unit-build.log"; exit 1;
         }
-    "$board_dir/${block}_obj/Vcheckpoint10_${block}_tb"
+    "$board_dir/${unit}_obj/Vcheckpoint10_${block}_tb"
 done
 mapfile -t sources < scripts/checkpoint10_sources.txt
 verilator --lint-only -I"$board_dir" --top-module checkpoint10_board_top \

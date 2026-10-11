@@ -9,7 +9,9 @@ module checkpoint10_board_sim (
     axi128_pkg::axi_req_t req;
     axi128_pkg::axi_rsp_t rsp;
     checkpoint10_board_system #(
-        .IMAGE_WORDS(`CHECKPOINT10_IMAGE_WORDS), .IMAGE_FILE(`CHECKPOINT10_IMAGE_FILE),
+        .IMAGE_WORDS(`CHECKPOINT10_IMAGE_WORDS), .ROM_WORDS(`CHECKPOINT10_ROM_WORDS),
+        .FIRMWARE_WORDS(`CHECKPOINT10_FIRMWARE_WORDS), .PAYLOAD_WORD(`CHECKPOINT10_PAYLOAD_WORD),
+        .IMAGE_FILE(`CHECKPOINT10_IMAGE_FILE),
         .BUTTON_STABLE_CYCLES(3)
     ) board (
         .core_clk(core_clk), .mig_clk(mig_clk), .rst_n(rst_n), .mig_calib_complete(calibrated),

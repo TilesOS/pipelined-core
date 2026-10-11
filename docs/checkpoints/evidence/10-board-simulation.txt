@@ -1,4 +1,4 @@
-Checkpoint 10 board-target simulation, managed Debian 13 cloud, 2026-10-11
+Original checkpoint 10 board-target simulation, managed Debian 13 cloud, 2026-10-11
 Working tree based on approved checkpoint 9 integration f523289.
 Verilator 5.032, RISC-V GCC 14.2, DTC 1.7.2.
 OpenSBI v1.7: a32a91069119e7a5aa31e6bc51d5e00860be3d80.
@@ -48,3 +48,29 @@ PASS: Tcl syntax and guards reject the original checkpoint 9 project/external BD
 PASS: shell/Python syntax and git diff --check
 
 This is RTL simulation and host-tool verification. Vivado reports and physical serial evidence are pending.
+
+Compact-ROM regression after first physical synthesis, 2026-10-11:
+Working tree based on 7ea9f0f with compact-ROM changes.
+The operator's original synthesis reports are preserved in 10-first-synthesis/.
+That netlist failed physical capacity: 144/135 RAMB36 tiles, 128 in the image ROM.
+Firmware 133884 bytes, payload 672 bytes; full DDR image 262816 bytes / 16426 words.
+Compact ROM: 134560 bytes / 8410 words; firmware 8368 words; payload DDR word 16384.
+Full DDR image SHA-256: 2ab5a51bd53a8617b59e38f59dfee030958459a3e9f7e539c608a5610c1aeac3
+Compact ROM text SHA-256: 49db1410e353abb47232ad35aea1ab71b60f6ad3634609f07f5568da969621d1
+Commands: run_checkpoint10_board.sh; final loader TB rerun in both layout modes.
+PASS: compact-ROM packing reconstructs actual full DDR image byte-for-byte and matches SHA-256
+PASS: aligned/unaligned/minimum/maximum image sizes, gap/padding and metadata; invalid sizes rejected
+PASS: original and compact loader layouts write expected firmware/gap/payload bytes independently of readback
+PASS: resets at words 3/5/7, AXI errors, wrong IDs/RLAST, gap/payload corruption and timeout block CPU release
+PASS: UART owner unit and warning-free board top lint/full builds
+Core/MIG half-periods 5/7:
+PASS: ROM-to-DDR readback, OpenSBI timer/PMP and physical UART RX-to-S PLIC path
+PASS: board CPU RESET reload/retest
+PASS: shared UART diagnostic packet (256 records), complete final stop bit
+Core/MIG half-periods 3/11:
+PASS: ROM-to-DDR readback, OpenSBI timer/PMP and physical UART RX-to-S PLIC path
+PASS: board CPU RESET reload/retest
+PASS: shared UART diagnostic packet (256 records), complete final stop bit
+PASS: synthesis capacity guard rejects excess BRAM including half-tile accounting
+PASS: shell syntax and git diff --check
+Fresh physical synthesis, routed timing and physical serial evidence remain pending.

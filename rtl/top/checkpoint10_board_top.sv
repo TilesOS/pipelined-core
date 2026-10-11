@@ -35,7 +35,9 @@ module checkpoint10_board_top (
     );
     assign mig_axi_resetn = !ui_clk_sync_rst;
     checkpoint10_board_system #(
-        .IMAGE_WORDS(`CHECKPOINT10_IMAGE_WORDS), .IMAGE_FILE(`CHECKPOINT10_IMAGE_FILE)
+        .IMAGE_WORDS(`CHECKPOINT10_IMAGE_WORDS), .ROM_WORDS(`CHECKPOINT10_ROM_WORDS),
+        .FIRMWARE_WORDS(`CHECKPOINT10_FIRMWARE_WORDS), .PAYLOAD_WORD(`CHECKPOINT10_PAYLOAD_WORD),
+        .IMAGE_FILE(`CHECKPOINT10_IMAGE_FILE)
     ) board (
         .core_clk(core_clk), .mig_clk(ui_clk), .rst_n(core_pll_locked),
         .mig_calib_complete(init_calib_complete && !ui_clk_sync_rst),

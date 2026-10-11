@@ -71,8 +71,11 @@ in the checkpoint record). Build products remain ignored under `build/`.
 1. Checkpoint 9 board bring-up is complete. Checkpoint 10's separate Nexys
    target, readback-verified test-image loader, shared console/trace UART and
    physical RX/PLIC payload are prepared. Follow
-   [the board procedure](../checkpoints/10-board-bringup.md); physical evidence
-   remains pending. The operator controls Vivado locally on the Ubuntu PC and
+   [the board procedure](../checkpoints/10-board-bringup.md). First physical
+   synthesis used 144/135 BRAM tiles (128 in the padded ROM). The ROM now stores
+   firmware/payload compactly; the loader generates and verifies the DDR zero
+   gap. Fresh synthesis and physical execution remain pending. The operator
+   controls Vivado locally on the Ubuntu PC and
    wants a new `/home/tyler/checkpoint10_board` project copied from the accepted
    `/home/tyler/checkpoint9_board`. Retain the original project/bitstream.
    Remeasure the CPU/cache area overage with privilege and peripherals.

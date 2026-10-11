@@ -3,6 +3,9 @@
 // A calibration/reset interruption restarts the entire copy with cold caches.
 module checkpoint10_image_loader #(
     parameter integer IMAGE_WORDS = 1,
+    parameter integer ROM_WORDS = IMAGE_WORDS,
+    parameter integer FIRMWARE_WORDS = ROM_WORDS,
+    parameter integer PAYLOAD_WORD = FIRMWARE_WORDS,
     parameter IMAGE_FILE = "checkpoint10_image.mem",
     parameter integer TIMEOUT_CYCLES = 50_000_000
 ) (
@@ -14,9 +17,14 @@ module checkpoint10_image_loader #(
 );
     import axi128_pkg::*;
     localparam integer INDEX_BITS = IMAGE_WORDS > 1 ? $clog2(IMAGE_WORDS) : 1;
-    (* rom_style = "block" *) logic [127:0] image [0:IMAGE_WORDS-1];
+    localparam integer ROM_INDEX_BITS = ROM_WORDS > 1 ? $clog2(ROM_WORDS) : 1;
+    // Store firmware followed by payload; generate the reserved DDR gap as
+    // zeroes instead of consuming block RAM for its address space.
+    (* rom_style = "block" *) logic [127:0] image [0:ROM_WORDS-1];
     logic [INDEX_BITS-1:0] index;
-    logic [127:0] image_word;
+    logic [ROM_INDEX_BITS-1:0] rom_index;
+    logic [127:0] rom_word, image_word;
+    logic gap_word;
     logic aw_pending, w_pending;
     logic [$clog2(TIMEOUT_CYCLES+1)-1:0] watchdog;
     typedef enum logic [2:0] {FETCH, WRITE, RESPONSE, READ, VERIFY, FINISHED, FAILED} state_t;
@@ -24,10 +32,23 @@ module checkpoint10_image_loader #(
     initial begin
         if (IMAGE_WORDS < 1 || IMAGE_WORDS > 7864320)
             $fatal(1, "image must fit cached DDR");
+        if (FIRMWARE_WORDS < 1 || FIRMWARE_WORDS > PAYLOAD_WORD ||
+            PAYLOAD_WORD > IMAGE_WORDS || ROM_WORDS != FIRMWARE_WORDS + IMAGE_WORDS - PAYLOAD_WORD)
+            $fatal(1, "invalid compact ROM layout");
         $readmemh(IMAGE_FILE, image);
     end
+    always_comb begin
+        rom_index = '0;
+        if (32'(index) < FIRMWARE_WORDS) rom_index = ROM_INDEX_BITS'(index);
+        else if (32'(index) >= PAYLOAD_WORD)
+            rom_index = ROM_INDEX_BITS'(32'(index) - PAYLOAD_WORD + FIRMWARE_WORDS);
+    end
     // Synchronous ROM output permits BRAM inference; no ROM/output reset.
-    always_ff @(posedge clk) image_word <= image[index];
+    always_ff @(posedge clk) begin
+        rom_word <= image[rom_index];
+        gap_word <= 32'(index) >= FIRMWARE_WORDS && 32'(index) < PAYLOAD_WORD;
+    end
+    assign image_word = gap_word ? 128'b0 : rom_word;
     assign complete = state == FINISHED;
     assign error = state == FAILED;
     always_comb begin

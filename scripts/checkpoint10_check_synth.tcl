@@ -9,6 +9,11 @@ set output [open [file join $report_dir synthesis_ram_cells.txt] w]
 foreach cell $ram_cells {puts $output "$cell [get_property REF_NAME $cell]"}
 close $output
 puts "Block RAM primitives: [llength $ram_cells]"
+set ramb36 [get_cells -hier -quiet -filter {REF_NAME =~ RAMB36*}]
+set ramb18 [get_cells -hier -quiet -filter {REF_NAME =~ RAMB18*}]
+set bram_tiles [expr {[llength $ramb36] + 0.5 * [llength $ramb18]}]
+puts "Block RAM tiles: $bram_tiles (Nexys A7-100T capacity: 135)"
+if {$bram_tiles > 135} {error "design exceeds the board block RAM capacity"}
 set clock_port [get_ports sys_clk_i]
 set clock_pin [get_property PACKAGE_PIN $clock_port]
 set clock_standard [get_property IOSTANDARD $clock_port]

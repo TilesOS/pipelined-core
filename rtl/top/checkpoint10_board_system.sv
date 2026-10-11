@@ -2,6 +2,9 @@
 // Board execution boundary also used by the full loader/CPU simulation gate.
 module checkpoint10_board_system #(
     parameter integer IMAGE_WORDS = 1,
+    parameter integer ROM_WORDS = IMAGE_WORDS,
+    parameter integer FIRMWARE_WORDS = ROM_WORDS,
+    parameter integer PAYLOAD_WORD = FIRMWARE_WORDS,
     parameter IMAGE_FILE = "checkpoint10_image.mem",
     parameter integer BUTTON_STABLE_CYCLES = 500_000
 ) (
@@ -37,7 +40,10 @@ module checkpoint10_board_system #(
             if (retire_trap) begin last_cause <= retire_cause; last_tval <= retire_tval; end
         end
     end
-    checkpoint10_image_loader #(.IMAGE_WORDS(IMAGE_WORDS), .IMAGE_FILE(IMAGE_FILE)) loader (
+    checkpoint10_image_loader #(
+        .IMAGE_WORDS(IMAGE_WORDS), .ROM_WORDS(ROM_WORDS),
+        .FIRMWARE_WORDS(FIRMWARE_WORDS), .PAYLOAD_WORD(PAYLOAD_WORD), .IMAGE_FILE(IMAGE_FILE)
+    ) loader (
         .clk(core_clk), .rst_n(masters_ready), .req(loader_req), .rsp(loader_rsp),
         .complete(image_complete), .error(image_error), .progress()
     );
