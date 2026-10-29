@@ -18,7 +18,9 @@ sources=(rtl/bus/axi128_pkg.sv rtl/cache/physical_memory_pkg.sv
     > "$build_dir/unit-build.log" 2>&1 || { tail -80 "$build_dir/unit-build.log"; exit 1; }
 "$build_dir/unit_obj/Vl1_cache_tb" +seed=44257
 "$build_dir/unit_obj/Vl1_cache_tb" +seed=137
-sources+=(rtl/core/rv32_slice.sv rtl/debug/uart_tx_byte.sv rtl/debug/trace_ring_uart.sv
+sources+=(rtl/core/rv32_pkg.sv rtl/core/rv32_regfile.sv rtl/core/rv32_pmp.sv rtl/core/rv32_hazard.sv
+    rtl/core/rv32_divider.sv rtl/core/rv32_csr.sv rtl/core/rv32_execute.sv rtl/core/rv32_mem_stage.sv
+    rtl/core/rv32_slice.sv rtl/debug/uart_tx_byte.sv rtl/debug/trace_ring_uart.sv
     rtl/top/rv32_cached_core.sv rtl/bus/async_fifo.sv rtl/bus/axi_cdc.sv
     rtl/bus/axi_fabric.sv rtl/bus/axi_subsystem.sv rtl/top/checkpoint9_top.sv)
 # Absolute paths also make Verilator's generated Makefile portable.

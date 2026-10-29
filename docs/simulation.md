@@ -29,7 +29,7 @@ The `--self-test` gate runs one matching fixture trace and injects three indepen
 
 ## First CPU slice
 
-Run `bash scripts/run_core_slice.sh` on the Ubuntu host after the Spike setup. It builds [`rv32_slice.sv`](../rtl/core/rv32_slice.sv) under Verilator and executes two programs in retirement lockstep: the original word load/store and trap smoke program, and a branch program with taken BEQ/JAL, dependent ALU operations, and wrong-path instructions. The same command runs a forced-hang UART dump and a 300-retirement wrap test of the 256-entry trace ring. See the [debug guide](debug.md) for the packet and probe map.
+Run `bash scripts/run_core_slice.sh` on the Ubuntu host after the Spike setup. It builds the CPU in [`rtl/core`](../rtl/core) (top level [`rv32_slice.sv`](../rtl/core/rv32_slice.sv)) under Verilator and executes two programs in retirement lockstep: the original word load/store and trap smoke program, and a branch program with taken BEQ/JAL, dependent ALU operations, and wrong-path instructions. The same command runs a forced-hang UART dump and a 300-retirement wrap test of the 256-entry trace ring. See the [debug guide](debug.md) for the packet and probe map.
 
 This slice has zero-wait instruction and data ports and implements LUI, ADDI, ADD/SUB, LW, SW, BEQ, JAL, and selected faults in M-mode. It is not yet a complete RV32I core. Checkpoint 5 adds the remaining instructions, hazards, exception behavior, and randomized architectural coverage.
 

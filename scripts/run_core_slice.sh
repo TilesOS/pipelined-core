@@ -24,6 +24,14 @@ fi
 # VERILATOR_BIN is also an internal variable used by Verilator's wrapper.
 if ! env -u VERILATOR_BIN "$verilator_bin" "${coverage_args[@]}" --cc --exe --build --top-module checkpoint4_top \
     --Mdir "$build_dir/obj_dir" -Wall -Wno-fatal \
+    "$repo_root/rtl/core/rv32_pkg.sv" \
+    "$repo_root/rtl/core/rv32_regfile.sv" \
+    "$repo_root/rtl/core/rv32_pmp.sv" \
+    "$repo_root/rtl/core/rv32_hazard.sv" \
+    "$repo_root/rtl/core/rv32_divider.sv" \
+    "$repo_root/rtl/core/rv32_csr.sv" \
+    "$repo_root/rtl/core/rv32_execute.sv" \
+    "$repo_root/rtl/core/rv32_mem_stage.sv" \
     "$repo_root/rtl/core/rv32_slice.sv" \
     "$repo_root/rtl/debug/uart_tx_byte.sv" \
     "$repo_root/rtl/debug/trace_ring_uart.sv" \

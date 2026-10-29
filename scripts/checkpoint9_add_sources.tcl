@@ -16,6 +16,8 @@ set rtl_files [list \
     rtl/bus/async_fifo.sv rtl/bus/axi_cdc.sv rtl/bus/axi_fabric.sv \
     rtl/bus/axi_subsystem.sv rtl/bus/axi_width_bridge.sv \
     rtl/bus/axi_peripheral_adapter.sv rtl/cache/l1_cache.sv \
+    rtl/core/rv32_pkg.sv rtl/core/rv32_regfile.sv rtl/core/rv32_pmp.sv rtl/core/rv32_hazard.sv \
+    rtl/core/rv32_divider.sv rtl/core/rv32_csr.sv rtl/core/rv32_execute.sv rtl/core/rv32_mem_stage.sv \
     rtl/core/rv32_slice.sv rtl/debug/uart_tx_byte.sv rtl/debug/trace_ring_uart.sv \
     rtl/top/rv32_cached_core.sv rtl/top/checkpoint9_top.sv \
     rtl/top/checkpoint8_core_clock.sv rtl/top/checkpoint9_smoke_mmio.sv \

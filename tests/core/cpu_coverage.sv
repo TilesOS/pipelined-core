@@ -662,15 +662,7 @@ bind rv32_slice cpu_hazard_coverage #(.WAIT_MEMORY(WAIT_MEMORY)) hazard_coverage
     .wb_pc(wb_stage.pc), .wb_trap(wb_stage.trap),
     .wb_wait(wb_wait), .mem_wait(mem_wait), .fence_wait(fence_wait), .div_stall(div_stall),
     .hazard(hazard), .serialize_hazard(serialize_hazard),
-    .raw_hazard(id_stage.valid && (
-        (id_use_rs1 && id_rs1 != 0 &&
-         ((ex_stage.valid && ex_rd == id_rs1 && ex_writes_rd) ||
-          (mem_stage.valid && mem_stage.rd == id_rs1 && !mem_stage.trap) ||
-          (wb_stage.valid && wb_stage.rd == id_rs1 && !wb_stage.trap))) ||
-        (id_use_rs2 && id_rs2 != 0 &&
-         ((ex_stage.valid && ex_rd == id_rs2 && ex_writes_rd) ||
-          (mem_stage.valid && mem_stage.rd == id_rs2 && !mem_stage.trap) ||
-          (wb_stage.valid && wb_stage.rd == id_rs2 && !wb_stage.trap))))),
+    .raw_hazard(raw_hazard),
     .redirect(redirect), .ex_fault(ex_fault), .mem_access_fault(mem_access_fault),
     .ex_result_valid(ex_result.valid), .retire_valid(retire_valid), .retire_trap(retire_trap),
     .retire_pc(retire_pc), .retire_cause(retire_cause)
